@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Database\DatabaseConnection;
 use App\DTOs\UserDTO;
+use RuntimeException;
+
 
 class UserModel {
     public function __construct(private DatabaseConnection $db) {}
@@ -54,5 +56,32 @@ class UserModel {
         }
 
         return UserDTO::fromArray($result[0]);
+
+        
+    }
+
+    public function checkCredentials(string $email, string $password): UserDTO {
+        // Busca usuário por email
+        $result = $this->db->query(
+            "SELECT id, nome, sobrenome, username, genero, 
+             data_nascimento, email, experiencia, img_perfil, senha_hash 
+             FROM usuarios WHERE email = ?",
+            [$email]
+        );
+
+        if (empty($result)) {
+            throw new RuntimeException("Credenciais inválidas");
+        }
+
+        $userData = $result[0];
+
+        // Verifica senha
+        if (!password_verify($password, $userData['senha_hash'])) {
+            throw new RuntimeException("Credenciais inválidas");
+        }
+
+        // Remove dados sensíveis antes de retornar
+        unset($userData['senha_hash']);
+        return UserDTO::fromArray($userData);
     }
 }
