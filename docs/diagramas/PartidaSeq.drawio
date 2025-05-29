@@ -1,0 +1,177 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36" version="27.0.2">
+  <diagram name="Página-1" id="XRhijYwbVSPnj2b2Dr0y">
+    <mxGraphModel dx="1385" dy="716" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-226" value="Front-End" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" vertex="1" parent="1">
+          <mxGeometry x="20" y="80" width="150" height="1258" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-227" value="PartidaController" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" vertex="1" parent="1">
+          <mxGeometry x="410" y="80" width="150" height="1258" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-228" value="" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-227">
+          <mxGeometry x="70" y="103" width="10" height="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-229" value="PartidaModel" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" vertex="1" parent="1">
+          <mxGeometry x="658" y="80" width="150" height="1258" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-230" value="" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-229">
+          <mxGeometry x="70" y="367" width="10" height="756" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-231" value="Banco de Dados" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};size=65;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="80" width="150" height="1258" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-232" value="" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-231">
+          <mxGeometry x="70" y="415" width="10" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-233" value="" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-231">
+          <mxGeometry x="70" y="697" width="10" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-234" value="" style="points=[];perimeter=orthogonalPerimeter;outlineConnect=0;targetShapes=umlLifeline;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0}" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-231">
+          <mxGeometry x="70" y="979" width="10" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-235" value="alt" style="shape=umlFrame;dashed=1;pointerEvents=0;dropTarget=0;strokeColor=#B3B3B3;height=20;width=30" vertex="1" parent="1">
+          <mxGeometry x="84" y="845" width="1136" height="378" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-236" value="[Mestre inválido]" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-235">
+          <mxGeometry x="30" width="1106" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-237" value="[Dados salvos]" style="shape=line;dashed=1;whiteSpace=wrap;verticalAlign=top;labelPosition=center;verticalLabelPosition=middle;align=center;strokeColor=#B3B3B3;" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-235">
+          <mxGeometry y="146" width="1136" height="4" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-238" value="alt" style="shape=umlFrame;dashed=1;pointerEvents=0;dropTarget=0;strokeColor=#B3B3B3;height=20;width=30" vertex="1" parent="1">
+          <mxGeometry x="74" y="563" width="1156" height="670" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-239" value="[Mesa não existe]" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-238">
+          <mxGeometry x="30" width="1126" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-240" value="[Mesa válida]" style="shape=line;dashed=1;whiteSpace=wrap;verticalAlign=top;labelPosition=center;verticalLabelPosition=middle;align=center;strokeColor=#B3B3B3;" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-238">
+          <mxGeometry y="146" width="1156" height="4" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-241" value="alt" style="shape=umlFrame;dashed=1;pointerEvents=0;dropTarget=0;strokeColor=#B3B3B3;height=20;width=30" vertex="1" parent="1">
+          <mxGeometry x="64" y="281" width="1176" height="962" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-242" value="[Validação falha]" style="text;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-241">
+          <mxGeometry x="30" width="1146" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-243" value="[Validação OK]" style="shape=line;dashed=1;whiteSpace=wrap;verticalAlign=top;labelPosition=center;verticalLabelPosition=middle;align=center;strokeColor=#B3B3B3;" vertex="1" parent="ZAbvZBbvyNhhaez0LQ1U-241">
+          <mxGeometry y="98" width="1176" height="4" as="geometry" />
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-244" value="POST /mesas/{id}/partidas (dados da partida)" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-226" target="ZAbvZBbvyNhhaez0LQ1U-228">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="299" y="183" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-245" value="validatePartidaData()" style="curved=1;endArrow=block;rounded=0;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-228" target="ZAbvZBbvyNhhaez0LQ1U-228">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="540" y="231" />
+              <mxPoint x="540" y="261" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-246" value="{ &quot;error&quot;: &quot;Dados inválidos&quot; }" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-228" target="ZAbvZBbvyNhhaez0LQ1U-226">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="354" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-247" value="savePartida(PartidaDTO)" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-228" target="ZAbvZBbvyNhhaez0LQ1U-230">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="620" y="447" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-248" value="SELECT id FROM mesas WHERE id = ?" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-230" target="ZAbvZBbvyNhhaez0LQ1U-232">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="495" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-249" value="mesa_id (ou null)" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-231" target="ZAbvZBbvyNhhaez0LQ1U-230">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="981" y="543" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-250" value="null" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-230" target="ZAbvZBbvyNhhaez0LQ1U-228">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="621" y="636" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-251" value="{ &quot;error&quot;: &quot;Mesa não encontrada&quot; }" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-228" target="ZAbvZBbvyNhhaez0LQ1U-226">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="684" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-252" value="SELECT id FROM usuarios WHERE username = ? (mestre)" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-230" target="ZAbvZBbvyNhhaez0LQ1U-233">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="777" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-253" value="mestre_id (ou null)" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-231" target="ZAbvZBbvyNhhaez0LQ1U-230">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="981" y="825" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-254" value="null" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-230" target="ZAbvZBbvyNhhaez0LQ1U-228">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="621" y="918" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-255" value="{ &quot;error&quot;: &quot;Mestre não cadastrado&quot; }" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-228" target="ZAbvZBbvyNhhaez0LQ1U-226">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="966" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-256" value="INSERT INTO partidas (...)" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-230" target="ZAbvZBbvyNhhaez0LQ1U-234">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="980" y="1059" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-257" value="partida_id" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-231" target="ZAbvZBbvyNhhaez0LQ1U-230">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="981" y="1107" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-258" value="PartidaDTO" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-230" target="ZAbvZBbvyNhhaez0LQ1U-228">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="621" y="1155" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ZAbvZBbvyNhhaez0LQ1U-259" value="{ &quot;partida&quot;: PartidaDTO }" style="verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;dashed=1;dashPattern=2 3;endArrow=block;" edge="1" parent="1" source="ZAbvZBbvyNhhaez0LQ1U-228" target="ZAbvZBbvyNhhaez0LQ1U-226">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="1203" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
