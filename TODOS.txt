@@ -1,0 +1,1 @@
+1. Implementar upload de imagens para imagem_personagem
