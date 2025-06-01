@@ -26,6 +26,28 @@ class SQLiteAdapter implements DatabaseConnection {
                 img_perfil TEXT
             )
         ");
+        
+        $this->pdo->exec("
+        CREATE TABLE IF NOT EXISTS personagens (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            nome_personagem TEXT NOT NULL,
+            nivel INTEGER NOT NULL,
+            raca TEXT NOT NULL,
+            classe TEXT NOT NULL,
+            ponto_vida INTEGER NOT NULL,
+            classe_armadura INTEGER NOT NULL,
+            forca INTEGER NOT NULL,
+            destreza INTEGER NOT NULL,
+            constituicao INTEGER NOT NULL,
+            inteligencia INTEGER NOT NULL,
+            sabedoria INTEGER NOT NULL,
+            carisma INTEGER NOT NULL,
+            imagem_personagem TEXT,
+            FOREIGN KEY (username) REFERENCES usuarios(username)
+        )
+    ");
+
     }
 
     public function query(string $sql, array $params = []): array {

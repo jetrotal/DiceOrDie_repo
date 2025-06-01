@@ -1,6 +1,7 @@
 <?php
 // public/index.php
 require_once __DIR__ . '/../app/Controllers/UserController.php';
+require_once __DIR__ . '/../app/Controllers/CharacterController.php';
 require_once __DIR__ . '/../app/Database/DatabaseFactory.php';
 
 // Configurações iniciais
@@ -26,6 +27,44 @@ switch ("$method:$path") {
         $requestData = json_decode($json, true);
         $controller = new App\Controllers\UserController();
         $response = $controller->login($requestData);
+        break;
+        
+    // Rotas para Personagens (Characters)
+    case 'POST:/characters':
+    case 'POST:/characters.php':
+        $json = file_get_contents('php://input');
+        $requestData = json_decode($json, true);
+        $controller = new App\Controllers\CharacterController();
+        $response = $controller->createCharacter($requestData);
+        break;
+        
+    case 'GET:/characters':
+        // Listagem geral de personagens (se necessário)
+        http_response_code(501);
+        $response = [
+            'success' => false,
+            'error' => 'Funcionalidade não implementada'
+        ];
+        break;
+        
+    case preg_match('#^/characters/(\d+)$#', $path, $matches) && $method === 'GET':
+        $id = (int)$matches[1];
+        $controller = new App\Controllers\CharacterController();
+        $response = $controller->getCharacter($id);
+        break;
+        
+    case preg_match('#^/characters/(\d+)$#', $path, $matches) && $method === 'DELETE':
+        $id = (int)$matches[1];
+        // Em sistema real, username viria da autenticação
+        $username = $_SERVER['HTTP_X_USERNAME'] ?? 'test_user';
+        $controller = new App\Controllers\CharacterController();
+        $response = $controller->deleteCharacter($id, $username);
+        break;
+        
+    case preg_match('#^/users/([^/]+)/characters$#', $path, $matches) && $method === 'GET':
+        $username = $matches[1];
+        $controller = new App\Controllers\CharacterController();
+        $response = $controller->getUserCharacters($username);
         break;
         
     // Rota para testes (pode ser removida em produção)
