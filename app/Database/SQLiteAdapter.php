@@ -45,7 +45,20 @@ class SQLiteAdapter implements DatabaseConnection {
             carisma INTEGER NOT NULL,
             imagem_personagem TEXT,
             FOREIGN KEY (username) REFERENCES usuarios(username)
+        ");
+
+        $this->pdo->exec("
+        CREATE TABLE IF NOT EXISTS mesas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            sistema TEXT NOT NULL,
+            qntd_jogadores INTEGER NOT NULL,
+            mesa_aberta INTEGER NOT NULL, -- 0 para false, 1 para true
+            capa TEXT,
+            criador_id INTEGER NOT NULL,
+            FOREIGN KEY (criador_id) REFERENCES usuarios(id)
         )
+
     ");
 
     }

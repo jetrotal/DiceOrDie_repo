@@ -1,7 +1,8 @@
-<?php
 // public/index.php
+<?php
 require_once __DIR__ . '/../app/Controllers/UserController.php';
 require_once __DIR__ . '/../app/Controllers/CharacterController.php';
+require_once __DIR__ . '/../app/Controllers/GameTableController.php';
 require_once __DIR__ . '/../app/Database/DatabaseFactory.php';
 
 // Configurações iniciais
@@ -38,24 +39,23 @@ switch ("$method:$path") {
         $response = $controller->createCharacter($requestData);
         break;
         
-    case 'GET:/characters':
-        // Listagem geral de personagens (se necessário)
-        http_response_code(501);
-        $response = [
-            'success' => false,
-            'error' => 'Funcionalidade não implementada'
-        ];
-        break;
-        
     case preg_match('#^/characters/(\d+)$#', $path, $matches) && $method === 'GET':
         $id = (int)$matches[1];
         $controller = new App\Controllers\CharacterController();
         $response = $controller->getCharacter($id);
         break;
         
+    case preg_match('#^/characters/(\d+)$#', $path, $matches) && $method === 'PUT':
+        $id = (int)$matches[1];
+        $json = file_get_contents('php://input');
+        $requestData = json_decode($json, true) ?? [];
+        $username = $_SERVER['HTTP_X_USERNAME'] ?? 'test_user';
+        $controller = new App\Controllers\CharacterController();
+        $response = $controller->updateCharacter($id, $username, $requestData);
+        break;
+        
     case preg_match('#^/characters/(\d+)$#', $path, $matches) && $method === 'DELETE':
         $id = (int)$matches[1];
-        // Em sistema real, username viria da autenticação
         $username = $_SERVER['HTTP_X_USERNAME'] ?? 'test_user';
         $controller = new App\Controllers\CharacterController();
         $response = $controller->deleteCharacter($id, $username);
@@ -65,6 +65,43 @@ switch ("$method:$path") {
         $username = $matches[1];
         $controller = new App\Controllers\CharacterController();
         $response = $controller->getUserCharacters($username);
+        break;
+        
+    // Rotas para GameTable
+    case 'POST:/tables':
+    case 'POST:/tables.php':
+        $json = file_get_contents('php://input');
+        $requestData = json_decode($json, true);
+        $controller = new App\Controllers\GameTableController();
+        $response = $controller->createTable($requestData);
+        break;
+        
+    case preg_match('#^/tables/(\d+)$#', $path, $matches) && $method === 'GET':
+        $id = (int)$matches[1];
+        $controller = new App\Controllers\GameTableController();
+        $response = $controller->getTable($id);
+        break;
+        
+    case preg_match('#^/tables/(\d+)$#', $path, $matches) && $method === 'PUT':
+        $id = (int)$matches[1];
+        $json = file_get_contents('php://input');
+        $requestData = json_decode($json, true) ?? [];
+        $criadorId = $_SERVER['HTTP_X_CRIADOR_ID'] ?? 0;
+        $controller = new App\Controllers\GameTableController();
+        $response = $controller->updateTable($id, $criadorId, $requestData);
+        break;
+        
+    case preg_match('#^/tables/(\d+)$#', $path, $matches) && $method === 'DELETE':
+        $id = (int)$matches[1];
+        $criadorId = $_SERVER['HTTP_X_CRIADOR_ID'] ?? 0;
+        $controller = new App\Controllers\GameTableController();
+        $response = $controller->deleteTable($id, $criadorId);
+        break;
+        
+    case preg_match('#^/users/(\d+)/tables$#', $path, $matches) && $method === 'GET':
+        $userId = (int)$matches[1];
+        $controller = new App\Controllers\GameTableController();
+        $response = $controller->getTablesByUser($userId);
         break;
         
     // Rota para testes (pode ser removida em produção)

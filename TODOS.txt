@@ -1,1 +1,10 @@
+TO DOs
+
+feat/Character
 1. Implementar upload de imagens para imagem_personagem
+
+/////
+
+feat/Gametable
+1. Implementar relacionamento entre mesas e personagens
+2. Adicionar paginação e filtros para listagem de mesas
