@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiceOrDie - Testes de Personagens</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: black;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .attributes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="UItests.html" class="back-link">← Voltar para UI Tests</a>
+        
+        <h1>⚔️ Testes de Personagens</h1>
+
+        <!-- Seção: Criar Personagem -->
+        <div class="section">
+            <h2>✨ Criar Personagem</h2>
+            <form id="createCharacterForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username">Username do Jogador:</label>
+                        <input type="text" id="username" name="username" placeholder="Ex: gandalf" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nome_personagem">Nome do Personagem:</label>
+                        <input type="text" id="nome_personagem" name="nome_personagem" placeholder="Ex: Aragorn" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nivel">Nível:</label>
+                        <input type="number" id="nivel" name="nivel" placeholder="1-20" min="1" max="20" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="raca">Raça:</label>
+                        <select id="raca" name="raca" required>
+                            <option value="">Selecione...</option>
+                            <option value="Humano">Humano</option>
+                            <option value="Elfo">Elfo</option>
+                            <option value="Anão">Anão</option>
+                            <option value="Halfling">Halfling</option>
+                            <option value="Meio-elfo">Meio-elfo</option>
+                            <option value="Meio-orc">Meio-orc</option>
+                            <option value="Tiefling">Tiefling</option>
+                            <option value="Draconato">Draconato</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="classe">Classe:</label>
+                        <select id="classe" name="classe" required>
+                            <option value="">Selecione...</option>
+                            <option value="Bárbaro">Bárbaro</option>
+                            <option value="Bardo">Bardo</option>
+                            <option value="Clérigo">Clérigo</option>
+                            <option value="Druida">Druida</option>
+                            <option value="Guerreiro">Guerreiro</option>
+                            <option value="Monge">Monge</option>
+                            <option value="Paladino">Paladino</option>
+                            <option value="Ranger">Ranger</option>
+                            <option value="Ladino">Ladino</option>
+                            <option value="Feiticeiro">Feiticeiro</option>
+                            <option value="Bruxo">Bruxo</option>
+                            <option value="Mago">Mago</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ponto_vida">Pontos de Vida:</label>
+                        <input type="number" id="ponto_vida" name="ponto_vida" placeholder="Ex: 85" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="classe_armadura">Classe de Armadura:</label>
+                        <input type="number" id="classe_armadura" name="classe_armadura" placeholder="Ex: 16" min="1" required>
+                    </div>
+                </div>
+
+                <h3>Atributos</h3>
+                <div class="attributes-grid">
+                    <div class="form-group">
+                        <label for="forca">Força:</label>
+                        <input type="number" id="forca" name="forca" placeholder="3-18" min="3" max="18" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="destreza">Destreza:</label>
+                        <input type="number" id="destreza" name="destreza" placeholder="3-18" min="3" max="18" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="constituicao">Constituição:</label>
+                        <input type="number" id="constituicao" name="constituicao" placeholder="3-18" min="3" max="18" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="inteligencia">Inteligência:</label>
+                        <input type="number" id="inteligencia" name="inteligencia" placeholder="3-18" min="3" max="18" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sabedoria">Sabedoria:</label>
+                        <input type="number" id="sabedoria" name="sabedoria" placeholder="3-18" min="3" max="18" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="carisma">Carisma:</label>
+                        <input type="number" id="carisma" name="carisma" placeholder="3-18" min="3" max="18" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="imagem_personagem">URL da Imagem:</label>
+                    <input type="url" id="imagem_personagem" name="imagem_personagem" placeholder="https://exemplo.com/aragorn.jpg">
+                </div>
+
+                <button type="submit" class="btn-success">Criar Personagem</button>
+                <button type="button" onclick="clearForm('createCharacterForm')" class="btn-secondary">Limpar</button>
+                <button type="button" onclick="fillSampleData()" class="btn-warning">Preencher Exemplo</button>
+            </form>
+            <div id="createCharacterResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Buscar Personagem -->
+        <div class="section">
+            <h2>🔍 Buscar Personagem</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="searchCharacterId">ID do Personagem:</label>
+                    <input type="number" id="searchCharacterId" placeholder="Ex: 1" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="searchByUsername">Personagens por Username:</label>
+                    <input type="text" id="searchByUsername" placeholder="Ex: gandalf">
+                </div>
+            </div>
+            <button onclick="getCharacter()" class="btn-primary">Buscar por ID</button>
+            <button onclick="getCharactersByUser()" class="btn-primary">Buscar por Usuário</button>
+            <div id="getCharacterResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Editar Personagem -->
+        <div class="section">
+            <h2>✏️ Editar Personagem</h2>
+            <div class="form-group">
+                <label for="editCharacterId">ID do Personagem a Editar:</label>
+                <input type="number" id="editCharacterId" placeholder="Ex: 1" min="1">
+            </div>
+            <div class="form-group">
+                <label for="editData">Dados JSON para Atualizar:</label>
+                <textarea id="editData" rows="5" placeholder='{"nivel": 11, "ponto_vida": 95}'></textarea>
+            </div>
+            <button onclick="updateCharacter()" class="btn-warning">Atualizar Personagem</button>
+            <div id="updateCharacterResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Apagar Personagem -->
+        <div class="section">
+            <h2>🗑️ Apagar Personagem</h2>
+            <div class="form-group">
+                <label for="deleteCharacterId">ID do Personagem a Apagar:</label>
+                <input type="number" id="deleteCharacterId" placeholder="Ex: 1" min="1">
+            </div>
+            <button onclick="deleteCharacter()" class="btn-danger">Apagar Personagem</button>
+            <div id="deleteCharacterResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Testes Rápidos -->
+        <div class="section">
+            <h2>⚡ Testes Rápidos</h2>
+            <p>Execute os testes pré-configurados do sistema:</p>
+            <button onclick="runTest('/test/character')" class="btn-warning">Criar Personagem de Exemplo</button>
+            <button onclick="runTest('/test/characters')" class="btn-warning">Criar Múltiplos Personagens</button>
+            <div id="quickTestResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Criar personagem
+        document.getElementById('createCharacterForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Converter números
+            ['nivel', 'ponto_vida', 'classe_armadura', 'forca', 'destreza', 'constituicao', 'inteligencia', 'sabedoria', 'carisma'].forEach(field => {
+                if (data[field]) data[field] = parseInt(data[field]);
+            });
+            
+            try {
+                const response = await fetch('/characters', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                showResponse('createCharacterResponse', result);
+            } catch (error) {
+                showResponse('createCharacterResponse', {error: error.message});
+            }
+        });
+
+        // Buscar personagem por ID
+        async function getCharacter() {
+            const characterId = document.getElementById('searchCharacterId').value;
+            if (!characterId) {
+                showResponse('getCharacterResponse', {error: 'Por favor, insira um ID válido'});
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/characters/${characterId}`);
+                const result = await response.json();
+                showResponse('getCharacterResponse', result);
+            } catch (error) {
+                showResponse('getCharacterResponse', {error: error.message});
+            }
+        }
+
+        // Buscar personagens por usuário
+        async function getCharactersByUser() {
+            const username = document.getElementById('searchByUsername').value;
+            if (!username) {
+                showResponse('getCharacterResponse', {error: 'Por favor, insira um username válido'});
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/users/${username}/characters`);
+                const result = await response.json();
+                showResponse('getCharacterResponse', result);
+            } catch (error) {
+                showResponse('getCharacterResponse', {error: error.message});
+            }
+        }
+
+        // Atualizar personagem
+        async function updateCharacter() {
+            const characterId = document.getElementById('editCharacterId').value;
+            const editData = document.getElementById('editData').value;
+            
+            if (!characterId || !editData) {
+                showResponse('updateCharacterResponse', {error: 'Por favor, preencha ID e dados para atualizar'});
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(editData);
+                const response = await fetch(`/characters/${characterId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-USERNAME': 'test_user'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                showResponse('updateCharacterResponse', result);
+            } catch (error) {
+                showResponse('updateCharacterResponse', {error: error.message});
+            }
+        }
+
+        // Apagar personagem
+        async function deleteCharacter() {
+            const characterId = document.getElementById('deleteCharacterId').value;
+            if (!characterId) {
+                showResponse('deleteCharacterResponse', {error: 'Por favor, insira um ID válido'});
+                return;
+            }
+            
+            if (!confirm('Tem certeza que deseja apagar este personagem?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/characters/${characterId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-USERNAME': 'test_user'
+                    }
+                });
+                
+                const result = await response.json();
+                showResponse('deleteCharacterResponse', result);
+            } catch (error) {
+                showResponse('deleteCharacterResponse', {error: error.message});
+            }
+        }
+
+        // Executar testes rápidos
+        async function runTest(endpoint) {
+            try {
+                const response = await fetch(endpoint);
+                const result = await response.json();
+                showResponse('quickTestResponse', result);
+            } catch (error) {
+                showResponse('quickTestResponse', {error: error.message});
+            }
+        }
+
+        // Preencher dados de exemplo
+        function fillSampleData() {
+            document.getElementById('username').value = 'gandalf';
+            document.getElementById('nome_personagem').value = 'Aragorn';
+            document.getElementById('nivel').value = '10';
+            document.getElementById('raca').value = 'Humano';
+            document.getElementById('classe').value = 'Ranger';
+            document.getElementById('ponto_vida').value = '85';
+            document.getElementById('classe_armadura').value = '16';
+            document.getElementById('forca').value = '16';
+            document.getElementById('destreza').value = '18';
+            document.getElementById('constituicao').value = '14';
+            document.getElementById('inteligencia').value = '12';
+            document.getElementById('sabedoria').value = '15';
+            document.getElementById('carisma').value = '13';
+            document.getElementById('imagem_personagem').value = 'https://exemplo.com/aragorn.jpg';
+        }
+
+        // Função utilitária para mostrar resposta
+        function showResponse(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+
+        // Função utilitária para limpar formulário
+        function clearForm(formId) {
+            document.getElementById(formId).reset();
+        }
+    </script>
+</body>
+</html>

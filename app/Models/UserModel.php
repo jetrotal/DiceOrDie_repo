@@ -60,13 +60,13 @@ class UserModel {
         
     }
 
-    public function checkCredentials(string $email, string $password): UserDTO {
-        // Busca usuário por email
+    public function checkCredentials(string $login, string $password): UserDTO {
+        // Busca usuário por email ou username
         $result = $this->db->query(
-            "SELECT id, nome, sobrenome, username, genero, 
-             data_nascimento, email, experiencia, img_perfil, senha_hash 
-             FROM usuarios WHERE email = ?",
-            [$email]
+            "SELECT id, nome, sobrenome, username, genero,
+             data_nascimento, email, experiencia, img_perfil, senha_hash
+             FROM usuarios WHERE email = ? OR username = ?",
+            [$login, $login]
         );
 
         if (empty($result)) {
@@ -83,5 +83,41 @@ class UserModel {
         // Remove dados sensíveis antes de retornar
         unset($userData['senha_hash']);
         return UserDTO::fromArray($userData);
+    }
+    
+    public function getAllUsers(): array {
+        $result = $this->db->query(
+            "SELECT id, nome, sobrenome, username, genero,
+             data_nascimento, email, experiencia, img_perfil
+             FROM usuarios ORDER BY id"
+        );
+
+        return array_map(function($userData) {
+            return UserDTO::fromArray($userData);
+        }, $result);
+    }
+    
+    public function deleteUser(int $id): bool {
+        // Verifica se usuário existe
+        $user = $this->getUserById($id);
+        
+        // Apaga usuário
+        $this->db->execute(
+            "DELETE FROM usuarios WHERE id = ?",
+            [$id]
+        );
+        
+        return true;
+    }
+    
+    public function deleteAllUsers(): int {
+        // Conta quantos usuários existem antes de apagar
+        $countResult = $this->db->query("SELECT COUNT(*) as total FROM usuarios");
+        $count = $countResult[0]['total'];
+        
+        // Apaga todos os usuários
+        $this->db->execute("DELETE FROM usuarios");
+        
+        return $count;
     }
 }

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiceOrDie - Testes de Mesas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: black;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="UItests.html" class="back-link">← Voltar para UI Tests</a>
+        
+        <h1>🎯 Testes de Mesas</h1>
+
+        <!-- Seção: Criar Mesa -->
+        <div class="section">
+            <h2>✨ Criar Mesa</h2>
+            <form id="createTableForm">
+                <div class="form-group">
+                    <label for="nome">Nome da Mesa:</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: A Taverna do Dragão Dourado" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sistema">Sistema de RPG:</label>
+                        <select id="sistema" name="sistema" required>
+                            <option value="">Selecione...</option>
+                            <option value="D&D 5e">D&D 5e</option>
+                            <option value="D&D 3.5">D&D 3.5</option>
+                            <option value="Pathfinder">Pathfinder</option>
+                            <option value="Pathfinder 2e">Pathfinder 2e</option>
+                            <option value="Call of Cthulhu">Call of Cthulhu</option>
+                            <option value="Vampire: The Masquerade">Vampire: The Masquerade</option>
+                            <option value="World of Darkness">World of Darkness</option>
+                            <option value="GURPS">GURPS</option>
+                            <option value="Fate">Fate</option>
+                            <option value="Savage Worlds">Savage Worlds</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="qntd_jogadores">Quantidade de Jogadores:</label>
+                        <input type="number" id="qntd_jogadores" name="qntd_jogadores" placeholder="Ex: 4" min="1" max="12" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="mesa_aberta" name="mesa_aberta" value="1">
+                        <label for="mesa_aberta">Mesa Aberta (aceita novos jogadores)</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="capa">URL da Capa:</label>
+                    <input type="url" id="capa" name="capa" placeholder="https://exemplo.com/taverna_dragao.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label for="criador_id">ID do Criador:</label>
+                    <input type="number" id="criador_id" name="criador_id" placeholder="Ex: 1" min="1" required>
+                </div>
+
+                <button type="submit" class="btn-success">Criar Mesa</button>
+                <button type="button" onclick="clearForm('createTableForm')" class="btn-secondary">Limpar</button>
+                <button type="button" onclick="fillSampleTableData()" class="btn-warning">Preencher Exemplo</button>
+            </form>
+            <div id="createTableResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Buscar Mesa -->
+        <div class="section">
+            <h2>🔍 Buscar Mesa</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="searchTableId">ID da Mesa:</label>
+                    <input type="number" id="searchTableId" placeholder="Ex: 1" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="searchByUserId">Mesas por ID do Usuário:</label>
+                    <input type="number" id="searchByUserId" placeholder="Ex: 1" min="1">
+                </div>
+            </div>
+            <button onclick="getTable()" class="btn-primary">Buscar por ID</button>
+            <button onclick="getTablesByUser()" class="btn-primary">Buscar por Usuário</button>
+            <div id="getTableResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Editar Mesa -->
+        <div class="section">
+            <h2>✏️ Editar Mesa</h2>
+            <div class="form-group">
+                <label for="editTableId">ID da Mesa a Editar:</label>
+                <input type="number" id="editTableId" placeholder="Ex: 1" min="1">
+            </div>
+            <div class="form-group">
+                <label for="editCriadorId">ID do Criador (para autorização):</label>
+                <input type="number" id="editCriadorId" placeholder="Ex: 1" min="1">
+            </div>
+            <div class="form-group">
+                <label for="editTableData">Dados JSON para Atualizar:</label>
+                <textarea id="editTableData" rows="5" placeholder='{"nome": "Nova Mesa Atualizada", "qntd_jogadores": 6}'></textarea>
+            </div>
+            <button onclick="updateTable()" class="btn-warning">Atualizar Mesa</button>
+            <div id="updateTableResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Apagar Mesa -->
+        <div class="section">
+            <h2>🗑️ Apagar Mesa</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="deleteTableId">ID da Mesa a Apagar:</label>
+                    <input type="number" id="deleteTableId" placeholder="Ex: 1" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="deleteCriadorId">ID do Criador (para autorização):</label>
+                    <input type="number" id="deleteCriadorId" placeholder="Ex: 1" min="1">
+                </div>
+            </div>
+            <button onclick="deleteTable()" class="btn-danger">Apagar Mesa</button>
+            <div id="deleteTableResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Testes Rápidos -->
+        <div class="section">
+            <h2>⚡ Testes Rápidos</h2>
+            <p>Execute os testes pré-configurados do sistema:</p>
+            <button onclick="runTest('/test/table')" class="btn-warning">Criar Mesa de Exemplo</button>
+            <button onclick="runTest('/test/tables')" class="btn-warning">Criar Múltiplas Mesas</button>
+            <div id="quickTestResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Informações -->
+        <div class="section">
+            <h2>ℹ️ Informações sobre Mesas</h2>
+            <p><strong>Estrutura de uma Mesa:</strong></p>
+            <pre>{
+    "id": 1,
+    "nome": "A Taverna do Dragão Dourado",
+    "sistema": "D&D 5e",
+    "qntd_jogadores": 4,
+    "mesa_aberta": 1,
+    "capa": "https://exemplo.com/taverna_dragao.jpg",
+    "criador_id": 1
+}</pre>
+            <p><strong>Campos obrigatórios:</strong> nome, sistema, qntd_jogadores, criador_id</p>
+            <p><strong>Campos opcionais:</strong> mesa_aberta (0 ou 1), capa (URL da imagem)</p>
+        </div>
+    </div>
+
+    <script>
+        // Criar mesa
+        document.getElementById('createTableForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Converter números
+            ['qntd_jogadores', 'criador_id'].forEach(field => {
+                if (data[field]) data[field] = parseInt(data[field]);
+            });
+            
+            // Converter checkbox
+            data.mesa_aberta = data.mesa_aberta ? 1 : 0;
+            
+            try {
+                const response = await fetch('/tables', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                showResponse('createTableResponse', result);
+            } catch (error) {
+                showResponse('createTableResponse', {error: error.message});
+            }
+        });
+
+        // Buscar mesa por ID
+        async function getTable() {
+            const tableId = document.getElementById('searchTableId').value;
+            if (!tableId) {
+                showResponse('getTableResponse', {error: 'Por favor, insira um ID válido'});
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/tables/${tableId}`);
+                const result = await response.json();
+                showResponse('getTableResponse', result);
+            } catch (error) {
+                showResponse('getTableResponse', {error: error.message});
+            }
+        }
+
+        // Buscar mesas por usuário
+        async function getTablesByUser() {
+            const userId = document.getElementById('searchByUserId').value;
+            if (!userId) {
+                showResponse('getTableResponse', {error: 'Por favor, insira um ID de usuário válido'});
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/users/${userId}/tables`);
+                const result = await response.json();
+                showResponse('getTableResponse', result);
+            } catch (error) {
+                showResponse('getTableResponse', {error: error.message});
+            }
+        }
+
+        // Atualizar mesa
+        async function updateTable() {
+            const tableId = document.getElementById('editTableId').value;
+            const criadorId = document.getElementById('editCriadorId').value;
+            const editData = document.getElementById('editTableData').value;
+            
+            if (!tableId || !criadorId || !editData) {
+                showResponse('updateTableResponse', {error: 'Por favor, preencha todos os campos obrigatórios'});
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(editData);
+                const response = await fetch(`/tables/${tableId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CRIADOR-ID': criadorId
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                showResponse('updateTableResponse', result);
+            } catch (error) {
+                showResponse('updateTableResponse', {error: error.message});
+            }
+        }
+
+        // Apagar mesa
+        async function deleteTable() {
+            const tableId = document.getElementById('deleteTableId').value;
+            const criadorId = document.getElementById('deleteCriadorId').value;
+            
+            if (!tableId || !criadorId) {
+                showResponse('deleteTableResponse', {error: 'Por favor, preencha ID da mesa e ID do criador'});
+                return;
+            }
+            
+            if (!confirm('Tem certeza que deseja apagar esta mesa?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/tables/${tableId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CRIADOR-ID': criadorId
+                    }
+                });
+                
+                const result = await response.json();
+                showResponse('deleteTableResponse', result);
+            } catch (error) {
+                showResponse('deleteTableResponse', {error: error.message});
+            }
+        }
+
+        // Executar testes rápidos
+        async function runTest(endpoint) {
+            try {
+                const response = await fetch(endpoint);
+                const result = await response.json();
+                showResponse('quickTestResponse', result);
+            } catch (error) {
+                showResponse('quickTestResponse', {error: error.message});
+            }
+        }
+
+        // Preencher dados de exemplo
+        function fillSampleTableData() {
+            document.getElementById('nome').value = 'A Taverna do Dragão Dourado';
+            document.getElementById('sistema').value = 'D&D 5e';
+            document.getElementById('qntd_jogadores').value = '4';
+            document.getElementById('mesa_aberta').checked = true;
+            document.getElementById('capa').value = 'https://exemplo.com/taverna_dragao.jpg';
+            document.getElementById('criador_id').value = '1';
+        }
+
+        // Função utilitária para mostrar resposta
+        function showResponse(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+
+        // Função utilitária para limpar formulário
+        function clearForm(formId) {
+            document.getElementById(formId).reset();
+        }
+    </script>
+</body>
+</html>

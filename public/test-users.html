@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiceOrDie - Testes de Usuários</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: black;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        button:hover {
+            opacity: 0.8;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="UItests.html" class="back-link">← Voltar para UI Tests</a>
+        
+        <h1>👥 Testes de Usuários</h1>
+
+        <!-- Seção: Criar Usuário -->
+        <div class="section">
+            <h2>✨ Criar Usuário</h2>
+            <form id="createUserForm">
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Gandalf" required>
+                </div>
+                <div class="form-group">
+                    <label for="sobrenome">Sobrenome:</label>
+                    <input type="text" id="sobrenome" name="sobrenome" placeholder="Ex: The Grey" required>
+                </div>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Ex: gandalf" required>
+                </div>
+                <div class="form-group">
+                    <label for="genero">Gênero:</label>
+                    <select id="genero" name="genero" required>
+                        <option value="">Selecione...</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Outro">Outro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="data_nascimento">Data de Nascimento:</label>
+                    <input type="date" id="data_nascimento" name="data_nascimento" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" placeholder="Ex: gandalf@middleearth.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="senha">Senha:</label>
+                    <input type="password" id="senha" name="senha" placeholder="Digite uma senha segura" required>
+                </div>
+                <div class="form-group">
+                    <label for="experiencia">Experiência:</label>
+                    <select id="experiencia" name="experiencia" required>
+                        <option value="">Selecione...</option>
+                        <option value="Iniciante">Iniciante</option>
+                        <option value="Experiente">Experiente</option>
+                        <option value="Veterano">Veterano</option>
+                        <option value="Lendário">Lendário</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="img_perfil">Foto de Perfil (URL) - Opcional:</label>
+                    <input type="url" id="img_perfil" name="img_perfil" placeholder="Ex: https://exemplo.com/avatar.jpg">
+                </div>
+                <button type="submit" class="btn-success">Criar Usuário</button>
+                <button type="button" onclick="clearForm('createUserForm')" class="btn-secondary">Limpar</button>
+                <button type="button" onclick="fillSampleUserData()" class="btn-warning">Preencher Exemplo</button>
+            </form>
+            <div id="createUserResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Buscar Usuário -->
+        <div class="section">
+            <h2>🔍 Buscar Usuário</h2>
+            <div class="form-group">
+                <label for="searchUserId">ID do Usuário:</label>
+                <input type="number" id="searchUserId" placeholder="Ex: 1" min="1">
+            </div>
+            <button onclick="getUser()" class="btn-primary">Buscar por ID</button>
+            <button onclick="getAllUsers()" class="btn-primary">Listar Todos os Usuários</button>
+            <div id="getUserResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Apagar Usuário -->
+        <div class="section">
+            <h2>🗑️ Apagar Usuário</h2>
+            <div class="form-group">
+                <label for="deleteUserId">ID do Usuário a Apagar:</label>
+                <input type="number" id="deleteUserId" placeholder="Ex: 1" min="1">
+            </div>
+            <button onclick="deleteUser()" class="btn-danger">Apagar Usuário</button>
+            <button onclick="deleteAllUsers()" class="btn-danger" style="margin-left: 10px;">🗑️ Apagar TODOS os Usuários</button>
+            <div id="deleteUserResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Testes Rápidos -->
+        <div class="section">
+            <h2>⚡ Testes Rápidos</h2>
+            <p>Execute os testes pré-configurados do sistema:</p>
+            <button onclick="runTest('/test/user')" class="btn-warning">Criar Usuário de Exemplo (Gandalf)</button>
+            <button onclick="runTest('/test/users')" class="btn-warning">Criar Múltiplos Usuários</button>
+            <div id="quickTestResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Seção: Informações -->
+        <div class="section">
+            <h2>ℹ️ Informações Importantes</h2>
+            <p><strong>Erro "UNIQUE constraint failed":</strong> Este é um comportamento esperado quando você tenta criar um usuário com email ou username que já existe no banco de dados.</p>
+            <p><strong>Para resetar o banco:</strong> Pare o servidor, delete o arquivo <code>database.sqlite</code> e reinicie o servidor.</p>
+            <p><strong>Usuários de exemplo já criados:</strong> gandalf, strider, elfprince, shieldmaiden</p>
+            <p><strong>Login:</strong> Aceita tanto email quanto username (ex: gandalf ou gandalf@middleearth.com)</p>
+            <p><strong>Funcionalidades disponíveis:</strong></p>
+            <ul>
+                <li>✅ Criar usuário com validação completa</li>
+                <li>✅ Buscar usuário por ID</li>
+                <li>✅ Listar todos os usuários</li>
+                <li>✅ Apagar usuário individual (com confirmação)</li>
+                <li>✅ Apagar TODOS os usuários (com dupla confirmação)</li>
+                <li>✅ Login com verificação de credenciais</li>
+                <li>✅ Foto de perfil opcional (URL da imagem)</li>
+            </ul>
+        </div>
+
+        <!-- Seção: Login -->
+        <div class="section">
+            <h2>🔐 Teste de Login</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginField">Email ou Username:</label>
+                    <input type="text" id="loginField" name="login" placeholder="Ex: gandalf ou gandalf@middleearth.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha:</label>
+                    <input type="password" id="loginPassword" name="senha" placeholder="Digite a senha" required>
+                </div>
+                <button type="submit" class="btn-primary">Fazer Login</button>
+                <button type="button" onclick="clearForm('loginForm')" class="btn-secondary">Limpar</button>
+            </form>
+            <div id="loginResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Criar usuário
+        document.getElementById('createUserForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                showResponse('createUserResponse', result);
+            } catch (error) {
+                showResponse('createUserResponse', {error: error.message});
+            }
+        });
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                showResponse('loginResponse', result);
+            } catch (error) {
+                showResponse('loginResponse', {error: error.message});
+            }
+        });
+
+        // Buscar usuário por ID
+        async function getUser() {
+            const userId = document.getElementById('searchUserId').value;
+            if (!userId) {
+                showResponse('getUserResponse', {error: 'Por favor, insira um ID válido'});
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/users/${userId}`);
+                const result = await response.json();
+                showResponse('getUserResponse', result);
+            } catch (error) {
+                showResponse('getUserResponse', {error: error.message});
+            }
+        }
+
+        // Listar todos os usuários
+        async function getAllUsers() {
+            try {
+                const response = await fetch('/users');
+                const result = await response.json();
+                showResponse('getUserResponse', result);
+            } catch (error) {
+                showResponse('getUserResponse', {error: error.message});
+            }
+        }
+
+        // Apagar usuário
+        async function deleteUser() {
+            const userId = document.getElementById('deleteUserId').value;
+            if (!userId) {
+                showResponse('deleteUserResponse', {error: 'Por favor, insira um ID válido'});
+                return;
+            }
+            
+            if (!confirm('Tem certeza que deseja apagar este usuário? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/users/${userId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                showResponse('deleteUserResponse', result);
+            } catch (error) {
+                showResponse('deleteUserResponse', {error: error.message});
+            }
+        }
+
+        // Apagar todos os usuários
+        async function deleteAllUsers() {
+            if (!confirm('⚠️ ATENÇÃO: Tem certeza que deseja apagar TODOS os usuários?\n\nEsta ação não pode ser desfeita e irá remover permanentemente todos os dados de usuários do sistema.')) {
+                return;
+            }
+            
+            if (!confirm('🔥 CONFIRMAÇÃO FINAL: Você realmente quer apagar TODOS os usuários?\n\nClique "OK" apenas se tiver certeza absoluta.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/users', {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                showResponse('deleteUserResponse', result);
+            } catch (error) {
+                showResponse('deleteUserResponse', {error: error.message});
+            }
+        }
+
+        // Executar testes rápidos
+        async function runTest(endpoint) {
+            try {
+                const response = await fetch(endpoint);
+                const result = await response.json();
+                showResponse('quickTestResponse', result);
+            } catch (error) {
+                showResponse('quickTestResponse', {error: error.message});
+            }
+        }
+
+        // Função utilitária para mostrar resposta
+        function showResponse(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+
+        // Preencher dados de exemplo
+        function fillSampleUserData() {
+            document.getElementById('nome').value = 'Legolas';
+            document.getElementById('sobrenome').value = 'Greenleaf';
+            document.getElementById('username').value = 'elfprince';
+            document.getElementById('genero').value = 'Masculino';
+            document.getElementById('data_nascimento').value = '1000-05-15';
+            document.getElementById('email').value = 'legolas@mirkwood.com';
+            document.getElementById('senha').value = 'BowMaster123';
+            document.getElementById('experiencia').value = 'Veterano';
+            document.getElementById('img_perfil').value = 'https://i.imgur.com/legolas_avatar.jpg';
+        }
+
+        // Função utilitária para limpar formulário
+        function clearForm(formId) {
+            document.getElementById(formId).reset();
+        }
+    </script>
+</body>
+</html>

@@ -40,32 +40,116 @@ class UserController {
     }
     public function login(array $requestData): array {
         try {
-            // Validação básica
-            if (empty($requestData['email'])) {
-                throw new InvalidArgumentException("E-mail é obrigatório");
+            // Validação básica - aceita tanto email quanto username
+            if (empty($requestData['login'])) {
+                throw new InvalidArgumentException("Email ou username é obrigatório");
             }
             
             if (empty($requestData['senha'])) {
                 throw new InvalidArgumentException("Senha é obrigatória");
-            }
-            
-            if (!filter_var($requestData['email'], FILTER_VALIDATE_EMAIL)) {
-                throw new InvalidArgumentException("Formato de e-mail inválido");
             }
 
             // Configuração do banco
             $db = DatabaseFactory::create('sqlite', [__DIR__ . '/../../database.sqlite']);
             $userModel = new UserModel($db);
 
-            // Verifica credenciais
+            // Verifica credenciais (email ou username)
             $userDTO = $userModel->checkCredentials(
-                $requestData['email'],
+                $requestData['login'],
                 $requestData['senha']
             );
 
             return [
                 'success' => true,
                 'user' => $userDTO->toArray()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    public function getUser(int $id): array {
+        try {
+            // Configuração do banco
+            $db = DatabaseFactory::create('sqlite', [__DIR__ . '/../../database.sqlite']);
+            $userModel = new UserModel($db);
+
+            // Busca usuário
+            $userDTO = $userModel->getUserById($id);
+
+            return [
+                'success' => true,
+                'user' => $userDTO->toArray()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    public function getAllUsers(): array {
+        try {
+            // Configuração do banco
+            $db = DatabaseFactory::create('sqlite', [__DIR__ . '/../../database.sqlite']);
+            $userModel = new UserModel($db);
+
+            // Busca todos os usuários
+            $users = $userModel->getAllUsers();
+
+            return [
+                'success' => true,
+                'users' => array_map(function($user) {
+                    return $user->toArray();
+                }, $users)
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    public function deleteUser(int $id): array {
+        try {
+            // Configuração do banco
+            $db = DatabaseFactory::create('sqlite', [__DIR__ . '/../../database.sqlite']);
+            $userModel = new UserModel($db);
+
+            // Apaga usuário
+            $result = $userModel->deleteUser($id);
+
+            return [
+                'success' => true,
+                'message' => 'Usuário apagado com sucesso',
+                'deleted_id' => $id
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    public function deleteAllUsers(): array {
+        try {
+            // Configuração do banco
+            $db = DatabaseFactory::create('sqlite', [__DIR__ . '/../../database.sqlite']);
+            $userModel = new UserModel($db);
+
+            // Apaga todos os usuários
+            $count = $userModel->deleteAllUsers();
+
+            return [
+                'success' => true,
+                'message' => "Todos os usuários foram apagados com sucesso",
+                'deleted_count' => $count
             ];
         } catch (\Exception $e) {
             return [

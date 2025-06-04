@@ -1,5 +1,5 @@
-// public/index.php
 <?php
+// public/index.php
 // Enable error reporting for debugging
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -31,7 +31,8 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Roteamento básico
-switch ("$method:$path") {    case 'GET:/':
+switch ("$method:$path") {
+    case 'GET:/':
         // Simple home page
         $response = [
             'success' => true,
@@ -61,6 +62,29 @@ switch ("$method:$path") {    case 'GET:/':
         $requestData = json_decode($json, true);
         $controller = new App\Controllers\UserController();
         $response = $controller->login($requestData);
+        break;
+        
+    // Rotas para Usuários (Users)
+    case preg_match('#^/users/(\d+)$#', $path, $matches) && $method === 'GET':
+        $id = (int)$matches[1];
+        $controller = new App\Controllers\UserController();
+        $response = $controller->getUser($id);
+        break;
+        
+    case preg_match('#^/users/(\d+)$#', $path, $matches) && $method === 'DELETE':
+        $id = (int)$matches[1];
+        $controller = new App\Controllers\UserController();
+        $response = $controller->deleteUser($id);
+        break;
+        
+    case 'GET:/users':
+        $controller = new App\Controllers\UserController();
+        $response = $controller->getAllUsers();
+        break;
+        
+    case 'DELETE:/users':
+        $controller = new App\Controllers\UserController();
+        $response = $controller->deleteAllUsers();
         break;
         
     // Rotas para Personagens (Characters)
@@ -131,7 +155,8 @@ switch ("$method:$path") {    case 'GET:/':
         $response = $controller->deleteTable($id, $criadorId);
         break;
         
-    case preg_match('#^/users/(\d+)/tables$#', $path, $matches) && $method === 'GET':        $userId = (int)$matches[1];
+    case preg_match('#^/users/(\d+)/tables$#', $path, $matches) && $method === 'GET':
+        $userId = (int)$matches[1];
         $controller = new App\Controllers\GameTableController();
         $response = $controller->getTablesByUser($userId);
         break;
@@ -180,30 +205,32 @@ switch ("$method:$path") {    case 'GET:/':
 // Retorna resposta JSON
 echo json_encode($response, JSON_PRETTY_PRINT);
 
-// Display all database entries
-try {
-    $db = App\Database\DatabaseFactory::create('sqlite', [__DIR__ . '/../database.sqlite']);
-    
-    echo "\n\n=== ALL DATABASE ENTRIES ===\n\n";
-    
-    // Get all users
-    echo "USERS (usuarios):\n";
-    $users = $db->query("SELECT * FROM usuarios");
-    echo json_encode($users, JSON_PRETTY_PRINT);
-    echo "\n\n";
-    
-    // Get all characters
-    echo "CHARACTERS (personagens):\n";
-    $characters = $db->query("SELECT * FROM personagens");
-    echo json_encode($characters, JSON_PRETTY_PRINT);
-    echo "\n\n";
-    
-    // Get all tables
-    echo "GAME TABLES (mesas):\n";
-    $tables = $db->query("SELECT * FROM mesas");
-    echo json_encode($tables, JSON_PRETTY_PRINT);
-    echo "\n\n";
-    
-} catch (Exception $e) {
-    echo "\n\nError displaying database entries: " . $e->getMessage() . "\n";
+// Display all database entries only for GET requests to root path (not AJAX calls)
+if ($method === 'GET' && $path === '/') {
+    try {
+        $db = App\Database\DatabaseFactory::create('sqlite', [__DIR__ . '/../database.sqlite']);
+        
+        echo "\n\n=== ALL DATABASE ENTRIES ===\n\n";
+        
+        // Get all users
+        echo "USERS (usuarios):\n";
+        $users = $db->query("SELECT * FROM usuarios");
+        echo json_encode($users, JSON_PRETTY_PRINT);
+        echo "\n\n";
+        
+        // Get all characters
+        echo "CHARACTERS (personagens):\n";
+        $characters = $db->query("SELECT * FROM personagens");
+        echo json_encode($characters, JSON_PRETTY_PRINT);
+        echo "\n\n";
+        
+        // Get all tables
+        echo "GAME TABLES (mesas):\n";
+        $tables = $db->query("SELECT * FROM mesas");
+        echo json_encode($tables, JSON_PRETTY_PRINT);
+        echo "\n\n";
+        
+    } catch (Exception $e) {
+        echo "\n\nError displaying database entries: " . $e->getMessage() . "\n";
+    }
 }
