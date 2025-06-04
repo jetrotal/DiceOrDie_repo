@@ -68,4 +68,33 @@ class TestUsers {
         
         return $results;
     }
+    
+    public static function createAdminUser(): array {
+        $adminData = [
+            'nome' => 'Admin',
+            'sobrenome' => 'DiceOrDie',
+            'username' => 'admin',
+            'genero' => 'Outro',
+            'data_nascimento' => '1990-01-01',
+            'email' => 'admin@diceordie.com',
+            'senha' => 'admin',
+            'experiencia' => 'Lendário',
+            'role' => 'admin'
+        ];
+        
+        $controller = new UserController();
+        $result = $controller->register($adminData);
+        
+        // Adiciona informações sobre como fazer login
+        if (isset($result['success']) && $result['success']) {
+            $result['login_info'] = [
+                'username' => 'admin',
+                'email' => 'admin@diceordie.com',
+                'password' => 'admin',
+                'role' => 'admin'
+            ];
+        }
+        
+        return $result;
+    }
 }

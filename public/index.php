@@ -178,6 +178,10 @@ switch ("$method:$path") {
         $response = Tests\TestUsers::createMultipleUsers();
         break;
         
+    case 'GET:/test/admin':
+        $response = Tests\TestUsers::createAdminUser();
+        break;
+        
     case 'GET:/test/character':
         $response = Tests\TestCharacters::createSampleCharacter();
         break;

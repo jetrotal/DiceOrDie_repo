@@ -12,7 +12,8 @@ class UserDTO {
         public readonly string $data_nascimento,
         public readonly string $email,
         public readonly string $experiencia,
-        public readonly ?string $img_perfil
+        public readonly ?string $img_perfil,
+        public readonly string $role = 'user'
     ) {}
 
     public static function fromArray(array $data): self {
@@ -25,7 +26,8 @@ class UserDTO {
             $data['data_nascimento'],
             $data['email'],
             $data['experiencia'],
-            $data['img_perfil'] ?? null
+            $data['img_perfil'] ?? null,
+            $data['role'] ?? 'user'
         );
     }
 
@@ -39,7 +41,8 @@ class UserDTO {
             'data_nascimento' => $this->data_nascimento,
             'email' => $this->email,
             'experiencia' => $this->experiencia,
-            'img_perfil' => $this->img_perfil
+            'img_perfil' => $this->img_perfil,
+            'role' => $this->role
         ];
     }
 }
