@@ -1,5 +1,5 @@
-// app/Models/CharacterModel.php
 <?php
+// app/Models/CharacterModel.php
 namespace App\Models;
 
 use App\Database\DatabaseConnection;
@@ -83,36 +83,29 @@ class CharacterModel {
         return true;
     }
 
+    public function getCharactersByUsername(string $username): array {
+        $results = $this->db->query(
+            "SELECT * FROM personagens WHERE username = ?",
+            [$username]
+        );
 
-
-// app/Models/CharacterModel.php
-public function getCharactersByUsername(string $username): array {
-    $results = $this->db->query(
-        "SELECT * FROM personagens WHERE username = ?",
-        [$username]
-    );
-
-    return array_map(function($row) {
-        return CharacterDTO::fromArray($row);
-    }, $results);
-}
-
-    return array_map(function($row) {
-        return CharacterDTO::fromArray($row);
-    }, $results);
-}
-
-public function deleteCharacter(int $id, string $username): bool {
-    // Verifica se o personagem pertence ao usuário
-    $character = $this->getCharacterById($id);
-    if ($character->username !== $username) {
-        throw new RuntimeException("Acesso negado: personagem não pertence ao usuário");
+        return array_map(function($row) {
+            return CharacterDTO::fromArray($row);
+        }, $results);
     }
 
-    $this->db->execute(
-        "DELETE FROM personagens WHERE id = ?",
-        [$id]
-    );
+    public function deleteCharacter(int $id, string $username): bool {
+        // Verifica se o personagem pertence ao usuário
+        $character = $this->getCharacterById($id);
+        if ($character->username !== $username) {
+            throw new RuntimeException("Acesso negado: personagem não pertence ao usuário");
+        }
 
-    return true;
+        $this->db->execute(
+            "DELETE FROM personagens WHERE id = ?",
+            [$id]
+        );
+
+        return true;
+    }
 }

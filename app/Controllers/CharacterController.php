@@ -1,5 +1,5 @@
-// app/Controllers/CharacterController.php
 <?php
+// app/Controllers/CharacterController.php
 namespace App\Controllers;
 
 use App\Models\CharacterModel;

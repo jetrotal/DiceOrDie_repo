@@ -1,5 +1,5 @@
-// app/Controllers/GameTableController.php
 <?php
+// app/Controllers/GameTableController.php
 
 namespace App\Controllers;
 

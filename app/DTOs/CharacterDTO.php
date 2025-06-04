@@ -1,5 +1,5 @@
-// app/DTOs/CharacterDTO.php
 <?php
+// app/DTOs/CharacterDTO.php
 
 namespace App\DTOs;
 

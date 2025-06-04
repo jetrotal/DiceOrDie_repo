@@ -26,8 +26,7 @@ class SQLiteAdapter implements DatabaseConnection {
                 img_perfil TEXT
             )
         ");
-        
-        $this->pdo->exec("
+          $this->pdo->exec("
         CREATE TABLE IF NOT EXISTS personagens (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT NOT NULL,
@@ -45,7 +44,7 @@ class SQLiteAdapter implements DatabaseConnection {
             carisma INTEGER NOT NULL,
             imagem_personagem TEXT,
             FOREIGN KEY (username) REFERENCES usuarios(username)
-        ");
+        )");
 
         $this->pdo->exec("
         CREATE TABLE IF NOT EXISTS mesas (
@@ -57,9 +56,7 @@ class SQLiteAdapter implements DatabaseConnection {
             capa TEXT,
             criador_id INTEGER NOT NULL,
             FOREIGN KEY (criador_id) REFERENCES usuarios(id)
-        )
-
-    ");
+        )");
 
     }
 

@@ -1,9 +1,21 @@
 // public/index.php
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once __DIR__ . '/../app/Controllers/UserController.php';
 require_once __DIR__ . '/../app/Controllers/CharacterController.php';
 require_once __DIR__ . '/../app/Controllers/GameTableController.php';
+require_once __DIR__ . '/../app/Models/UserModel.php';
+require_once __DIR__ . '/../app/Models/CharacterModel.php';
+require_once __DIR__ . '/../app/Models/GameTableModel.php';
+require_once __DIR__ . '/../app/DTOs/UserDTO.php';
+require_once __DIR__ . '/../app/DTOs/CharacterDTO.php';
+require_once __DIR__ . '/../app/DTOs/GameTableDTO.php';
+require_once __DIR__ . '/../app/Database/DatabaseConnection.php';
 require_once __DIR__ . '/../app/Database/DatabaseFactory.php';
+require_once __DIR__ . '/../app/Database/SQLiteAdapter.php';
 
 // Configurações iniciais
 header('Content-Type: application/json');
@@ -13,7 +25,22 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Roteamento básico
-switch ("$method:$path") {
+switch ("$method:$path") {    case 'GET:/':
+        // Simple home page
+        $response = [
+            'success' => true,
+            'message' => 'Welcome to DiceOrDie API'
+        ];
+        break;
+        
+    case 'GET:/debug/all':
+        // Display all database entries
+        $response = [
+            'success' => true,
+            'message' => 'All database entries will be displayed below'
+        ];
+        break;
+        
     case 'POST:/register':
     case 'POST:/register.php':
         $json = file_get_contents('php://input');
@@ -130,3 +157,31 @@ switch ("$method:$path") {
 
 // Retorna resposta JSON
 echo json_encode($response, JSON_PRETTY_PRINT);
+
+// Display all database entries
+try {
+    $db = App\Database\DatabaseFactory::create('sqlite', [__DIR__ . '/../database.sqlite']);
+    
+    echo "\n\n=== ALL DATABASE ENTRIES ===\n\n";
+    
+    // Get all users
+    echo "USERS (usuarios):\n";
+    $users = $db->query("SELECT * FROM usuarios");
+    echo json_encode($users, JSON_PRETTY_PRINT);
+    echo "\n\n";
+    
+    // Get all characters
+    echo "CHARACTERS (personagens):\n";
+    $characters = $db->query("SELECT * FROM personagens");
+    echo json_encode($characters, JSON_PRETTY_PRINT);
+    echo "\n\n";
+    
+    // Get all tables
+    echo "GAME TABLES (mesas):\n";
+    $tables = $db->query("SELECT * FROM mesas");
+    echo json_encode($tables, JSON_PRETTY_PRINT);
+    echo "\n\n";
+    
+} catch (Exception $e) {
+    echo "\n\nError displaying database entries: " . $e->getMessage() . "\n";
+}

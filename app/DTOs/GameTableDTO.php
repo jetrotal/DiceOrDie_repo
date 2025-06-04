@@ -1,5 +1,5 @@
-// app/DTOs/GameTableDTO.php
 <?php
+// app/DTOs/GameTableDTO.php
 
 namespace App\DTOs;
 
