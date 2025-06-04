@@ -17,6 +17,12 @@ require_once __DIR__ . '/../app/Database/DatabaseConnection.php';
 require_once __DIR__ . '/../app/Database/DatabaseFactory.php';
 require_once __DIR__ . '/../app/Database/SQLiteAdapter.php';
 
+// Test files
+require_once __DIR__ . '/../tests/TestUsers.php';
+require_once __DIR__ . '/../tests/TestCharacters.php';
+require_once __DIR__ . '/../tests/TestGameTables.php';
+require_once __DIR__ . '/../tests/TestRunner.php';
+
 // Configurações iniciais
 header('Content-Type: application/json');
 
@@ -125,26 +131,42 @@ switch ("$method:$path") {    case 'GET:/':
         $response = $controller->deleteTable($id, $criadorId);
         break;
         
-    case preg_match('#^/users/(\d+)/tables$#', $path, $matches) && $method === 'GET':
-        $userId = (int)$matches[1];
+    case preg_match('#^/users/(\d+)/tables$#', $path, $matches) && $method === 'GET':        $userId = (int)$matches[1];
         $controller = new App\Controllers\GameTableController();
         $response = $controller->getTablesByUser($userId);
         break;
         
-    // Rota para testes (pode ser removida em produção)
-    case 'GET:/test-register':
-        $testData = [
-            'nome' => 'Gandalf',
-            'sobrenome' => 'The Grey',
-            'username' => 'gandalf',
-            'genero' => 'Masculino',
-            'data_nascimento' => '1950-01-01',
-            'email' => 'gandalf@middleearth.com',
-            'senha' => 'YouShallNotPass!',
-            'experiencia' => 'Lendário'
-        ];
-        $controller = new App\Controllers\UserController();
-        $response = $controller->register($testData);
+    // === ROTAS DE TESTE ORGANIZADAS ===
+    case 'GET:/test/user':
+        $response = Tests\TestUsers::createSampleUser();
+        break;
+        
+    case 'GET:/test/users':
+        $response = Tests\TestUsers::createMultipleUsers();
+        break;
+        
+    case 'GET:/test/character':
+        $response = Tests\TestCharacters::createSampleCharacter();
+        break;
+        
+    case 'GET:/test/characters':
+        $response = Tests\TestCharacters::createMultipleCharacters();
+        break;
+        
+    case 'GET:/test/table':
+        $response = Tests\TestGameTables::createSampleTable();
+        break;
+        
+    case 'GET:/test/tables':
+        $response = Tests\TestGameTables::createMultipleTables();
+        break;
+        
+    case 'GET:/test/basic':
+        $response = Tests\TestRunner::runBasicTests();
+        break;
+        
+    case 'GET:/test/all':
+        $response = Tests\TestRunner::runAllTests();
         break;
         
     default:
