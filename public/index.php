@@ -87,6 +87,14 @@ switch ("$method:$path") {
         $response = $controller->deleteAllUsers();
         break;
         
+    case preg_match('#^/users/(\d+)$#', $path, $matches) && $method === 'PUT':
+        $id = (int)$matches[1];
+        $json = file_get_contents('php://input');
+        $requestData = json_decode($json, true) ?? [];
+        $controller = new App\Controllers\UserController();
+        $response = $controller->updateUser($id, $requestData);
+        break;
+        
     // Rotas para Personagens (Characters)
     case 'POST:/characters':
     case 'POST:/characters.php':

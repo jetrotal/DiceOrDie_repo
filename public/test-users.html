@@ -104,10 +104,19 @@
         
         <h1>👥 Testes de Usuários</h1>
 
-        <!-- Seção: Criar Usuário -->
+        <!-- Seção: Usuário Logado (aparece após login) -->
+        <div id="loggedUserSection" class="section" style="display:none; background-color: #e8f5e8;">
+            <h2>👤 Usuário Logado</h2>
+            <div id="loggedUserInfo"></div>
+            <button onclick="editLoggedUser()" class="btn-warning">✏️ Editar Meus Dados</button>
+            <button onclick="logout()" class="btn-secondary">🚪 Logout</button>
+        </div>
+
+        <!-- Seção: Criar/Editar Usuário -->
         <div class="section">
-            <h2>✨ Criar Usuário</h2>
+            <h2 id="formTitle">✨ Criar Usuário</h2>
             <form id="createUserForm">
+                <input type="hidden" id="editingUserId" name="editingUserId">
                 <div class="form-group">
                     <label for="nome">Nome:</label>
                     <input type="text" id="nome" name="nome" placeholder="Ex: Gandalf" required>
@@ -155,9 +164,10 @@
                     <label for="img_perfil">Foto de Perfil (URL) - Opcional:</label>
                     <input type="url" id="img_perfil" name="img_perfil" placeholder="Ex: https://exemplo.com/avatar.jpg">
                 </div>
-                <button type="submit" class="btn-success">Criar Usuário</button>
+                <button type="submit" id="submitBtn" class="btn-success">Criar Usuário</button>
                 <button type="button" onclick="clearForm('createUserForm')" class="btn-secondary">Limpar</button>
                 <button type="button" onclick="fillSampleUserData()" class="btn-warning">Preencher Exemplo</button>
+                <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="btn-secondary" style="display:none;">Cancelar Edição</button>
             </form>
             <div id="createUserResponse" class="response" style="display:none;"></div>
         </div>
@@ -211,6 +221,7 @@
                 <li>✅ Apagar TODOS os usuários (com dupla confirmação)</li>
                 <li>✅ Login com verificação de credenciais</li>
                 <li>✅ Foto de perfil opcional (URL da imagem)</li>
+                <li>✅ Editar dados do usuário logado</li>
             </ul>
         </div>
 
@@ -234,23 +245,52 @@
     </div>
 
     <script>
-        // Criar usuário
+        // Criar/Editar usuário
         document.getElementById('createUserForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
+            // Remove campos vazios para edição
+            const cleanData = {};
+            for (const [key, value] of Object.entries(data)) {
+                if (value.trim() !== '' && key !== 'editingUserId') {
+                    cleanData[key] = value;
+                }
+            }
+            
+            const isEditing = data.editingUserId && data.editingUserId !== '';
+            
             try {
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
+                let response;
+                if (isEditing) {
+                    // Modo edição
+                    response = await fetch(`/users/${data.editingUserId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(cleanData)
+                    });
+                } else {
+                    // Modo criação
+                    response = await fetch('/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(cleanData)
+                    });
+                }
                 
                 const result = await response.json();
                 showResponse('createUserResponse', result);
+                
+                // Se edição bem-sucedida, atualiza usuário logado
+                if (isEditing && result.success && result.user) {
+                    showLoggedUser(result.user);
+                    cancelEdit();
+                }
             } catch (error) {
                 showResponse('createUserResponse', {error: error.message});
             }
@@ -273,6 +313,11 @@
                 
                 const result = await response.json();
                 showResponse('loginResponse', result);
+                
+                // Se login bem-sucedido, mostra seção do usuário logado
+                if (result.success && result.user) {
+                    showLoggedUser(result.user);
+                }
             } catch (error) {
                 showResponse('loginResponse', {error: error.message});
             }
@@ -368,6 +413,71 @@
             const element = document.getElementById(elementId);
             element.style.display = 'block';
             element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+
+        // Variável global para armazenar usuário logado
+        let currentUser = null;
+
+        // Mostrar usuário logado
+        function showLoggedUser(user) {
+            currentUser = user;
+            const section = document.getElementById('loggedUserSection');
+            const info = document.getElementById('loggedUserInfo');
+            
+            info.innerHTML = `
+                <p><strong>Nome:</strong> ${user.nome} ${user.sobrenome}</p>
+                <p><strong>Username:</strong> ${user.username}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p><strong>Experiência:</strong> ${user.experiencia}</p>
+                ${user.img_perfil ? `<p><strong>Foto:</strong> <img src="${user.img_perfil}" style="max-width: 50px; border-radius: 50%;"></p>` : ''}
+            `;
+            
+            section.style.display = 'block';
+            // Scroll para o topo para mostrar o usuário logado
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Editar usuário logado
+        function editLoggedUser() {
+            if (!currentUser) return;
+            
+            // Muda para modo edição
+            document.getElementById('formTitle').textContent = '✏️ Editar Meus Dados';
+            document.getElementById('submitBtn').textContent = 'Atualizar Usuário';
+            document.getElementById('submitBtn').className = 'btn-warning';
+            document.getElementById('cancelEditBtn').style.display = 'inline-block';
+            
+            // Preenche o formulário com dados atuais
+            document.getElementById('editingUserId').value = currentUser.id;
+            document.getElementById('nome').value = currentUser.nome || '';
+            document.getElementById('sobrenome').value = currentUser.sobrenome || '';
+            document.getElementById('username').value = currentUser.username || '';
+            document.getElementById('genero').value = currentUser.genero || '';
+            document.getElementById('data_nascimento').value = currentUser.data_nascimento || '';
+            document.getElementById('email').value = currentUser.email || '';
+            document.getElementById('senha').value = ''; // Senha sempre vazia na edição
+            document.getElementById('experiencia').value = currentUser.experiencia || '';
+            document.getElementById('img_perfil').value = currentUser.img_perfil || '';
+            
+            // Scroll para o formulário
+            document.getElementById('formTitle').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Cancelar edição
+        function cancelEdit() {
+            document.getElementById('formTitle').textContent = '✨ Criar Usuário';
+            document.getElementById('submitBtn').textContent = 'Criar Usuário';
+            document.getElementById('submitBtn').className = 'btn-success';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+            document.getElementById('editingUserId').value = '';
+            clearForm('createUserForm');
+        }
+
+        // Logout
+        function logout() {
+            currentUser = null;
+            document.getElementById('loggedUserSection').style.display = 'none';
+            cancelEdit(); // Cancela edição se estiver ativa
         }
 
         // Preencher dados de exemplo

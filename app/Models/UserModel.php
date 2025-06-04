@@ -120,4 +120,47 @@ class UserModel {
         
         return $count;
     }
+    
+    public function updateUser(int $id, array $data): UserDTO {
+        // Verifica se usuário existe
+        $user = $this->getUserById($id);
+        
+        // Constrói a query dinamicamente com base nos campos fornecidos
+        $fields = [];
+        $values = [];
+        
+        $allowedFields = ['nome', 'sobrenome', 'username', 'genero', 'data_nascimento', 'email', 'experiencia', 'img_perfil'];
+        
+        foreach ($allowedFields as $field) {
+            if (isset($data[$field])) {
+                $fields[] = "$field = ?";
+                $values[] = $data[$field];
+            }
+        }
+        
+        // Se uma nova senha foi fornecida, hash ela
+        if (isset($data['senha']) && !empty($data['senha'])) {
+            $fields[] = "senha_hash = ?";
+            $values[] = password_hash($data['senha'], PASSWORD_BCRYPT);
+        }
+        
+        // Validar email se fornecido
+        if (isset($data['email']) && !filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException("E-mail inválido");
+        }
+        
+        if (empty($fields)) {
+            throw new \InvalidArgumentException("Nenhum campo válido para atualizar");
+        }
+        
+        // Adiciona o ID no final dos valores
+        $values[] = $id;
+        
+        // Executa a atualização
+        $query = "UPDATE usuarios SET " . implode(', ', $fields) . " WHERE id = ?";
+        $this->db->execute($query, $values);
+        
+        // Retorna o usuário atualizado
+        return $this->getUserById($id);
+    }
 }

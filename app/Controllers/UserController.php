@@ -158,4 +158,26 @@ class UserController {
             ];
         }
     }
+    
+    public function updateUser(int $id, array $requestData): array {
+        try {
+            // Configuração do banco
+            $db = DatabaseFactory::create('sqlite', [__DIR__ . '/../../database.sqlite']);
+            $userModel = new UserModel($db);
+
+            // Atualiza usuário
+            $userDTO = $userModel->updateUser($id, $requestData);
+
+            return [
+                'success' => true,
+                'message' => 'Usuário atualizado com sucesso',
+                'user' => $userDTO->toArray()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
 }
