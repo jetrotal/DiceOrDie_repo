@@ -132,6 +132,16 @@ switch ("$method:$path") {
         $response = $controller->getUserCharacters($username);
         break;
         
+    case 'DELETE:/characters':
+        $controller = new App\Controllers\CharacterController();
+        $response = $controller->deleteAllCharacters();
+        break;
+        
+    case 'GET:/characters/all':
+        $controller = new App\Controllers\CharacterController();
+        $response = $controller->getAllCharacters();
+        break;
+        
     // Rotas para GameTable
     case 'POST:/tables':
     case 'POST:/tables.php':

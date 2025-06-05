@@ -94,6 +94,39 @@ class CharacterModel {
         }, $results);
     }
 
+    public function updateCharacter(CharacterDTO $character): CharacterDTO {
+        // Validar dados do personagem
+        $this->validateCharacterData($character);
+        
+        // Atualizar personagem
+        $this->db->execute(
+            "UPDATE personagens SET
+                username = ?, nome_personagem = ?, nivel = ?, raca = ?, classe = ?,
+                ponto_vida = ?, classe_armadura = ?, forca = ?, destreza = ?, constituicao = ?,
+                inteligencia = ?, sabedoria = ?, carisma = ?, imagem_personagem = ?
+            WHERE id = ?",
+            [
+                $character->username,
+                $character->nome_personagem,
+                $character->nivel,
+                $character->raca,
+                $character->classe,
+                $character->ponto_vida,
+                $character->classe_armadura,
+                $character->forca,
+                $character->destreza,
+                $character->constituicao,
+                $character->inteligencia,
+                $character->sabedoria,
+                $character->carisma,
+                $character->imagem_personagem,
+                $character->id
+            ]
+        );
+
+        return $this->getCharacterById($character->id);
+    }
+
     public function deleteCharacter(int $id, string $username): bool {
         // Verifica se o personagem pertence ao usuário
         $character = $this->getCharacterById($id);
