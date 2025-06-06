@@ -229,6 +229,12 @@ switch ("$method:$path") {
         $response = $controller->uploadProfilePicture();
         break;
         
+    case 'POST:/upload-character-image':
+        $database = App\Database\DatabaseFactory::create('sqlite', [__DIR__ . '/../database.sqlite']);
+        $controller = new ImageController($database);
+        $response = $controller->uploadCharacterImage();
+        break;
+        
     // === ROTA PARA SERVIR IMAGENS ESTÁTICAS ===
     case preg_match('#^/uploads/(.+)$#', $path, $matches) && $method === 'GET':
         $filename = $matches[1];

@@ -31,6 +31,11 @@ function logoutSpecific() {
 function cancelEditSpecific() {
     clearForm('createCharacterForm');
     
+    // Limpar imagem de personagem
+    if (typeof clearCharacterImage === 'function') {
+        clearCharacterImage();
+    }
+    
     // Resetar campo username ao estado original
     const usernameField = document.getElementById('username');
     const usernameLabel = document.querySelector('label[for="username"]');
@@ -70,7 +75,8 @@ function fillSampleData() {
     document.getElementById('inteligencia').value = '12';
     document.getElementById('sabedoria').value = '15';
     document.getElementById('carisma').value = '13';
-    document.getElementById('imagem_personagem').value = 'https://exemplo.com/aragorn.jpg';
+    // Não preenche mais URL, agora usa sistema de upload
+    clearCharacterImage();
 }
 
 // Buscar personagem por ID
@@ -346,7 +352,17 @@ async function loadCharacterForEdit() {
             document.getElementById('inteligencia').value = character.inteligencia || '';
             document.getElementById('sabedoria').value = character.sabedoria || '';
             document.getElementById('carisma').value = character.carisma || '';
-            document.getElementById('imagem_personagem').value = character.imagem_personagem || '';
+            // Mostrar imagem existente se houver (novo sistema de upload)
+            if (character.imagem_personagem) {
+                document.getElementById('imagem_personagem').value = character.imagem_personagem;
+                document.getElementById('characterPreviewImage').src = character.imagem_personagem;
+                document.getElementById('characterImageInfo').innerHTML =
+                    `<small style="color: blue;">Imagem atual do personagem</small>`;
+                document.getElementById('characterUploadText').style.display = 'none';
+                document.getElementById('characterPreview').style.display = 'block';
+            } else {
+                clearCharacterImage();
+            }
             
             // Scroll para o formulário
             document.getElementById('formTitle').scrollIntoView({ behavior: 'smooth' });

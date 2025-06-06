@@ -157,6 +157,74 @@ class ImageController {
         }
     }
 
+    public function uploadCharacterImage() {
+        try {
+            // Verificar se o usuário está logado
+            if (!isset($_SESSION['user_id'])) {
+                return $this->jsonResponse(['error' => 'Usuário não autenticado'], 401);
+            }
+
+            // Verificar se foi enviado um arquivo
+            if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+                return $this->jsonResponse(['error' => 'Nenhum arquivo válido foi enviado'], 400);
+            }
+
+            $file = $_FILES['image'];
+
+            // Validar tipo de arquivo
+            if (!in_array($file['type'], $this->allowedTypes)) {
+                return $this->jsonResponse(['error' => 'Tipo de arquivo não permitido. Use JPEG, PNG ou GIF'], 400);
+            }
+
+            // Validar tamanho do arquivo
+            if ($file['size'] > $this->maxFileSize) {
+                return $this->jsonResponse(['error' => 'Arquivo muito grande. Máximo 5MB'], 400);
+            }
+
+            // Gerar nome único para o arquivo
+            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $filename = 'character_' . $_SESSION['user_id'] . '_' . time() . '.' . $extension;
+            $filepath = $this->uploadDir . $filename;
+
+            // Mover arquivo para diretório de uploads
+            if (!move_uploaded_file($file['tmp_name'], $filepath)) {
+                return $this->jsonResponse(['error' => 'Erro ao salvar arquivo'], 500);
+            }
+
+            // Redimensionar imagem se necessário
+            $this->resizeImage($filepath, 400, 400);
+
+            // Salvar informações no banco
+            $imageData = [
+                'user_id' => $_SESSION['user_id'],
+                'filename' => $filename,
+                'original_name' => $file['name'],
+                'file_size' => $file['size'],
+                'mime_type' => $file['type'],
+                'upload_date' => date('Y-m-d H:i:s'),
+                'is_character_image' => 1
+            ];
+
+            $this->database->execute("
+                INSERT INTO user_images (user_id, filename, original_name, file_size, mime_type, upload_date, is_character_image)
+                VALUES (:user_id, :filename, :original_name, :file_size, :mime_type, :upload_date, :is_character_image)
+            ", $imageData);
+
+            // Retornar URL da imagem
+            $imageUrl = '/uploads/' . $filename;
+            
+            return $this->jsonResponse([
+                'success' => true,
+                'message' => 'Imagem de personagem enviada com sucesso',
+                'image_url' => $imageUrl,
+                'filename' => $filename
+            ]);
+
+        } catch (Exception $e) {
+            return $this->jsonResponse(['error' => 'Erro interno: ' . $e->getMessage()], 500);
+        }
+    }
+
     private function deleteOldProfilePicture($userId) {
         try {
             // Buscar foto de perfil atual
