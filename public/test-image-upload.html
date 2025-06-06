@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiceOrDie - Upload de Imagens</title>
-    <link rel="stylesheet" href="test-shared/test-styles.css">
+    <link rel="stylesheet" href="assets/css/test-styles.css">
     <style>
         .image-preview {
             display: inline-block;
@@ -125,8 +125,8 @@
     </div>
 
     <!-- Scripts -->
-    <script src="test-shared/test-auth.js"></script>
-    <script src="test-shared/test-components.js"></script>
+    <script src="assets/shared/auth.js"></script>
+    <script src="assets/js/test-components.js"></script>
     
     <script>
         let selectedFile = null;
@@ -183,7 +183,7 @@
                 showResponse('loginResponse', result);
                 
                 if (result.success && result.user) {
-                    showLoggedUser(result.user); // Esta função já está no test-auth.js
+                    showLoggedUser(result.user); // Esta função já está no auth.js
                     checkAuthStatus();
                 }
             } catch (error) {
@@ -369,7 +369,7 @@
         }
 
         function logoutCustom() {
-            logout(); // Chama a função global do test-auth.js
+            logout(); // Chama a função global do auth.js
             checkAuthStatus();
         }
     </script>

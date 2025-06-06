@@ -1,0 +1,166 @@
+:root {
+  /* Cores principais */
+  --color-background: #252525;
+  --color-text: #3c362d;
+  --color-accent: #e5ae69;
+  --color-accent-faded: #e5ae6935;
+  --color-white: #fff;
+  
+  /* Cores de elementos */
+  --color-panel-bg: #25241daa;
+  --color-panel-border: var(--color-accent-faded);
+  --color-panel-item-hover: #3a3a3a;
+  --color-panel-border-bottom: var(--color-accent-faded);
+  
+  /* Cores para formulários */
+  --color-form-bg: #825e3777;
+  --color-form-border: #3c170a;
+  --color-form-accent: #2c2c2c;
+  --color-input-bg: #f8f8f8;
+  --color-input-border: #ddd;
+  --color-input-focus: var(--color-form-accent);
+    /* Cores para jogos */
+  --color-game-border: rgba(255, 255, 255, 0.2);
+  --color-tag-bg: #d85e00;
+  --color-creator-text: #ccc;
+    /* Cores de status */
+  --color-status-full: #e32636;
+  --color-status-available: #4CAF50;
+  --color-status-private: #6c757d;
+  --color-status-starting: #fd7e14;
+  --color-button-primary: var(--color-accent);
+  --color-button-primary-hover: #d4986a;
+  --color-primary: var(--color-accent);
+  --color-primary-dark: #b8935a;
+  --color-bg: var(--color-background);
+  --color-success: #4CAF50;
+  --color-error: #e32636;
+  --color-warning: #ff9800;
+  --color-info: #2196F3;
+  
+  /* Sombras */
+  --shadow-default: 10px 20px 15px rgba(0, 0, 0, 0.4);
+  --shadow-form: 10px 20px 15px rgba(0, 0, 0, 0.4);
+  --shadow-game: 10px 20px 15px rgba(0, 0, 0, 0.4);
+  --shadow-input: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-tag: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-user: 10px 4px 8px rgba(0, 0, 0, 0.5);
+  --shadow-logo: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-image: url('https://mauroetc.github.io/images/bg_stones.png');
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-size: 12px;
+  position: relative;
+}
+
+.body-shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100vh;
+  height: 100%;
+  z-index: -1;
+  background:
+    linear-gradient(#1a1812, transparent 35vh),
+    linear-gradient(to top, #1a1812, transparent 35vh),
+    linear-gradient(to left, #1a1812, transparent 35vw),
+    linear-gradient(to right, #1a1812, transparent 35vw);
+  border-image: url('https://mauroetc.github.io/images/bg_deco.png') 96 102 99 96 fill / 96px 102px 99px 96px;
+  padding: 96px 102px 99px 96px;
+  border-image-repeat: round;
+}
+
+.main-container {
+  display: flex;
+  flex: 1;
+  margin: 0 auto;
+  padding: 20px 30px;
+  width: 100%;
+}
+
+.left-column {
+  padding-right: 15px;
+}
+
+.left-column #menu-panels, .right-column #menu-panels {
+      min-width: 230px;
+}
+
+.middle-column {
+  padding: 0 15px;
+  width: 500vw;
+}
+
+.right-column {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding-left: 15px;
+}
+
+
+
+/* Logo */
+.logo-container {
+  margin-bottom: 20px;
+  position: relative;
+  padding: 20px 0;
+}
+
+.logo-text {
+  color: var(--color-accent);
+  font-size: 36px;
+  font-weight: 700;
+  text-shadow: var(--shadow-logo);
+  position:absolute;
+  top: -15px;
+  margin:0 8px ;
+}
+
+.top-nav a {
+  color: var(--color-white);
+  display: block;
+  padding: 15px 25px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.top-nav a:hover,
+.top-nav a.active {
+  color: var(--color-accent);
+  border-radius: 5px;
+}
+
+.logo-container,
+.top-nav,
+.user-profile {
+  align-items: center;
+  background-image: linear-gradient(transparent, rgba(0, 0, 0, 0.5));
+  border-bottom: 1px inset var(--color-accent-faded);
+  box-shadow: 0 1px 0 black;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.user-profile {
+  place-content: space-between;
+  width: 230px;
+  position: relative;
+}

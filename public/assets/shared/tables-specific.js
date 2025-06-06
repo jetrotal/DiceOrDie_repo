@@ -31,6 +31,11 @@ function logoutSpecific() {
 function cancelEditSpecific() {
     clearForm('createTableForm');
     
+    // Limpar imagem de mesa
+    if (typeof clearTableImage === 'function') {
+        clearTableImage();
+    }
+    
     // Resetar campo criador_id ao estado original
     const criadorField = document.getElementById('criador_id');
     const criadorLabel = document.querySelector('label[for="criador_id"]');
@@ -62,7 +67,10 @@ function fillSampleTableData() {
     document.getElementById('sistema').value = 'D&D 5e';
     document.getElementById('qntd_jogadores').value = '4';
     document.getElementById('mesa_aberta').checked = true;
-    document.getElementById('capa').value = 'https://exemplo.com/taverna_dragao.jpg';
+    // Limpa a imagem da mesa para exemplo
+    if (typeof clearTableImage === 'function') {
+        clearTableImage();
+    }
     document.getElementById('descricao').value = 'Uma aventura épica na famosa Taverna do Dragão Dourado! Junte-se aos nossos heróis em uma jornada através de masmorras perigosas, criaturas místicas e tesouros lendários. Mesa focada em roleplay e exploração, ideal para jogadores de todos os níveis.';
 }
 
@@ -346,6 +354,11 @@ async function loadTableForEdit() {
             document.getElementById('mesa_aberta').checked = table.mesa_aberta == 1;
             document.getElementById('capa').value = table.capa || '';
             document.getElementById('descricao').value = table.descricao || '';
+            
+            // Carregar imagem de mesa existente se houver
+            if (typeof loadTableImageForEdit === 'function') {
+                loadTableImageForEdit(table);
+            }
             
             // Scroll para o formulário
             document.getElementById('formTitle').scrollIntoView({ behavior: 'smooth' });

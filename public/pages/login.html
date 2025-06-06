@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice or Die - Login</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/forms.css">
+</head>
+<body>
+    <div class="body-shadow"></div>
+    <div class="main-container">
+        <!-- Left Column (Sidebar) -->
+        <div class="left-column" id="sidebar">
+            <!-- Logo será carregado aqui -->
+            <div id="logo-slot"></div>
+            
+            <!-- Painéis do menu serão carregados dinamicamente -->
+            <div id="menu-panels"></div>
+        </div>
+        
+        <!-- Middle Column -->
+        <div class="middle-column">
+            <!-- Top Navigation -->
+            <div class="top-nav" id="navbar">
+                <!-- Links serão carregados dinamicamente -->
+            </div>
+            
+            <!-- Login Form Card -->
+            <div class="form-card">
+                <div class="form-header">
+                    <h1 id="paginaTitulo">Login</h1>
+                    <p>Entre na sua conta para acessar o Dice or Die</p>
+                </div>
+                
+                <form id="loginForm" class="login-form">
+                    <!-- Dados de Acesso Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Dados de Acesso</h2>                        <div class="form-group">
+                            <label for="contato">Email ou Username *</label>
+                            <input type="text" id="contato" name="contato" placeholder="Digite seu email ou username" required autocomplete="username">
+                        </div><div class="form-group">
+                            <label for="senha">Senha *</label>
+                            <div class="password-group">
+                                <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required autocomplete="current-password">
+                                <button type="button" class="password-toggle" id="passwordToggle" aria-label="Mostrar senha">👁</button>
+                            </div>
+                        </div>
+                        <div class="form-options">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="lembrarMe" name="lembrarMe">
+                                <label for="lembrarMe" class="checkbox-label">Lembrar de mim</label>
+                            </div>
+                            <a href="#" class="forgot-password">Esqueci minha senha</a>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="submit" id="loginButton" class="submit-button">Entrar</button>
+                    </div>
+                    
+                    <!-- Create Account Link -->
+                    <div class="form-footer">
+                        <p>Não tem uma conta? <a href="conta.html" class="create-account-link">Criar conta</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- User Profile será carregado aqui -->
+            <div id="userbar-slot"></div>
+            
+            <!-- Painéis do lado direito serão carregados dinamicamente -->
+            <div id="right-panels"></div>
+        </div>
+    </div>
+      <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/components.js"></script>
+    <script src="../assets/js/login.js"></script>
+    <script src="../assets/js/login-config.js"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice or Die - Criar Conta</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/forms.css">
+</head>
+<body>
+    <div class="body-shadow"></div>
+    <div class="main-container">
+        <!-- Left Column (Sidebar) -->
+        <div class="left-column" id="sidebar">
+            <!-- Logo será carregado aqui -->
+            <div id="logo-slot"></div>
+            
+            <!-- Painéis do menu serão carregados dinamicamente -->
+            <div id="menu-panels"></div>
+        </div>
+        
+        <!-- Middle Column -->
+        <div class="middle-column">
+            <!-- Top Navigation -->
+            <div class="top-nav" id="navbar">
+                <!-- Links serão carregados dinamicamente -->
+            </div>
+            
+            <!-- Registration Form Card -->
+            <div class="form-card">
+                <div class="form-header">
+                    <h1 id="paginaTitulo">Conta</h1>
+                </div>
+                
+                <form id="mainForm" class="registration-form">
+                    <!-- Dados Pessoais Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Dados Pessoais</h2>                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nome">Nome *</label>
+                                <input type="text" id="nome" name="nome" placeholder="Digite seu nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="sobrenome">Sobrenome *</label>
+                                <input type="text" id="sobrenome" name="sobrenome" placeholder="Digite seu sobrenome" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="genero">Gênero *</label>
+                                <select id="genero" name="genero" required>
+                                    <option value="">Selecione seu gênero</option>
+                                    <option value="masculino">Masculino</option>
+                                    <option value="feminino">Feminino</option>
+                                    <option value="nao-binario">Não-Binário</option>
+                                    <option value="prefere-nao-dizer">Prefere não dizer</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="nascimento">Data de Nascimento *</label>
+                                <input type="date" id="nascimento" name="nascimento" required>
+                            </div>
+                        </div>
+                    </div>                        <!-- Dados de Acesso Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Dados de Acesso</h2>
+                        <div class="form-group">
+                            <label for="username">Username *</label>
+                            <input type="text" id="username" name="username" placeholder="Digite seu username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contato">Email *</label>
+                            <input type="email" id="contato" name="contato" placeholder="Digite seu email" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="senha">Senha *</label>
+                                <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirmarSenha">Confirmar Senha *</label>
+                                <input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Confirme sua senha" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Experiência Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Nível de Experiência</h2>
+                        <div class="experience-container">
+                            <div class="experience-header">
+                                <div class="experience-level" id="expLevel">Cavaleiro</div>
+                                <div class="experience-description" id="expDescription">Alguma experiência com RPG</div>
+                            </div>
+                            <div class="experience-selector">
+                                <button type="button" class="exp-controls" id="decreaseExp">−</button>
+                                <div class="exp-dots-container">
+                                    <div class="exp-dot" data-level="1"></div>
+                                    <div class="exp-dot active" data-level="2"></div>
+                                    <div class="exp-dot" data-level="3"></div>
+                                    <div class="exp-dot" data-level="4"></div>
+                                    <div class="exp-dot" data-level="5"></div>
+                                    <div class="exp-dot" data-level="6"></div>
+                                </div>
+                                <button type="button" class="exp-controls" id="increaseExp">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Foto de Perfil Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Foto de Perfil</h2>
+                        <div class="avatar-container">
+                            <div class="avatar-preview-container">
+                                <img src="https://placehold.co/150x150/666/fff?text=Avatar" alt="Avatar" id="profilePreview" class="avatar-preview">
+                            </div>
+                            <div class="avatar-actions">
+                                <button type="button" class="upload-button" id="uploadButton">Escolher Foto</button>
+                                <p class="upload-hint">Formato: JPG, PNG • Tamanho máximo: 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="submit" id="submitter" class="submit-button">Criar Conta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- User Profile será carregado aqui -->
+            <div id="userbar-slot"></div>
+            
+            <!-- Painéis do lado direito serão carregados dinamicamente -->
+            <div id="right-panels"></div>
+        </div>
+    </div>
+    
+    <!-- Scripts refatorados -->
+    <script src="../assets/js/form-constants.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/components.js"></script>
+    <script src="../assets/js/page-mode-manager.js"></script>
+    <script src="../assets/js/form-base.js"></script>
+    <script src="../assets/js/conta.js"></script>
+    <script src="../assets/js/conta-config.js"></script>
+</body>
+</html>

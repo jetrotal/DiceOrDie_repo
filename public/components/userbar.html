@@ -1,0 +1,23 @@
+<!-- User Profile Component -->
+<div class="user-profile" onclick="toggleDropdown()">
+    <div class="user-diamond-picture">
+        <!-- Insira a URL da imagem do usuário aqui -->
+        <img src="https://placehold.co/50x50/4CAF50/FFFFFF/png?text=U" alt="Foto do usuário" class="user-profile-image">
+        <!-- Placeholder para quando não há foto (remova se tiver imagem) -->
+        <!-- <div class="user-profile-placeholder">U</div> -->
+    </div>
+    <div class="user-dropdown">
+        <div class="user-name" >Usuario</div>
+        <div class="user-dropdown-content">
+            <div class="user-dropdown-item" onclick="goToProfile()">👤 Meu Perfil</div>
+            <div class="user-dropdown-item" onclick="goToSettings()">⚙️ Configurações</div>
+            <div class="user-dropdown-item" onclick="goToNotifications()">🔔 Notificações</div>
+            <div class="user-dropdown-separator"></div>
+            <div class="user-dropdown-item" onclick="goToHelp()">❓ Ajuda</div>
+            <div class="user-dropdown-item" onclick="goToFeedback()">💬 Feedback</div>
+            <div class="user-dropdown-separator"></div>
+            <div class="user-dropdown-item" onclick="logout()">🚪 Sair</div>
+        </div>
+    </div>
+    <div style="opacity:0" class="user-diamond"></div>
+</div>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice or Die - {{PAGE_TITLE}}</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <!-- Adicione CSS específicos da página aqui -->
+    {{PAGE_CSS}}
+</head>
+<body>
+    <div class="body-shadow"></div>
+    <div class="main-container">
+        <!-- Left Column (Sidebar) -->
+        <div class="left-column" id="sidebar">
+            <!-- Logo será carregado aqui -->
+            <div id="logo-slot"></div>
+            
+            <!-- Painéis do menu serão carregados dinamicamente -->
+            <div id="menu-panels"></div>
+        </div>
+        
+        <!-- Middle Column -->
+        <div class="middle-column">
+            <!-- Top Navigation -->
+            <div class="top-nav" id="navbar">
+                <!-- Links serão carregados dinamicamente -->
+            </div>
+            
+            <!-- Conteúdo específico da página -->
+            <div id="main-content">
+                {{PAGE_CONTENT}}
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- User Profile será carregado aqui (se necessário) -->
+            <div id="userbar-slot"></div>
+            
+            <!-- Painéis do lado direito serão carregados dinamicamente -->
+            <div id="right-panels"></div>
+        </div>
+    </div>
+
+    <!-- Scripts básicos -->
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/components.js"></script>
+    
+    <!-- Scripts específicos da página -->
+    {{PAGE_SCRIPTS}}
+</body>
+</html>

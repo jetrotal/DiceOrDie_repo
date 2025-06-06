@@ -1,0 +1,244 @@
+/* Painéis */
+.panel {
+  background-image: radial-gradient(var(--color-panel-bg), #14130faa 80%);
+  border: 1px solid var(--color-panel-border);
+  box-shadow: var(--shadow-default);
+  margin-bottom: 20px;
+  overflow: hidden;
+  color: var(--color-white);
+  width: 230px;
+}
+
+.panel-header {
+  border-bottom: 1px solid var(--color-panel-border-bottom);
+  color: var(--color-accent);
+  font-weight: 700;
+  padding: 10px 15px;
+}
+
+.panel-content {
+  padding: 10px 0;
+  user-select: none;
+}
+
+.panel-item {
+  padding: 8px 15px;
+  line-height: 1.4;
+}
+
+.panel-bt:hover {
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.panel-separator {
+  height: 1px;
+  background-color: #fff3;
+  margin: 10px 15px;
+}
+
+/* Botões */
+.btn {
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 12px 24px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-primary {
+  background-color: var(--color-button-primary);
+  color: var(--color-white);
+  box-shadow: var(--shadow-button);
+}
+
+.btn-primary:hover {
+  background-color: var(--color-button-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* User Profile Dropdown */
+.user-profile {
+  place-content: space-between;
+  width: 230px;
+  position: relative;
+  cursor: pointer;
+}
+
+.user-diamond-picture {
+  background: var(--color-creator-text);
+  box-shadow: var(--shadow-user);
+  border: 1px outset var(--color-accent-faded);
+  width: 35px;
+  height: 35px;
+  position: relative;
+  transform: rotate(45deg);
+  translate: -15px 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.user-profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: rotate(-45deg) scale(1.4);
+  border-radius: 0;
+  transition: transform 0.2s ease;
+}
+
+.user-diamond-picture:hover .user-profile-image {
+  transform: rotate(-45deg) scale(1.5);
+}
+
+/* Placeholder para quando não há foto */
+.user-profile-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  color: var(--color-accent);
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.user-name {
+  color: var(--color-accent);
+  font-size: 14px;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Menu Dropdown do Usuário */
+.user-dropdown {
+  position: relative;
+}
+
+.user-dropdown-content {
+  display: none;
+  position: absolute;
+  width: 230px;
+  right: -66px;
+  z-index: -1;
+  top: 100%;
+  margin-top: 10px;
+  min-width: 160px;
+  background-image: radial-gradient(var(--color-panel-bg), #14130faa 80%);
+  border: 1px solid var(--color-panel-border);
+  box-shadow: var(--shadow-default), 0 0 0 999em rgba(0,0,0,0.6), inset 0 0 0 999em rgba(0,0,0,0.8);
+  z-index: 1000;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.user-dropdown-content::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid var(--color-panel-border);
+}
+
+.user-dropdown-content::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: 20px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid var(--color-panel-bg);
+}
+
+.user-dropdown-item {
+  color: var(--color-white);
+  padding: 10px 15px;
+  text-decoration: none;
+  display: block;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-dropdown-item:hover {
+  background-color: var(--color-panel-item-hover);
+  color: var(--color-accent);
+}
+
+.user-dropdown-separator {
+  height: 1px;
+  background-color: var(--color-panel-border);
+  margin: 5px 0;
+}
+
+.user-dropdown.show .user-dropdown-content {
+  display: block;
+  animation: fadeInDown 0.2s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ícone de seta no nome do usuário */
+.user-name::after {
+  content: '  ';
+  font-size: 10px;
+  margin-left: 5px;
+  transition: transform 0.2s ease;
+}
+
+.user-dropdown.show .user-name::after {
+  transform: rotate(180deg);
+}
+
+/* Search */
+.search-container {
+  margin-bottom: 15px;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-input-border);
+  border-radius: 4px;
+  background-color: var(--color-input-bg);
+  font-size: 12px;
+}
+
+.search-button {
+  padding: 10px;
+  text-align: center;
+}
+
+.search-button button, .submit-button {
+  background-color: var(--color-panel-bg);
+  border: 1px solid var(--color-panel-border);
+  border-radius: 3px;
+  color: var(--color-accent);
+  cursor: pointer;
+  padding: 5px 15px;
+}
+
+.search-button button:hover, .submit-button:hover {
+  background-color: var(--color-panel-header);
+}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice or Die - Mesas de RPG</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/games.css">
+</head>
+<body>
+    <div class="body-shadow"></div>
+    <div class="main-container">
+        <!-- Left Column (Sidebar) -->
+        <div class="left-column" id="sidebar">
+            <!-- Logo será carregado aqui -->
+            <div id="logo-slot"></div>
+            
+            <!-- Painéis do menu serão carregados dinamicamente -->
+            <div id="menu-panels"></div>
+        </div>
+        
+        <!-- Middle Column -->
+        <div class="middle-column">
+            <!-- Top Navigation -->
+            <div class="top-nav" id="navbar">
+                <!-- Links serão carregados dinamicamente -->
+            </div>
+            
+            <!-- Games Grid -->
+            <div class="games-grid">
+                <div class="game-card">
+                    <img src="https://placehold.co/100x100.png" alt="D&D Game" class="game-image">
+                    <div class="game-info">
+                        <div class="game-title">Aventuras em Faerûn</div>
+                        <div class="game-description">
+                            Uma campanha épica no mundo de Dungeons & Dragons. Explorando as terras místicas de Faerûn, os heróis enfrentarão desafios únicos e criaturas lendárias.
+                        </div>
+                        <div class="game-tags">
+                            <div class="game-tag">D&D 5e</div>
+                            <div class="game-tag">Até 6 jogadores</div>
+                            <div class="game-creator">Mesa criada por Marco</div>
+                        </div>
+                        
+                    </div>
+                    <div class="game-status status-full">Lotado</div>
+                </div>
+                
+                <div class="game-card">
+                    <img src="https://placehold.co/100x100.png" alt="3D&T Game" class="game-image">
+                    <div class="game-info">
+                        <div class="game-title">Aventura em Tormenta</div>
+                        <div class="game-description">
+                            Revivendo uma aventura de Arton! Jogadores interessados devem entrar em contato com email@gmail.com. Data limite: 25/08/1994. Horário das partidas: 22 horas.
+                        </div>
+                        <div class="game-tags">
+                            <div class="game-tag">3D&T</div>
+                            <div class="game-tag">Até 7 jogadores</div>
+                            <div class="game-creator">Mesa criada por teste</div>
+                        </div>
+                        
+                    </div>
+                    <div class="game-status status-available">Disponível</div>
+                </div>
+                
+                <div class="game-card">
+                    <img src="https://placehold.co/100x100.png" alt="Party Game" class="game-image">
+                    <div class="game-info">
+                        <div class="game-title">Ritmo de Festa</div>
+                        <div class="game-description">
+                            Uma aventura descontraída para quem quer se divertir com amigos. Sistema simples e narrativa focada na diversão.
+                        </div>
+                        <div class="game-tags">
+                            <div class="game-tag">Sistema Próprio</div>
+                            <div class="game-tag">Até 6 jogadores</div>
+                            <div class="game-creator self-creator">Mesa criada por Usuario</div>
+                        </div>
+                        
+                    </div>
+                    <div class="game-status status-available">Disponível</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- User Profile será carregado aqui -->
+            <div id="userbar-slot"></div>
+            
+            <!-- Painéis do lado direito serão carregados dinamicamente -->
+            <div id="right-panels"></div>
+        </div>
+    </div>    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/components.js"></script>
+    <script src="../assets/js/mesas-config.js"></script>
+    <script src="../assets/js/mesas.js"></script>
+</body>
+</html>

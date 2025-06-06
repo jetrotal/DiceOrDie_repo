@@ -1,0 +1,165 @@
+/* Game Cards */
+.game-card {
+  background-image: linear-gradient(#825e3777, #825e3710 50%),
+    linear-gradient(to top, #825e37cc, #825e3710 50%),
+    linear-gradient(to left, #825e3777, #825e3710 50%),
+    linear-gradient(to right, #825e37aa, #825e3710 50%), 
+    url('https://mauroetc.github.io/images/bg_papers.png');
+  border: double 3px #3c170a;
+  box-shadow: var(--shadow-game);
+  color: var(--color-text);
+  display: flex;
+  min-height: 180px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  padding: 30px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 10px 25px 20px rgba(0, 0, 0, 0.5);
+}
+
+.game-card:active {
+  transform: translateY(0);
+}
+
+.game-image {
+  align-self: center;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+  height: 100px;
+  margin-right: 15px;
+  object-fit: cover;
+  width: 100px;
+}
+
+.game-info {
+  flex: 1;
+}
+
+.game-title {
+  border-bottom: 1px solid var(--color-game-border);
+  color: var(--color-text);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}
+
+.game-description {
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+}
+
+.game-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.game-tag, .game-creator {
+  background-color: var(--color-tag-bg);
+  border-radius: 3px;
+  color: var(--color-white);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  box-shadow: var(--shadow-tag);
+}
+
+.game-creator {
+  background-color: var(--transparent);
+  box-shadow: none;
+  font-style: italic;
+  margin-left: auto;
+}
+
+.self-creator{
+  background-color: var(--color-background);
+  box-shadow: var(--shadow-tag);
+}
+
+.game-status {
+  align-items: center;
+  border-radius: 4px;
+  color: var(--color-white);
+  display: flex;
+  font-size: 12px;
+  font-weight: 700;
+  height: fit-content;
+  padding: 8px 12px;
+  position: absolute;
+  right: 30px;
+  top: 20px;
+  text-transform: uppercase;
+}
+
+.status-full {
+  background-color: var(--color-status-full);
+}
+
+.status-available {
+  background-color: var(--color-status-available);
+}
+
+/* Search and Filters */
+.search-filters {
+  margin-bottom: 20px;
+}
+
+.search-filters input[type="checkbox"] {
+  margin-right: 5px;
+}
+
+.search-filters label {
+  color: var(--color-white);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* No Results State */
+.no-results {
+  align-items: center;
+  background-image: linear-gradient(#825e3777, #825e3710 50%),
+    linear-gradient(to top, #825e37cc, #825e3710 50%),
+    url('https://mauroetc.github.io/images/bg_papers.png');
+  border: double 3px #3c170a;
+  border-radius: 8px;
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 200px;
+  padding: 40px;
+  text-align: center;
+}
+
+.no-results h3 {
+  color: var(--color-text);
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.no-results p {
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 1.5;
+  opacity: 0.8;
+}
+
+/* Status variations */
+.status-private {
+  background-color: var(--color-status-private, #6c757d);
+}
+
+.status-starting {
+  background-color: var(--color-status-starting, #fd7e14);
+}

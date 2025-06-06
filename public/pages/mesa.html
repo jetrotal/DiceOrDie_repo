@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice or Die - Criar Mesa</title>
+    <link rel="stylesheet" href="../assets/css/base.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/forms.css">
+</head>
+<body>
+    <div class="body-shadow"></div>
+    <div class="main-container">
+        <!-- Left Column (Sidebar) -->
+        <div class="left-column" id="sidebar">
+            <!-- Logo será carregado aqui -->
+            <div id="logo-slot"></div>
+            
+            <!-- Painéis do menu serão carregados dinamicamente -->
+            <div id="menu-panels"></div>
+        </div>
+        
+        <!-- Middle Column -->
+        <div class="middle-column">
+            <!-- Top Navigation -->
+            <div class="top-nav" id="navbar">
+                <!-- Links serão carregados dinamicamente -->
+            </div>
+            
+            <!-- Mesa Form Card -->
+            <div class="form-card">
+                <div class="form-header">
+                    <h1 id="paginaTitulo">Mesa</h1>
+                </div>
+                
+                <form id="mainForm" class="mesa-form">
+                    <!-- Dados Gerais Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Dados Gerais</h2>
+                        
+                        <div class="form-group">
+                            <label for="nomeMesa">Nome da Mesa *</label>
+                            <input type="text" id="nomeMesa" name="nomeMesa" placeholder="Digite o nome da mesa" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="sistema">Sistema *</label>
+                                <select id="sistema" name="sistema" required>
+                                    <option value="">Selecione o Sistema</option>
+                                    <option value="dnd">D&D</option>
+                                    <option value="gurps">GURPS</option>
+                                    <option value="cyberpunk">Cyberpunk</option>
+                                    <option value="vampiro">Vampiro</option>
+                                    <option value="call-of-cthulhu">Call of Cthulhu</option>
+                                    <option value="3det">3D&T</option>
+                                    <option value="13a-era">13ª Era</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="qtdJogadores">Qtd. de Jogadores *</label>
+                                <select id="qtdJogadores" name="qtdJogadores" required>
+                                    <option value="">Selecione</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="autor">Autor *</label>
+                                <input type="text" id="autor" name="autor" placeholder="Nome do mestre" readonly class="readonly">
+                            </div>
+                            <div class="form-group">
+                                <label for="publico">Aberto ao Público?</label>
+                                <div class="toggle-container">
+                                    <label class="switch">
+                                        <input type="checkbox" id="publico" name="publico" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="toggle-label" id="publicoLabel">Sim</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descrição da Campanha Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Descrição da Campanha</h2>
+                        <div class="form-group">
+                            <label for="descricao">Descrição Detalhada *</label>
+                            <textarea id="descricao" name="descricao" rows="6" placeholder="Descreva sua campanha, história, regras especiais e o que os jogadores podem esperar..." required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Capa da Campanha Section -->
+                    <div class="form-section">
+                        <h2 class="section-title">Capa da Campanha</h2>
+                        <div class="avatar-container">
+                            <div class="avatar-preview-container">
+                                <img src="https://placehold.co/150x150/666/fff?text=Capa" alt="Capa da Campanha" id="campaignPreview" class="avatar-preview">
+                            </div>
+                            <div class="avatar-actions">
+                                <button type="button" class="upload-button" id="uploadButton">Escolher Capa</button>
+                                <p class="upload-hint">Formato: JPG, PNG • Tamanho máximo: 5MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="submit" id="submitter" class="submit-button">Criar Mesa</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- User Profile será carregado aqui -->
+            <div id="userbar-slot"></div>
+            
+            <!-- Painéis do lado direito serão carregados dinamicamente -->
+            <div id="right-panels"></div>
+        </div>
+    </div>
+      <!-- Scripts refatorados -->
+    <script src="../assets/js/form-constants.js"></script>
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/components.js"></script>
+    <script src="../assets/js/page-mode-manager.js"></script>
+    <script src="../assets/js/form-base.js"></script>
+    <script src="../assets/js/mesa.js"></script>
+    <script src="../assets/js/mesa-config.js"></script>
+</body>
+</html>
