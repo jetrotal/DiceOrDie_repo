@@ -1,246 +1,177 @@
-// Login functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    const loginButton = document.getElementById('loginButton');
-      // Handle form submission
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
+// Classe LoginForm integrada com backend
+class LoginForm extends BaseForm {
+    constructor() {
+        super('loginForm', {
+            submitButtonId: 'loginButton',
+            loadingText: 'Entrando...',
+            successMessage: 'Login realizado com sucesso! Redirecionando...',
+            errorMessage: 'Erro ao fazer login. Verifique suas credenciais.',
+            redirectUrl: 'mesas.html',
+            redirectDelay: 1500
+        });
         
-        // Validate form
-        if (!validateLoginForm()) {
-            return;
-        }
-        
-        const contato = document.getElementById('contato').value.trim();
-        const senha = document.getElementById('senha').value;
-        const lembrarMe = document.getElementById('lembrarMe').checked;
-        
-        // Show loading state
-        setLoading(true);
-        
-        // Simulate login API call
-        setTimeout(() => {
-            // Here you would make the actual API call
-            // For now, we'll simulate a successful login
-            
-            if (lembrarMe) {
-                localStorage.setItem('rememberMe', 'true');
-                localStorage.setItem('userContact', contato);
-            }
-            
-            // Simulate successful login
-            showMessage('Login realizado com sucesso! Redirecionando...', 'success');
-            
-            setTimeout(() => {
-                // Redirect to main page or dashboard
-                window.location.href = 'mesas.html';
-            }, 1500);
-            
-            setLoading(false);
-        }, 1000);
-    });
+        this.setupPasswordToggle();
+        this.setupRememberMe();
+        this.setupForgotPassword();
+        this.setupEnterKeyLogin();
+    }
     
-    // Check if user should be remembered
-    if (localStorage.getItem('rememberMe') === 'true') {
-        const savedContact = localStorage.getItem('userContact');
-        if (savedContact) {
-            document.getElementById('contato').value = savedContact;
-            document.getElementById('lembrarMe').checked = true;
+    setupPasswordToggle() {
+        const passwordToggle = document.getElementById('passwordToggle');
+        const passwordField = document.getElementById('senha');
+        
+        if (passwordToggle && passwordField) {
+            passwordToggle.addEventListener('click', function() {
+                const isPassword = passwordField.type === 'password';
+                passwordField.type = isPassword ? 'text' : 'password';
+                passwordToggle.textContent = isPassword ? '🙈' : '👁';
+                passwordToggle.setAttribute('aria-label', isPassword ? 'Ocultar senha' : 'Mostrar senha');
+            });
         }
     }
     
-    // Handle forgot password
-    const forgotPasswordLink = document.querySelector('.forgot-password');
-    forgotPasswordLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        showMessage('Funcionalidade de recuperação de senha em desenvolvimento.', 'info');
-    });
+    setupRememberMe() {
+        // Verificar se usuário deve ser lembrado
+        if (localStorage.getItem('rememberMe') === 'true') {
+            const savedContact = localStorage.getItem('userContact');
+            if (savedContact) {
+                document.getElementById('contato').value = savedContact;
+                document.getElementById('lembrarMe').checked = true;
+            }
+        }
+    }
     
-    // Password toggle functionality
-    const passwordToggle = document.getElementById('passwordToggle');
-    const passwordField = document.getElementById('senha');
+    setupForgotPassword() {
+        const forgotPasswordLink = document.querySelector('.forgot-password');
+        if (forgotPasswordLink) {
+            forgotPasswordLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                DiceOrDieUtils.showInfo('Funcionalidade de recuperação de senha em desenvolvimento.');
+            });
+        }
+    }
     
-    if (passwordToggle && passwordField) {
-        passwordToggle.addEventListener('click', function() {
-            const isPassword = passwordField.type === 'password';
-            passwordField.type = isPassword ? 'text' : 'password';
-            passwordToggle.textContent = isPassword ? '🙈' : '👁';
-            passwordToggle.setAttribute('aria-label', isPassword ? 'Ocultar senha' : 'Mostrar senha');
+    setupEnterKeyLogin() {
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+                const activeElement = document.activeElement;
+                if (activeElement && (activeElement.id === 'contato' || activeElement.id === 'senha')) {
+                    e.preventDefault();
+                    this.form.dispatchEvent(new Event('submit'));
+                }
+            }
         });
     }
     
-    // Real-time validation
-    const contatoField = document.getElementById('contato');
-    const senhaField = document.getElementById('senha');
-      // Validate contact field on blur
-    contatoField.addEventListener('blur', function() {
-        const value = this.value.trim();
-        if (value && !isValidEmailOrUsername(value)) {
-            showFieldError(this, 'Email ou username inválido');
-        } else {
-            clearFieldError(this);
+    getRequiredFields() {
+        return ['contato', 'senha'];
+    }
+    
+    validateForm() {
+        const contato = document.getElementById('contato').value.trim();
+        const senha = document.getElementById('senha').value;
+        let isValid = true;
+        
+        // Limpar erros anteriores
+        this.clearFieldError(document.getElementById('contato'));
+        this.clearFieldError(document.getElementById('senha'));
+        
+        // Validar contato
+        if (!contato) {
+            this.markFieldAsError(document.getElementById('contato'), 'Este campo é obrigatório');
+            isValid = false;
+        } else if (!this.isValidEmailOrUsername(contato)) {
+            this.markFieldAsError(document.getElementById('contato'), 'Email ou username inválido');
+            isValid = false;
         }
-    });
+        
+        // Validar senha
+        if (!senha) {
+            this.markFieldAsError(document.getElementById('senha'), 'Este campo é obrigatório');
+            isValid = false;
+        } else if (senha.length < 6) {
+            this.markFieldAsError(document.getElementById('senha'), 'A senha deve ter pelo menos 6 caracteres');
+            isValid = false;
+        }
+        
+        return isValid;
+    }
     
-    // Clear error on focus
-    contatoField.addEventListener('focus', function() {
-        clearFieldError(this);
-    });
+    isValidEmailOrUsername(input) {
+        // Email regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        // Username regex (3-20 characters, letters, numbers, underscore)
+        const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+        
+        return emailRegex.test(input) || usernameRegex.test(input);
+    }
     
-    senhaField.addEventListener('focus', function() {
-        clearFieldError(this);
-    });
+    getFormData() {
+        return {
+            contato: document.getElementById('contato').value.trim(),
+            senha: document.getElementById('senha').value,
+            lembrarMe: document.getElementById('lembrarMe').checked
+        };
+    }
     
-    // Allow login with Enter key
-    document.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.altKey) {
-            const activeElement = document.activeElement;
-            if (activeElement && (activeElement.id === 'contato' || activeElement.id === 'senha')) {
-                e.preventDefault();
-                loginForm.dispatchEvent(new Event('submit'));
+    async submitForm(formData) {
+        console.log('Fazendo login:', { contato: formData.contato, lembrarMe: formData.lembrarMe });
+        
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    login: formData.contato,  // Backend espera 'login', não 'contato'
+                    senha: formData.senha
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success && result.user) {
+                console.log('Login bem-sucedido:', result.user.username);
+                
+                // Salvar usuário na sessão (compatibilidade com test-users.html)
+                localStorage.setItem('diceordie_current_user', JSON.stringify(result.user));
+                sessionStorage.setItem('currentUser', JSON.stringify(result.user)); // fallback
+                
+                // Gerenciar "Lembrar de mim"
+                if (formData.lembrarMe) {
+                    localStorage.setItem('rememberMe', 'true');
+                    localStorage.setItem('userContact', formData.contato);
+                } else {
+                    localStorage.removeItem('rememberMe');
+                    localStorage.removeItem('userContact');
+                }
+                
+                // Mostrar mensagem de sucesso
+                DiceOrDieUtils.showSuccess(this.config.successMessage);
+                
+                // Redirecionar após delay
+                setTimeout(() => {
+                    window.location.href = this.config.redirectUrl;
+                }, this.config.redirectDelay);
+                
+                return { success: true, user: result.user };
+            } else {
+                throw new Error(result.error || 'Credenciais inválidas');
             }
+        } catch (error) {
+            console.error('Erro no login:', error);
+            throw error;
         }
-    });
+    }
+}
+
+// Inicializar form
+document.addEventListener('DOMContentLoaded', function() {
+    // Aguardar scripts dependentes carregarem
+    setTimeout(() => {
+        window.loginForm = new LoginForm();
+        console.log('LoginForm inicializado com sucesso');
+    }, FormConstants.INIT_DELAYS.FORM_CREATION);
 });
 
-function setLoading(isLoading) {
-    const loginButton = document.getElementById('loginButton');
-    const form = document.getElementById('loginForm');
-    
-    if (isLoading) {
-        loginButton.textContent = 'Entrando...';
-        loginButton.disabled = true;
-        form.style.opacity = '0.7';
-    } else {
-        loginButton.textContent = 'Entrar';
-        loginButton.disabled = false;
-        form.style.opacity = '1';
-    }
-}
-
-function isValidEmailOrUsername(input) {
-    // Email regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    // Username regex (3-20 characters, letters, numbers, underscore)
-    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-    
-    return emailRegex.test(input) || usernameRegex.test(input);
-}
-
-function showMessage(message, type = 'info') {
-    // Create message element
-    const messageEl = document.createElement('div');
-    messageEl.className = `message message-${type}`;
-    messageEl.textContent = message;
-    
-    // Style the message
-    messageEl.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 4px;
-        color: white;
-        font-weight: 600;
-        z-index: 1000;
-        max-width: 300px;
-        box-shadow: var(--shadow-default);
-        opacity: 0;
-        transform: translateX(100px);
-        transition: all 0.3s ease;
-    `;
-    
-    // Set background color based on type
-    switch (type) {
-        case 'success':
-            messageEl.style.backgroundColor = 'var(--color-success)';
-            break;
-        case 'error':
-            messageEl.style.backgroundColor = 'var(--color-error)';
-            break;
-        case 'warning':
-            messageEl.style.backgroundColor = 'var(--color-warning)';
-            break;
-        default: // info
-            messageEl.style.backgroundColor = 'var(--color-info)';
-    }
-    
-    // Add to DOM
-    document.body.appendChild(messageEl);
-    
-    // Animate in
-    setTimeout(() => {
-        messageEl.style.opacity = '1';
-        messageEl.style.transform = 'translateX(0)';
-    }, 100);
-    
-    // Remove after 4 seconds
-    setTimeout(() => {
-        messageEl.style.opacity = '0';
-        messageEl.style.transform = 'translateX(100px)';
-        setTimeout(() => {
-            if (messageEl.parentNode) {
-                messageEl.parentNode.removeChild(messageEl);
-            }
-        }, 300);
-    }, 4000);
-}
-
-function showFieldError(field, message) {
-    clearFieldError(field);
-    
-    field.classList.add('error');
-    
-    const errorEl = document.createElement('div');
-    errorEl.className = 'field-error';
-    errorEl.textContent = message;
-    
-    const formGroup = field.closest('.form-group');
-    if (formGroup) {
-        formGroup.appendChild(errorEl);
-    }
-}
-
-function clearFieldError(field) {
-    field.classList.remove('error');
-    
-    const formGroup = field.closest('.form-group');
-    if (formGroup) {
-        const errorEl = formGroup.querySelector('.field-error');
-        if (errorEl) {
-            errorEl.remove();
-        }
-    }
-}
-
-// Enhanced form validation
-function validateLoginForm() {
-    const contato = document.getElementById('contato').value.trim();
-    const senha = document.getElementById('senha').value;
-    
-    let isValid = true;
-    
-    // Clear previous errors
-    clearFieldError(document.getElementById('contato'));
-    clearFieldError(document.getElementById('senha'));
-    
-    // Validate contact
-    if (!contato) {
-        showFieldError(document.getElementById('contato'), 'Este campo é obrigatório');
-        isValid = false;    } else if (!isValidEmailOrUsername(contato)) {
-        showFieldError(document.getElementById('contato'), 'Email ou username inválido');
-        isValid = false;
-    }
-    
-    // Validate password
-    if (!senha) {
-        showFieldError(document.getElementById('senha'), 'Este campo é obrigatório');
-        isValid = false;
-    } else if (senha.length < 6) {
-        showFieldError(document.getElementById('senha'), 'A senha deve ter pelo menos 6 caracteres');
-        isValid = false;
-    }
-    
-    return isValid;
-}

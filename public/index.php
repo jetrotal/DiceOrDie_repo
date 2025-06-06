@@ -68,6 +68,17 @@ switch ("$method:$path") {
         $response = $controller->login($requestData);
         break;
         
+    case 'POST:/logout':
+        $controller = new App\Controllers\UserController();
+        $response = $controller->logout();
+        break;
+        
+    case 'GET:/me':
+    case 'GET:/current-user':
+        $controller = new App\Controllers\UserController();
+        $response = $controller->getCurrentUser();
+        break;
+        
     // Rotas para Usuários (Users)
     case preg_match('#^/users/(\d+)$#', $path, $matches) && $method === 'GET':
         $id = (int)$matches[1];

@@ -277,7 +277,7 @@ class ImageUploadMixin {
         });
     }
     
-    handleImageUpload(event) {
+    async handleImageUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
         
@@ -294,17 +294,65 @@ class ImageUploadMixin {
             return;
         }
         
-        // Criar preview
+        // Criar preview local primeiro
         const reader = new FileReader();
         reader.onload = (e) => {
             if (this.previewElement) {
                 this.previewElement.src = e.target.result;
             }
-            this.onImageLoaded && this.onImageLoaded(e.target.result, file);
         };
         reader.readAsDataURL(file);
         
-        DiceOrDieUtils.showSuccess('Imagem carregada com sucesso!');
+        // Se for upload de perfil, enviar para servidor automaticamente
+        if (this.uploadConfig.purpose === 'profile') {
+            await this.uploadToServer(file);
+        } else {
+            // Para outros tipos, usar comportamento original
+            this.onImageLoaded && this.onImageLoaded(reader.result, file);
+            DiceOrDieUtils.showSuccess('Imagem carregada com sucesso!');
+        }
+    }
+
+    async uploadToServer(file) {
+        try {
+            DiceOrDieUtils.showInfo('Enviando imagem...');
+            
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('/upload-profile-picture', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Armazenar URL da imagem uploadada
+                this.uploadedImageUrl = result.image_url;
+                
+                // Atualizar preview com URL do servidor
+                if (this.previewElement) {
+                    this.previewElement.src = result.image_url;
+                }
+                
+                DiceOrDieUtils.showSuccess('Imagem enviada com sucesso!');
+                console.log('Image uploaded:', result.image_url);
+                
+                // Chamar callback se definido
+                this.onImageLoaded && this.onImageLoaded(result.image_url, file);
+            } else {
+                throw new Error(result.error || 'Erro no upload da imagem');
+            }
+        } catch (error) {
+            console.error('Erro no upload:', error);
+            DiceOrDieUtils.showError(`Erro no upload: ${error.message}`);
+            
+            // Limpar preview em caso de erro
+            if (this.previewElement) {
+                this.previewElement.src = '';
+            }
+        }
     }
     
     // Callback que pode ser sobrescrito

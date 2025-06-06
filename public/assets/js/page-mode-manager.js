@@ -29,15 +29,160 @@ class PageModeManager {
         this.setupEventListeners();
     }
       async loadData() {
-        // Simular carregamento de dados - em produção seria uma API call
-        if (this.pageType === 'mesa') {
-            this.data = await this.loadMesaData(this.itemId);
-        } else if (this.pageType === 'conta') {
-            this.data = await this.loadContaData(this.itemId);
-        } else if (this.pageType === 'ficha') {
-            this.data = await this.loadFichaData(this.itemId);
+            // Carregar dados reais da API
+            if (this.pageType === 'mesa') {
+                this.data = await this.loadMesaData(this.itemId);
+            } else if (this.pageType === 'conta') {
+                this.data = await this.loadContaDataFromAPI(this.itemId);
+            } else if (this.pageType === 'ficha') {
+                this.data = await this.loadFichaData(this.itemId);
+            }
         }
-    }
+    
+        async loadContaDataFromAPI(userId) {
+            try {
+                const response = await fetch(`/users/${userId}`, {
+                    headers: this.getAuthHeaders()
+                });
+    
+                const result = await response.json();
+                
+                if (result.success && result.user) {
+                    // Mapear dados do backend para o formato esperado pelo frontend
+                    return {
+                        id: result.user.id,
+                        nome: result.user.nome,
+                        sobrenome: result.user.sobrenome,
+                        username: result.user.username,
+                        genero: result.user.genero,
+                        nascimento: result.user.data_nascimento,
+                        contato: result.user.email,
+                        experiencia: this.mapBackendExperienceToFrontend(result.user.experiencia),
+                        avatarUrl: result.user.img_perfil || "https://placehold.co/150x150/333/fff?text=" + (result.user.nome?.charAt(0) || 'U')
+                    };
+                } else {
+                    console.error('Erro ao carregar dados do usuário:', result.error);
+                    return null;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar usuário:', error);
+                return null;
+            }
+        }
+    
+        mapBackendExperienceToFrontend(backendExp) {
+            // Mapear experiência do backend para o sistema de níveis do frontend
+            const expMapping = {
+                'Iniciante': 1,
+                'Experiente': 3,
+                'Veterano': 5,
+                'Lendário': 6
+            };
+    
+            return expMapping[backendExp] || 1;
+        }
+    
+        getAuthHeaders() {
+            const headers = {};
+            
+            // Tentar obter do localStorage (compatibilidade total com test-users.html)
+            let currentUser = null;
+            
+            // Primeiro tenta localStorage (sistema principal usado por test-users.html)
+            const savedUser = localStorage.getItem('diceordie_current_user');
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    console.log('PageModeManager - Usuário encontrado no localStorage:', currentUser.username);
+                } catch (e) {
+                    console.warn('PageModeManager - Erro ao parsear usuário do localStorage:', e);
+                }
+            }
+            
+            // Se não encontrou, tenta sessionStorage (fallback)
+            if (!currentUser) {
+                const sessionUser = sessionStorage.getItem('currentUser');
+                if (sessionUser) {
+                    try {
+                        currentUser = JSON.parse(sessionUser);
+                        console.log('PageModeManager - Usuário encontrado no sessionStorage:', currentUser.username);
+                    } catch (e) {
+                        console.warn('PageModeManager - Erro ao parsear usuário do sessionStorage:', e);
+                    }
+                }
+            }
+            
+            // Se encontrou usuário logado, adicionar headers de autenticação
+            if (currentUser && currentUser.id) {
+                headers['X-User-ID'] = currentUser.id.toString();
+                headers['X-User-Role'] = currentUser.role || 'user';
+                console.log('PageModeManager - getAuthHeaders: Enviando headers:', headers);
+                console.log('PageModeManager - getAuthHeaders: Role do usuário:', currentUser.role);
+            } else {
+                console.log('PageModeManager - getAuthHeaders: Nenhum usuário logado encontrado');
+            }
+            
+            return headers;
+        }
+    
+        getCurrentUser() {
+            // Método helper para obter usuário atual
+            let currentUser = null;
+            
+            // Primeiro tenta localStorage
+            const savedUser = localStorage.getItem('diceordie_current_user');
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                } catch (e) {
+                    console.warn('Erro ao parsear usuário do localStorage:', e);
+                }
+            }
+            
+            // Se não encontrou, tenta sessionStorage
+            if (!currentUser) {
+                const sessionUser = sessionStorage.getItem('currentUser');
+                if (sessionUser) {
+                    try {
+                        currentUser = JSON.parse(sessionUser);
+                    } catch (e) {
+                        console.warn('Erro ao parsear usuário do sessionStorage:', e);
+                    }
+                }
+            }
+            
+            return currentUser;
+        }
+    
+        canEditProfile() {
+            // Verificar se o usuário pode editar este perfil
+            const currentUser = this.getCurrentUser();
+            
+            if (!currentUser) {
+                console.log('canEditProfile: Nenhum usuário logado');
+                return false;
+            }
+            
+            // Admin pode editar qualquer perfil
+            if (currentUser.role === 'admin') {
+                console.log('canEditProfile: Admin pode editar qualquer perfil');
+                return true;
+            }
+            
+            // Usuário comum só pode editar seu próprio perfil
+            const profileUserId = this.itemId ? this.itemId.toString() : null;
+            const currentUserId = currentUser.id ? currentUser.id.toString() : null;
+            
+            const canEdit = profileUserId === currentUserId;
+            console.log('canEditProfile:', {
+                currentUserId,
+                profileUserId,
+                currentUserRole: currentUser.role,
+                canEdit
+            });
+            
+            return canEdit;
+        }
     
     async loadMesaData(id) {
         // Mock data para mesa
@@ -256,13 +401,14 @@ class PageModeManager {
             container.appendChild(participateBtn);
             container.appendChild(deleteBtn);
               } else if (this.pageType === 'conta') {
-            // Botões para conta no modo view
-            const editBtn = this.createButton('edit-button primary', 'Editar Perfil', 'button');
-            editBtn.onclick = () => this.switchToEditMode();
-            
-            container.appendChild(editBtn);
-            
-        } else if (this.pageType === 'ficha') {
+                  // Botões para conta no modo view - verificar permissões
+                  if (this.canEditProfile()) {
+                      const editBtn = this.createButton('edit-button primary', 'Editar Perfil', 'button');
+                      editBtn.onclick = () => this.switchToEditMode();
+                      container.appendChild(editBtn);
+                  }
+                  
+              } else if (this.pageType === 'ficha') {
             // Botões para ficha no modo view
             const editBtn = this.createButton('edit-button', 'Editar Ficha', 'button');
             editBtn.onclick = () => this.switchToEditMode();

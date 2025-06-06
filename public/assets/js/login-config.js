@@ -7,18 +7,22 @@ document.addEventListener('DOMContentLoaded', async function() {
     ComponentManager.configureSidebar([
         {
             title: 'Bem-vindo ao Dice or Die',
-            content: `
-                <div class="welcome-panel">
-                    <p>Entre na sua conta para acessar mesas de RPG incríveis e conectar-se com outros jogadores!</p>
-                    <ul>
-                        <li>🎲 Crie e participe de mesas</li>
-                        <li>👥 Converse com outros jogadores</li>
-                        <li>📊 Acompanhe suas estatísticas</li>
-                        <li>🎮 Sistema de dados integrado</li>
-                    </ul>
-                </div>
-            `,
-            type: 'info'
+            items: [
+                {
+                    type: 'info',
+                    text: `
+                        <div class="welcome-panel">
+                            <p>Entre na sua conta para acessar mesas de RPG incríveis e conectar-se com outros jogadores!</p>
+                            <ul>
+                                <li>🎲 Crie e participe de mesas</li>
+                                <li>👥 Converse com outros jogadores</li>
+                                <li>📊 Acompanhe suas estatísticas</li>
+                                <li>🎮 Sistema de dados integrado</li>
+                            </ul>
+                        </div>
+                    `
+                }
+            ]
         }
     ]);
     

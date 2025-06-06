@@ -68,8 +68,10 @@ class ComponentManager {
                                 <input type="checkbox" id="${item.id}" checked>
                                 <label for="${item.id}">${item.label}</label>
                             </div>`;
+                        } else if (item.type === 'info') {
+                            return `<div class="panel-item">${item.text}</div>`;
                         } else {
-                            return `<div class="panel-item panel-bt" 
+                            return `<div class="panel-item panel-bt"
                                 ${item.onclick ? `onclick="${item.onclick}"` : ''}>${item.text}</div>`;
                         }
                     }).join('')}

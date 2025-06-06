@@ -26,36 +26,65 @@ class DiceOrDieUtils {
 
     // Funções dos itens do menu
     window.goToProfile = () => {
-      alert('Ir para Meu Perfil');
       dropdown.classList.remove('show');
-    };
-
-    window.goToSettings = () => {
-      alert('Ir para Configurações');
-      dropdown.classList.remove('show');
-    };
-
-    window.goToNotifications = () => {
-      alert('Ir para Notificações');
-      dropdown.classList.remove('show');
-    };
-
-    window.goToHelp = () => {
-      alert('Ir para Ajuda');
-      dropdown.classList.remove('show');
-    };
-
-    window.goToFeedback = () => {
-      alert('Enviar Feedback');
-      dropdown.classList.remove('show');
-    };
-
-    window.logout = () => {
-      if (confirm('Tem certeza que deseja sair?')) {
-        alert('Logout realizado!');
-        // Aqui você faria o logout real
+      
+      // Obter ID do usuário atual
+      const currentUser = DiceOrDieUtils.getCurrentUser();
+      if (currentUser && currentUser.id) {
+        // Redirecionar para a página de conta no modo view com o ID do usuário
+        window.location.href = `conta.html?mode=view&id=${currentUser.id}`;
+      } else {
+        DiceOrDieUtils.showError('Erro: usuário não encontrado. Faça login novamente.');
+        window.location.href = 'login.html';
       }
-      dropdown.classList.remove('show');
+    };
+
+    window.logout = async () => {
+      if (confirm('Tem certeza que deseja sair?')) {
+        dropdown.classList.remove('show');
+        
+        try {
+          // Fazer logout no backend
+          const response = await fetch('/logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          const result = await response.json();
+          
+          if (result.success) {
+            // Limpar dados locais
+            localStorage.removeItem('diceordie_current_user');
+            sessionStorage.removeItem('currentUser');
+            localStorage.removeItem('rememberMe');
+            localStorage.removeItem('userContact');
+            
+            DiceOrDieUtils.showSuccess('Logout realizado com sucesso!');
+            
+            // Redirecionar para login após delay
+            setTimeout(() => {
+              window.location.href = 'login.html';
+            }, 1500);
+          } else {
+            throw new Error(result.error || 'Erro no logout');
+          }
+        } catch (error) {
+          console.error('Erro no logout:', error);
+          
+          // Mesmo com erro no backend, limpar dados locais
+          localStorage.removeItem('diceordie_current_user');
+          sessionStorage.removeItem('currentUser');
+          localStorage.removeItem('rememberMe');
+          localStorage.removeItem('userContact');
+          
+          DiceOrDieUtils.showWarning('Logout realizado localmente. Redirecionando...');
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1500);
+        }
+      }
     };
   }
 
@@ -188,6 +217,35 @@ class DiceOrDieUtils {
     window.location.href = page;
   }
 
+  // Obter usuário atual da sessão
+  static getCurrentUser() {
+    // Primeiro tenta localStorage (sistema principal)
+    let currentUser = null;
+    
+    const savedUser = localStorage.getItem('diceordie_current_user');
+    if (savedUser) {
+      try {
+        currentUser = JSON.parse(savedUser);
+      } catch (e) {
+        console.warn('Erro ao parsear usuário do localStorage:', e);
+      }
+    }
+    
+    // Se não encontrou, tenta sessionStorage (fallback)
+    if (!currentUser) {
+      const sessionUser = sessionStorage.getItem('currentUser');
+      if (sessionUser) {
+        try {
+          currentUser = JSON.parse(sessionUser);
+        } catch (e) {
+          console.warn('Erro ao parsear usuário do sessionStorage:', e);
+        }
+      }
+    }
+    
+    return currentUser;
+  }
+
   // Gerenciamento de Navbar Inteligente
   static getCurrentPage() {
     const path = window.location.pathname;
@@ -196,11 +254,9 @@ class DiceOrDieUtils {
   }
 
   static isUserLoggedIn() {
-    // Por enquanto, vamos considerar que usuário está logado se estiver em páginas específicas
-    // Depois isso pode ser baseado em localStorage, sessionStorage ou API
-    const currentPage = this.getCurrentPage();
-    const guestPages = ['login', 'conta'];
-    return !guestPages.includes(currentPage);
+    // Verificar se há usuário logado baseado nos dados da sessão
+    const currentUser = this.getCurrentUser();
+    return !!(currentUser && currentUser.id);
   }
 
   // Configuração do Navbar baseada no status de autenticação
@@ -229,21 +285,24 @@ class DiceOrDieUtils {
   static getUserbarContent() {
     const isLoggedIn = this.isUserLoggedIn();
 
-    if (isLoggedIn) {      // Userbar para usuário logado - perfil completo
+    if (isLoggedIn) {
+      // Obter dados do usuário logado
+      const currentUser = this.getCurrentUser();
+      const userName = currentUser ? currentUser.username || currentUser.nome || 'Usuario' : 'Usuario';
+      const userPhoto = currentUser && currentUser.img_perfil ?
+        currentUser.img_perfil :
+        `https://placehold.co/50x50/4CAF50/FFFFFF/png?text=${userName.charAt(0).toUpperCase()}`;
+      
+      // Userbar para usuário logado - com nome e foto reais
       return `
         <div class="user-profile" onclick="DiceOrDieUtils.toggleDropdown()">
           <div class="user-diamond-picture">
-            <img src="https://placehold.co/50x50/4CAF50/FFFFFF/png?text=U" alt="Foto do usuário" class="user-profile-image">
+            <img src="${userPhoto}" alt="Foto de ${userName}" class="user-profile-image">
           </div>
           <div class="user-dropdown">
-            <div class="user-name">Usuario</div>
+            <div class="user-name">${userName}</div>
             <div class="user-dropdown-content">
               <div class="user-dropdown-item" onclick="goToProfile()">👤 Meu Perfil</div>
-              <div class="user-dropdown-item" onclick="goToSettings()">⚙️ Configurações</div>
-              <div class="user-dropdown-item" onclick="goToNotifications()">🔔 Notificações</div>
-              <div class="user-dropdown-separator"></div>
-              <div class="user-dropdown-item" onclick="goToHelp()">❓ Ajuda</div>
-              <div class="user-dropdown-item" onclick="goToFeedback()">💬 Feedback</div>
               <div class="user-dropdown-separator"></div>
               <div class="user-dropdown-item" onclick="logout()">🚪 Sair</div>
             </div>
@@ -251,7 +310,7 @@ class DiceOrDieUtils {
           <div style="opacity:0" class="user-diamond"></div>
         </div>
       `;    } else {
-      // Userbar para visitante - mantém o padrão visual da versão logada
+      // Userbar para visitante - versão simplificada
       return `
         <div class="user-profile" onclick="DiceOrDieUtils.toggleDropdown()">
           <div class="user-diamond-picture">
@@ -262,9 +321,6 @@ class DiceOrDieUtils {
             <div class="user-dropdown-content">
               <div class="user-dropdown-item" onclick="DiceOrDieUtils.navigateTo('login.html')">🚪 Fazer Login</div>
               <div class="user-dropdown-item" onclick="DiceOrDieUtils.navigateTo('conta.html')">✨ Criar Conta</div>
-              <div class="user-dropdown-separator"></div>
-              <div class="user-dropdown-item" onclick="goToHelp()">❓ Ajuda</div>
-              <div class="user-dropdown-item" onclick="goToFeedback()">💬 Feedback</div>
             </div>
           </div>
           <div style="opacity:0" class="user-diamond"></div>

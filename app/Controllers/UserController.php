@@ -8,16 +8,31 @@ use App\DTOs\UserDTO;
 use InvalidArgumentException;
 
 class UserController {
+    private function startSession(): void {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+
     public function register(array $requestData): array {
         try {
             // Validação de campos obrigatórios
-            $required = ['nome', 'sobrenome', 'username', 'genero', 
+            $required = ['nome', 'sobrenome', 'username', 'genero',
                         'data_nascimento', 'email', 'senha', 'experiencia'];
             
             foreach ($required as $field) {
                 if (empty($requestData[$field])) {
                     throw new \InvalidArgumentException("Campo '$field' obrigatório");
                 }
+            }
+
+            // Validações específicas
+            if (!filter_var($requestData['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new \InvalidArgumentException("Email inválido");
+            }
+
+            if (strlen($requestData['senha']) < 6) {
+                throw new \InvalidArgumentException("Senha deve ter pelo menos 6 caracteres");
             }
 
             // Configuração do banco
@@ -27,9 +42,16 @@ class UserController {
             // Cria usuário
             $userDTO = $userModel->createUser($requestData);
 
+            // Iniciar sessão automaticamente após registro
+            $this->startSession();
+            $_SESSION['user_id'] = $userDTO->id;
+            $_SESSION['user_role'] = $userDTO->role;
+            $_SESSION['user_data'] = $userDTO->toArray();
+
             return [
                 'success' => true,
-                'user' => $userDTO->toArray()
+                'user' => $userDTO->toArray(),
+                'message' => 'Conta criada com sucesso! Você foi automaticamente logado.'
             ];
         } catch (\Exception $e) {
             return [
@@ -59,9 +81,16 @@ class UserController {
                 $requestData['senha']
             );
 
+            // Iniciar sessão
+            $this->startSession();
+            $_SESSION['user_id'] = $userDTO->id;
+            $_SESSION['user_role'] = $userDTO->role;
+            $_SESSION['user_data'] = $userDTO->toArray();
+
             return [
                 'success' => true,
-                'user' => $userDTO->toArray()
+                'user' => $userDTO->toArray(),
+                'message' => 'Login realizado com sucesso!'
             ];
         } catch (\Exception $e) {
             return [
@@ -239,18 +268,43 @@ class UserController {
     
     public function updateUser(int $id, array $requestData): array {
         try {
-            // Para testes, permite acesso sem autenticação
-            // TODO: Implementar autenticação por sessão em produção
-            $currentUserId = $_SERVER['HTTP_X_USER_ID'] ?? $id;
-            $currentUserRole = $_SERVER['HTTP_X_USER_ROLE'] ?? 'admin';
+            $this->startSession();
             
-            if ($currentUserRole !== 'admin' && $currentUserId != $id) {
-                error_log("Warning: updateUser accessed without proper authorization");
+            // Verificar autenticação usando sessão ou headers
+            $currentUserId = $_SESSION['user_id'] ?? $_SERVER['HTTP_X_USER_ID'] ?? null;
+            $currentUserRole = $_SESSION['user_role'] ?? $_SERVER['HTTP_X_USER_ROLE'] ?? null;
+            
+            // Verificar se usuário está logado
+            if (!$currentUserId || !$currentUserRole) {
+                return [
+                    'success' => false,
+                    'error' => 'Acesso negado: login necessário para editar usuários'
+                ];
             }
             
-            // Não-admins não podem alterar o role (mantém proteção básica)
-            if ($currentUserRole !== 'admin' && isset($requestData['role'])) {
+            // Verificar autorização: admin pode editar qualquer usuário, usuário comum só pode editar a si mesmo
+            $isAdmin = ($currentUserRole === 'admin');
+            $isOwnProfile = ($currentUserId == $id);
+            
+            if (!$isAdmin && !$isOwnProfile) {
+                return [
+                    'success' => false,
+                    'error' => 'Acesso negado: você só pode editar seu próprio perfil. Apenas administradores podem editar outros usuários.'
+                ];
+            }
+            
+            // Não-admins não podem alterar o role
+            if (!$isAdmin && isset($requestData['role'])) {
                 unset($requestData['role']);
+            }
+
+            // Validações específicas para campos que foram enviados
+            if (isset($requestData['email']) && !filter_var($requestData['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new \InvalidArgumentException("Email inválido");
+            }
+
+            if (isset($requestData['senha']) && !empty($requestData['senha']) && strlen($requestData['senha']) < 6) {
+                throw new \InvalidArgumentException("Senha deve ter pelo menos 6 caracteres");
             }
 
             // Configuração do banco
@@ -260,11 +314,68 @@ class UserController {
             // Atualiza usuário
             $userDTO = $userModel->updateUser($id, $requestData);
 
+            // Atualizar sessão se for o próprio usuário
+            if ($isOwnProfile) {
+                $_SESSION['user_data'] = $userDTO->toArray();
+            }
+
             return [
                 'success' => true,
                 'message' => 'Usuário atualizado com sucesso',
-                'user' => $userDTO->toArray(),
-                'warning' => ($currentUserRole !== 'admin' && $currentUserId != $id) ? 'Acesso liberado para testes' : null
+                'user' => $userDTO->toArray()
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function logout(): array {
+        try {
+            $this->startSession();
+            
+            // Limpar sessão
+            $_SESSION = [];
+            session_destroy();
+
+            return [
+                'success' => true,
+                'message' => 'Logout realizado com sucesso'
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function getCurrentUser(): array {
+        try {
+            $this->startSession();
+            
+            $currentUserId = $_SESSION['user_id'] ?? null;
+            
+            if (!$currentUserId) {
+                return [
+                    'success' => false,
+                    'error' => 'Usuário não está logado'
+                ];
+            }
+
+            // Buscar dados atualizados do usuário
+            $db = DatabaseFactory::create('sqlite', [__DIR__ . '/../../database.sqlite']);
+            $userModel = new UserModel($db);
+            $userDTO = $userModel->getUserById($currentUserId);
+
+            // Atualizar dados na sessão
+            $_SESSION['user_data'] = $userDTO->toArray();
+
+            return [
+                'success' => true,
+                'user' => $userDTO->toArray()
             ];
         } catch (\Exception $e) {
             return [

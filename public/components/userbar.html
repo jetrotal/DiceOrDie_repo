@@ -1,23 +1,39 @@
 <!-- User Profile Component -->
-<div class="user-profile" onclick="toggleDropdown()">
+<div class="user-profile" onclick="DiceOrDieUtils.toggleDropdown()">
     <div class="user-diamond-picture">
-        <!-- Insira a URL da imagem do usuário aqui -->
-        <img src="https://placehold.co/50x50/4CAF50/FFFFFF/png?text=U" alt="Foto do usuário" class="user-profile-image">
-        <!-- Placeholder para quando não há foto (remova se tiver imagem) -->
-        <!-- <div class="user-profile-placeholder">U</div> -->
+        <img id="userProfileImage" src="https://placehold.co/50x50/4CAF50/FFFFFF/png?text=U" alt="Foto do usuário" class="user-profile-image">
     </div>
     <div class="user-dropdown">
-        <div class="user-name" >Usuario</div>
+        <div class="user-name" id="userProfileName">Usuario</div>
         <div class="user-dropdown-content">
             <div class="user-dropdown-item" onclick="goToProfile()">👤 Meu Perfil</div>
-            <div class="user-dropdown-item" onclick="goToSettings()">⚙️ Configurações</div>
-            <div class="user-dropdown-item" onclick="goToNotifications()">🔔 Notificações</div>
-            <div class="user-dropdown-separator"></div>
-            <div class="user-dropdown-item" onclick="goToHelp()">❓ Ajuda</div>
-            <div class="user-dropdown-item" onclick="goToFeedback()">💬 Feedback</div>
             <div class="user-dropdown-separator"></div>
             <div class="user-dropdown-item" onclick="logout()">🚪 Sair</div>
         </div>
     </div>
     <div style="opacity:0" class="user-diamond"></div>
 </div>
+
+<script>
+// Atualizar dados do usuário quando carregado diretamente
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof DiceOrDieUtils !== 'undefined') {
+        const currentUser = DiceOrDieUtils.getCurrentUser();
+        if (currentUser) {
+            const userName = currentUser.username || currentUser.nome || 'Usuario';
+            const userPhoto = currentUser.img_perfil ||
+                `https://placehold.co/50x50/4CAF50/FFFFFF/png?text=${userName.charAt(0).toUpperCase()}`;
+            
+            // Atualizar elementos se existirem
+            const nameEl = document.getElementById('userProfileName');
+            const photoEl = document.getElementById('userProfileImage');
+            
+            if (nameEl) nameEl.textContent = userName;
+            if (photoEl) {
+                photoEl.src = userPhoto;
+                photoEl.alt = `Foto de ${userName}`;
+            }
+        }
+    }
+});
+</script>

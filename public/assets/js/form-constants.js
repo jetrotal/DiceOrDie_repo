@@ -36,12 +36,14 @@ class FormConstants {
             CONTA: 'Criando conta...',
             MESA: 'Criando mesa...',
             FICHA: 'Salvando ficha...',
+            LOGIN: 'Entrando...',
             DEFAULT: 'Processando...'
         },
         SUCCESS: {
             CONTA: 'Conta criada com sucesso! Redirecionando...',
             MESA: 'Mesa criada com sucesso!',
             FICHA: 'Ficha salva com sucesso!',
+            LOGIN: 'Login realizado com sucesso! Redirecionando...',
             DEFAULT: 'Operação realizada com sucesso!'
         },
         ERROR: {
@@ -66,19 +68,21 @@ class FormConstants {
         CONTA: 2000,
         MESA: 1500,
         FICHA: 1500,
+        LOGIN: 1500,
         DEFAULT: 2000
     };
       // Campos obrigatórios por tipo de formulário
-    static REQUIRED_FIELDS = {
-        CONTA: ['nome', 'sobrenome', 'username', 'genero', 'nascimento', 'contato', 'senha', 'confirmarSenha'],
-        MESA: ['nomeMesa', 'sistema', 'qtdJogadores', 'autor', 'descricao'],
-        FICHA: [
-            'nomePersonagem', 'nivel', 'raca', 'classe', 
-            'pontosVida', 'classeArmadura',
-            'forca', 'destreza', 'constituicao', 
-            'inteligencia', 'sabedoria', 'carisma'
-        ]
-    };
+      static REQUIRED_FIELDS = {
+          CONTA: ['nome', 'sobrenome', 'username', 'genero', 'nascimento', 'contato', 'senha', 'confirmarSenha'],
+          MESA: ['nomeMesa', 'sistema', 'qtdJogadores', 'autor', 'descricao'],
+          FICHA: [
+              'nomePersonagem', 'nivel', 'raca', 'classe',
+              'pontosVida', 'classeArmadura',
+              'forca', 'destreza', 'constituicao',
+              'inteligencia', 'sabedoria', 'carisma'
+          ],
+          LOGIN: ['contato', 'senha']
+      };
     
     // Método helper para obter configuração completa por tipo
     static getFormConfig(type) {

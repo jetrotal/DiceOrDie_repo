@@ -7,15 +7,20 @@ class ContaForm extends BaseForm {
 
     // Propriedades específicas da conta
     this.expLevels = {
-      0: { name: "Goblin", description: "Novo no mundo dos RPGs" },
-      1: { name: "Cavaleiro", description: "Alguma experiência com RPG" },
-      2: { name: "Mago", description: "Jogador experiente" },
-      3: { name: "Dragão", description: "Veterano em RPGs" },
-      4: { name: "Titã", description: "Mestre em sistemas diversos" },
-      5: { name: "Deus Antigo", description: "Lenda viva do RPG" }
+      0: { name: "Goblin", description: "Novo no mundo dos RPGs", backend: "Iniciante" },
+      1: { name: "Cavaleiro", description: "Alguma experiência com RPG", backend: "Iniciante" },
+      2: { name: "Mago", description: "Jogador experiente", backend: "Experiente" },
+      3: { name: "Dragão", description: "Veterano em RPGs", backend: "Experiente" },
+      4: { name: "Titã", description: "Mestre em sistemas diversos", backend: "Veterano" },
+      5: { name: "Deus Antigo", description: "Lenda viva do RPG", backend: "Lendário" }
     };
 
     this.currentExp = 1; // Começa em Cavaleiro (nível 1)
+    this.isEditing = false;
+    this.editingUserId = null;
+
+    // Detectar modo baseado na URL
+    this.detectPageMode();
 
     // Inicializar componente de upload de imagem
     this.imageUpload = new ImageUploadMixin({
@@ -24,6 +29,25 @@ class ContaForm extends BaseForm {
 
     this.setupContaSpecificElements();
     this.initContaFeatures();
+    
+    // Se estivermos em modo de edição, carregar dados automaticamente
+    if (this.isEditing) {
+      // Aguardar um pouco para garantir que todos os elementos foram inicializados
+      setTimeout(() => {
+        this.loadUserDataForEdit();
+      }, 500);
+    }
+  }
+
+  detectPageMode() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const id = urlParams.get('id');
+    
+    if (mode === 'edit' && id) {
+      this.isEditing = true;
+      this.editingUserId = id;
+    }
   }
 
   setupContaSpecificElements() {
@@ -226,28 +250,321 @@ class ContaForm extends BaseForm {
     return true;
   }
   getFormData() {
-    return {
+    // Mapear campos do frontend para o formato do backend
+    const frontendData = {
       nome: document.getElementById("nome")?.value.trim(),
       sobrenome: document.getElementById("sobrenome")?.value.trim(),
       username: document.getElementById("username")?.value.trim(),
       genero: document.getElementById("genero")?.value,
-      nascimento: document.getElementById("nascimento")?.value,
-      contato: document.getElementById("contato")?.value.trim(),
+      data_nascimento: document.getElementById("nascimento")?.value, // Backend usa data_nascimento
+      email: document.getElementById("contato")?.value.trim(), // Backend usa email
       senha: this.elementos.senha?.value,
-      experiencia: this.currentExp,
-      fotoPerfil: document.getElementById("profilePreview")?.src
+      experiencia: this.expLevels[this.currentExp - 1]?.backend || "Iniciante", // Mapear para valores do backend
+      img_perfil: this.getUploadedImageUrl() // Backend usa img_perfil
     };
+
+    // Remover senha vazia em modo de edição
+    if (this.isEditing && (!frontendData.senha || frontendData.senha === '')) {
+      delete frontendData.senha;
+    }
+
+    return frontendData;
+  }
+
+  getUploadedImageUrl() {
+    // Primeiro verificar se há uma URL de imagem já uploadada via ImageUploadMixin
+    if (this.imageUpload && this.imageUpload.uploadedImageUrl) {
+      return this.imageUpload.uploadedImageUrl;
+    }
+    
+    // Fallback: verificar se há imagem carregada via preview
+    const preview = document.getElementById("profilePreview");
+    if (preview && preview.src && !preview.src.includes('placehold.co') && !preview.src.startsWith('data:')) {
+      return preview.src;
+    }
+    
+    return null;
   }
 
   async submitForm(formData) {
-    // Simular envio para o servidor
     console.log('Enviando dados de conta:', formData);
     
-    // Simular delay de rede
-    await this.simulateNetworkDelay(1500);
+    try {
+      let response;
+      let url;
+      let method;
+
+      if (this.isEditing) {
+        // Modo edição - usar PUT
+        url = `/users/${this.editingUserId}`;
+        method = 'PUT';
+      } else {
+        // Modo criação - usar POST
+        url = '/register';
+        method = 'POST';
+      }
+
+      response = await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          // Adicionar headers de autenticação se necessário
+          ...this.getAuthHeaders()
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        console.log('Conta processada com sucesso:', result);
+        
+        // Se foi criação de conta, pode fazer login automaticamente
+        if (!this.isEditing && result.user) {
+          await this.handleSuccessfulRegistration(result.user);
+        } else if (this.isEditing) {
+          await this.handleSuccessfulUpdate(result.user);
+        }
+        
+        return result;
+      } else {
+        throw new Error(result.error || 'Erro desconhecido');
+      }
+    } catch (error) {
+      console.error('Erro ao processar conta:', error);
+      throw error;
+    }
+  }
+
+  // Sobrescrever handleSubmit para controlar redirecionamento em modo de edição
+  async handleSubmit(event) {
+    event.preventDefault();
     
-    // Simular sucesso (em um sistema real, isso viria da API)
-    return { success: true };
+    if (!this.validateForm()) {
+      return;
+    }
+    
+    this.setSubmitLoading(true);
+    
+    try {
+      const formData = this.getFormData();
+      
+      // Imprimir JSON dos dados do formulário no console
+      console.log('=== DADOS DO FORMULÁRIO SALVOS ===');
+      console.log(JSON.stringify(formData, null, 2));
+      console.log('===================================');
+      
+      const result = await this.submitForm(formData);
+      
+      if (result.success) {
+        // Para conta, não usar o redirecionamento padrão da classe pai
+        // O redirecionamento é controlado pelos métodos handleSuccessfulRegistration/Update
+        console.log('Conta processada com sucesso - redirecionamento controlado pela classe filha');
+      } else {
+        throw new Error(result.message || this.config.errorMessage);
+      }
+      
+    } catch (error) {
+      console.error('Erro no submit:', error);
+      DiceOrDieUtils.showError(error.message || this.config.errorMessage);
+    } finally {
+      this.setSubmitLoading(false);
+    }
+  }
+
+  getAuthHeaders() {
+    const headers = {};
+    
+    // Tentar obter do localStorage (compatibilidade total com test-users.html)
+    let currentUser = null;
+    
+    // Primeiro tenta localStorage (sistema principal usado por test-users.html)
+    const savedUser = localStorage.getItem('diceordie_current_user');
+    if (savedUser) {
+      try {
+        currentUser = JSON.parse(savedUser);
+        console.log('Usuário encontrado no localStorage:', currentUser.username);
+      } catch (e) {
+        console.warn('Erro ao parsear usuário do localStorage:', e);
+      }
+    }
+    
+    // Se não encontrou, tenta sessionStorage (fallback)
+    if (!currentUser) {
+      const sessionUser = sessionStorage.getItem('currentUser');
+      if (sessionUser) {
+        try {
+          currentUser = JSON.parse(sessionUser);
+          console.log('Usuário encontrado no sessionStorage:', currentUser.username);
+        } catch (e) {
+          console.warn('Erro ao parsear usuário do sessionStorage:', e);
+        }
+      }
+    }
+    
+    // Se encontrou usuário logado, adicionar headers de autenticação
+    if (currentUser && currentUser.id) {
+      headers['X-User-ID'] = currentUser.id.toString();
+      headers['X-User-Role'] = currentUser.role || 'user';
+      console.log('getAuthHeaders: Enviando headers:', headers);
+      console.log('getAuthHeaders: Role do usuário:', currentUser.role);
+    } else {
+      console.log('getAuthHeaders: Nenhum usuário logado encontrado');
+    }
+    
+    return headers;
+  }
+
+  async handleSuccessfulRegistration(user) {
+    // Armazenar dados do usuário criado (compatibilidade com test-users.html)
+    if (user) {
+      localStorage.setItem('diceordie_current_user', JSON.stringify(user));
+      sessionStorage.setItem('currentUser', JSON.stringify(user)); // fallback
+      console.log('Usuário registrado e salvo na sessão:', user.username);
+    }
+    
+    // Mostrar mensagem de sucesso
+    this.showSuccessMessage('Conta criada com sucesso!');
+    
+    // Redirecionar após delay (pode ser para login ou dashboard)
+    setTimeout(() => {
+      // Redirecionar para página de login ou dashboard
+      window.location.href = 'login.html';
+    }, 2000);
+  }
+
+  async handleSuccessfulUpdate(user) {
+    // Atualizar dados do usuário na sessão (compatibilidade com test-users.html)
+    if (user) {
+      localStorage.setItem('diceordie_current_user', JSON.stringify(user));
+      sessionStorage.setItem('currentUser', JSON.stringify(user)); // fallback
+      console.log('Usuário atualizado e salvo na sessão:', user.username);
+    }
+    
+    // Mostrar mensagem de sucesso
+    this.showSuccessMessage('Perfil atualizado com sucesso!');
+    
+    // Redirecionar para modo de visualização da mesma página (não para mesas.html)
+    setTimeout(() => {
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set('mode', 'view');
+      newUrl.searchParams.set('id', this.editingUserId); // Manter o mesmo ID
+      window.location.href = newUrl.toString();
+    }, 1500);
+  }
+
+  showSuccessMessage(message) {
+    // Criar elemento de mensagem de sucesso
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'success-message';
+    messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #4CAF50;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 5px;
+      z-index: 10000;
+      font-weight: bold;
+    `;
+    
+    document.body.appendChild(messageDiv);
+    
+    // Remover após 3 segundos
+    setTimeout(() => {
+      if (messageDiv.parentNode) {
+        messageDiv.parentNode.removeChild(messageDiv);
+      }
+    }, 3000);
+  }
+
+  async loadUserDataForEdit() {
+    if (!this.isEditing || !this.editingUserId) return;
+
+    try {
+      const response = await fetch(`/users/${this.editingUserId}`, {
+        headers: this.getAuthHeaders()
+      });
+
+      const result = await response.json();
+      
+      if (result.success && result.user) {
+        this.populateFormWithUserData(result.user);
+      } else {
+        console.error('Erro ao carregar dados do usuário:', result.error);
+        this.showErrorMessage('Erro ao carregar dados do usuário');
+      }
+    } catch (error) {
+      console.error('Erro ao carregar usuário para edição:', error);
+      this.showErrorMessage('Erro ao carregar dados do usuário');
+    }
+  }
+
+  populateFormWithUserData(user) {
+    // Preencher campos básicos
+    if (user.nome) document.getElementById("nome").value = user.nome;
+    if (user.sobrenome) document.getElementById("sobrenome").value = user.sobrenome;
+    if (user.username) document.getElementById("username").value = user.username;
+    if (user.genero) document.getElementById("genero").value = user.genero;
+    if (user.data_nascimento) document.getElementById("nascimento").value = user.data_nascimento;
+    if (user.email) document.getElementById("contato").value = user.email;
+
+    // Mapear experiência do backend para frontend
+    this.setExperienceFromBackend(user.experiencia);
+
+    // Carregar imagem de perfil se existir
+    if (user.img_perfil) {
+      const preview = document.getElementById("profilePreview");
+      if (preview) {
+        preview.src = user.img_perfil;
+      }
+    }
+
+    // Limpar campos de senha (não carregar senha existente)
+    if (this.elementos.senha) this.elementos.senha.value = '';
+    if (this.elementos.confirmarSenha) this.elementos.confirmarSenha.value = '';
+  }
+
+  setExperienceFromBackend(backendExp) {
+    // Mapear experiência do backend para o sistema de níveis do frontend
+    const expMapping = {
+      'Iniciante': 1,
+      'Experiente': 3,
+      'Veterano': 5,
+      'Lendário': 6
+    };
+
+    const frontendLevel = expMapping[backendExp] || 1;
+    this.setExperience(frontendLevel);
+  }
+
+  showErrorMessage(message) {
+    // Criar elemento de mensagem de erro
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'error-message';
+    messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #f44336;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 5px;
+      z-index: 10000;
+      font-weight: bold;
+    `;
+    
+    document.body.appendChild(messageDiv);
+    
+    // Remover após 4 segundos
+    setTimeout(() => {
+      if (messageDiv.parentNode) {
+        messageDiv.parentNode.removeChild(messageDiv);
+      }
+    }, 4000);
   }
 }
 
