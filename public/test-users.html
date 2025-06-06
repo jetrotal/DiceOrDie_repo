@@ -4,99 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiceOrDie - Testes de Usuários</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fafafa;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-        .btn-warning {
-            background-color: #ffc107;
-            color: black;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        button:hover {
-            opacity: 0.8;
-        }
-        .response {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            background-color: #e9ecef;
-        }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        pre {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-        }
-    </style>
+    <link rel="stylesheet" href="test-shared/test-styles.css">
 </head>
 <body>
     <div class="container">
@@ -113,8 +21,7 @@
             <button onclick="clearSessionManually()" class="btn-secondary" style="font-size: 11px;">🗑️ Limpar Sessão</button>
             <div id="adminControls" style="display:none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
                 <p><strong>🛡️ Controles de Admin:</strong></p>
-                <button onclick="getAllUsersAsAdmin()" class="btn-primary">👥 Ver Todos os Usuários</button>
-                <button onclick="deleteAllUsersAsAdmin()" class="btn-danger">🗑️ Apagar Todos + Reset ID</button>
+                <div id="adminButtons"></div>
             </div>
         </div>
 
@@ -167,8 +74,21 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="img_perfil">Foto de Perfil (URL) - Opcional:</label>
-                    <input type="url" id="img_perfil" name="img_perfil" placeholder="Ex: https://exemplo.com/avatar.jpg">
+                    <label for="img_perfil">Foto de Perfil - Opcional:</label>
+                    <div id="profilePictureUpload" style="border: 2px dashed #ccc; border-radius: 8px; padding: 20px; text-align: center; margin: 10px 0; cursor: pointer;" onclick="document.getElementById('profileImageFile').click()">
+                        <div id="profileUploadText">
+                            <h4>📷 Clique para selecionar foto de perfil</h4>
+                            <p>JPEG, PNG ou GIF - Máximo 5MB</p>
+                        </div>
+                        <div id="profilePreview" style="display:none;">
+                            <img id="profilePreviewImage" src="" alt="Preview" style="max-width: 150px; max-height: 150px; border-radius: 50%;">
+                            <p id="profileImageInfo"></p>
+                            <button type="button" onclick="clearProfileImage(event)" class="btn-secondary" style="font-size: 12px; margin-top: 5px;">Remover</button>
+                        </div>
+                    </div>
+                    <input type="file" id="profileImageFile" accept="image/*" style="display: none;">
+                    <input type="hidden" id="img_perfil" name="img_perfil" value="">
+                    <div id="profileUploadResponse" class="response" style="display:none;"></div>
                 </div>
                 <div class="form-group">
                     <label for="role">Role - Apenas Admin pode definir:</label>
@@ -201,10 +121,27 @@
             <div id="getUserResponse" class="response" style="display:none;"></div>
         </div>
 
+        <!-- Seção: Editar Usuário -->
+        <div class="section">
+            <h2>✏️ Editar Usuário</h2>
+            <p style="color: #dc3545; font-weight: bold;">⚠️ RESTRITO: Você só pode editar seus próprios dados. Admins podem editar qualquer usuário.</p>
+            <div class="form-group">
+                <label for="editUserId">ID do Usuário a Editar:</label>
+                <input type="number" id="editUserId" placeholder="Ex: 1" min="1">
+            </div>
+            <button onclick="loadUserForEdit()" class="btn-warning">📝 Carregar para Edição</button>
+            <div id="editUserResponse" class="response" style="display:none;"></div>
+        </div>
+
         <!-- Seção: Apagar Usuário -->
         <div class="section">
             <h2>🗑️ Apagar Usuário</h2>
-            <p style="color: #dc3545; font-weight: bold;">⚠️ RESTRITO: Você só pode apagar sua própria conta. Admins podem apagar qualquer usuário.</p>
+            <p style="color: #dc3545; font-weight: bold;">⚠️ CONTROLE DE ACESSO IMPLEMENTADO:</p>
+            <ul style="color: #dc3545; font-weight: bold;">
+                <li>👤 <strong>Usuários comuns:</strong> Podem apagar apenas sua própria conta</li>
+                <li>🛡️ <strong>Administradores:</strong> Podem apagar qualquer usuário</li>
+                <li>🚫 <strong>Não logados:</strong> Acesso negado</li>
+            </ul>
             <div class="form-group">
                 <label for="deleteUserId">ID do Usuário a Apagar:</label>
                 <input type="number" id="deleteUserId" placeholder="Ex: 1" min="1">
@@ -227,29 +164,36 @@
         <!-- Seção: Informações -->
         <div class="section">
             <h2>ℹ️ Informações Importantes</h2>
-            <p><strong>Erro "UNIQUE constraint failed":</strong> Este é um comportamento esperado quando você tenta criar um usuário com email ou username que já existe no banco de dados.</p>
-            <p><strong>Para resetar o banco:</strong> Pare o servidor, delete o arquivo <code>database.sqlite</code> e reinicie o servidor.</p>
-            <p><strong>🔧 AUTO-MIGRAÇÃO:</strong> O sistema verifica e cria automaticamente a coluna 'role' se necessário.</p>
-            <p><strong>🛡️ Usuário Admin:</strong> Clique no botão vermelho "Criar Admin" para criar usuário admin com credenciais: <code>admin/admin</code></p>
-            <p><strong>⚠️ MODO TESTE:</strong> Todas as operações estão liberadas para facilitar testes. Em produção, haverá autenticação rigorosa.</p>
-            <p><strong>🔄 Reset de ID:</strong> "Apagar Todos" também reseta o autoincrement - próximo usuário criado terá ID = 1.</p>
-            <p><strong>📱 Sessão Persistente:</strong> Ao fazer login, sua sessão é salva automaticamente e restaurada ao recarregar a página.</p>
-            <p><strong>Usuários de exemplo já criados:</strong> gandalf, strider, elfprince, shieldmaiden</p>
-            <p><strong>Login:</strong> Aceita tanto email quanto username (ex: admin ou admin@diceordie.com)</p>
-            <p><strong>🛡️ Sistema de Segurança Implementado:</strong></p>
+            <p><strong>🔐 Sistema de Segurança:</strong> O sistema implementa controle de acesso baseado em login.</p>
+            <p><strong>🛡️ Permissões por Tipo de Usuário:</strong></p>
+            <ul>
+                <li>🌍 <strong>Todos:</strong> Ver perfis públicos, buscar usuários</li>
+                <li>👤 <strong>User:</strong> Editar/apagar próprios dados + permissões públicas</li>
+                <li>🛡️ <strong>Admin:</strong> Acesso total + operações administrativas</li>
+            </ul>
+            <p><strong>⚠️ Restrições de Segurança:</strong></p>
             <ul>
                 <li>✅ <strong>Controle de acesso baseado em roles</strong> (user/admin)</li>
                 <li>✅ <strong>Primeiro usuário = Admin automático</strong></li>
                 <li>✅ <strong>Perfis públicos</strong> para interação social (sem dados sensíveis)</li>
                 <li>✅ <strong>Dados sensíveis protegidos</strong> (email, data nascimento)</li>
                 <li>✅ <strong>Edição/exclusão restrita</strong> ao próprio perfil ou admin</li>
-                <li>✅ <strong>Auto-migração de schema</strong> do banco de dados</li>
             </ul>
-            <p><strong>Permissões por Tipo de Usuário:</strong></p>
+            <p><strong>📱 Sessão Persistente:</strong> O login é compartilhado entre todas as test-pages.</p>
+            <p><strong>Informações Específicas de Usuários:</strong></p>
             <ul>
-                <li>🌍 <strong>Todos:</strong> Ver perfis públicos, buscar usuários</li>
-                <li>👤 <strong>User:</strong> Editar/apagar próprios dados + permissões públicas</li>
-                <li>🛡️ <strong>Admin:</strong> Acesso total + operações administrativas</li>
+                <li><strong>Erro "UNIQUE constraint failed":</strong> Comportamento esperado para email/username duplicados</li>
+                <li><strong>🛡️ Usuário Admin:</strong> Clique em "Criar Admin" para credenciais: <code>admin/admin</code></li>
+                <li><strong>🔄 Reset de ID:</strong> "Apagar Todos" reseta autoincrement - próximo usuário terá ID = 1</li>
+                <li><strong>Login:</strong> Aceita email ou username (ex: admin ou admin@diceordie.com)</li>
+                <li><strong>Usuários exemplo:</strong> gandalf, strider, elfprince, shieldmaiden</li>
+            </ul>
+            <p><strong>📸 Sistema de Foto de Perfil:</strong></p>
+            <ul>
+                <li>✅ <strong>Upload direto:</strong> Substitui o campo URL por upload de arquivo</li>
+                <li>🔄 <strong>Troca automática:</strong> Foto anterior é deletada ao enviar nova</li>
+                <li>🖼️ <strong>Preview instantâneo:</strong> Visualização antes do envio</li>
+                <li>📱 <strong>Formatos aceitos:</strong> JPEG, PNG, GIF (máx. 5MB)</li>
             </ul>
             <p><strong>Dados Públicos vs Privados:</strong></p>
             <ul>
@@ -277,6 +221,11 @@
         </div>
     </div>
 
+    <!-- Scripts compartilhados -->
+    <script src="test-shared/test-auth.js"></script>
+    <script src="test-shared/test-components.js"></script>
+    <script src="test-shared/test-users-specific.js"></script>
+    
     <script>
         // Criar/Editar usuário
         document.getElementById('createUserForm').addEventListener('submit', async function(e) {
@@ -357,269 +306,175 @@
             }
         });
 
-        // Função para criar headers de autenticação
-        function getAuthHeaders() {
-            if (!currentUser) return {};
-            return {
-                'X-User-ID': currentUser.id,
-                'X-User-Role': currentUser.role
-            };
-        }
+        // === SISTEMA DE UPLOAD DE FOTO DE PERFIL ===
+        let selectedProfileImage = null;
 
-        // Buscar usuário por ID
-        async function getUser() {
-            const userId = document.getElementById('searchUserId').value;
-            if (!userId) {
-                showResponse('getUserResponse', {error: 'Por favor, insira um ID válido'});
-                return;
+        // File input change for profile picture
+        document.getElementById('profileImageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                previewProfileImage(file);
             }
-            
-            try {
-                const response = await fetch(`/users/${userId}`, {
-                    headers: getAuthHeaders()
-                });
-                const result = await response.json();
-                showResponse('getUserResponse', result);
-            } catch (error) {
-                showResponse('getUserResponse', {error: error.message});
-            }
-        }
-
-        // Listar todos os usuários (restrito)
-        async function getAllUsers() {
-            try {
-                const response = await fetch('/users', {
-                    headers: getAuthHeaders()
-                });
-                const result = await response.json();
-                showResponse('getUserResponse', result);
-            } catch (error) {
-                showResponse('getUserResponse', {error: error.message});
-            }
-        }
-
-        // Funções específicas para admin
-        async function getAllUsersAsAdmin() {
-            if (!currentUser || currentUser.role !== 'admin') {
-                showResponse('getUserResponse', {error: 'Acesso negado: apenas administradores'});
-                return;
-            }
-            await getAllUsers();
-        }
-
-        async function deleteAllUsersAsAdmin() {
-            if (!currentUser || currentUser.role !== 'admin') {
-                showResponse('deleteUserResponse', {error: 'Acesso negado: apenas administradores'});
-                return;
-            }
-            await deleteAllUsers();
-        }
-
-        // Apagar usuário
-        async function deleteUser() {
-            const userId = document.getElementById('deleteUserId').value;
-            if (!userId) {
-                showResponse('deleteUserResponse', {error: 'Por favor, insira um ID válido'});
-                return;
-            }
-            
-            if (!confirm('Tem certeza que deseja apagar este usuário? Esta ação não pode ser desfeita.')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: getAuthHeaders()
-                });
-                
-                const result = await response.json();
-                showResponse('deleteUserResponse', result);
-            } catch (error) {
-                showResponse('deleteUserResponse', {error: error.message});
-            }
-        }
-
-        // Apagar todos os usuários
-        async function deleteAllUsers() {
-            if (!confirm('⚠️ ATENÇÃO: Tem certeza que deseja apagar TODOS os usuários?\n\nEsta ação não pode ser desfeita e irá remover permanentemente todos os dados de usuários do sistema.')) {
-                return;
-            }
-            
-            if (!confirm('🔥 CONFIRMAÇÃO FINAL: Você realmente quer apagar TODOS os usuários?\n\nClique "OK" apenas se tiver certeza absoluta.')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch('/users', {
-                    method: 'DELETE',
-                    headers: getAuthHeaders()
-                });
-                
-                const result = await response.json();
-                showResponse('deleteUserResponse', result);
-            } catch (error) {
-                showResponse('deleteUserResponse', {error: error.message});
-            }
-        }
-
-        // Executar testes rápidos
-        async function runTest(endpoint) {
-            try {
-                const response = await fetch(endpoint);
-                const result = await response.json();
-                showResponse('quickTestResponse', result);
-            } catch (error) {
-                showResponse('quickTestResponse', {error: error.message});
-            }
-        }
-
-        // Função utilitária para mostrar resposta
-        function showResponse(elementId, data) {
-            const element = document.getElementById(elementId);
-            element.style.display = 'block';
-            element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
-        }
-
-        // Variável global para armazenar usuário logado
-        let currentUser = null;
-
-        // Carrega sessão salva ao carregar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSavedSession();
         });
 
-        // Carrega sessão do localStorage
-        function loadSavedSession() {
-            const savedUser = localStorage.getItem('diceordie_current_user');
-            if (savedUser) {
-                try {
-                    const userData = JSON.parse(savedUser);
-                    showLoggedUser(userData);
-                    console.log('Sessão carregada automaticamente:', userData.username);
-                } catch (error) {
-                    console.error('Erro ao carregar sessão salva:', error);
-                    localStorage.removeItem('diceordie_current_user');
+        function previewProfileImage(file) {
+            selectedProfileImage = file;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profilePreviewImage').src = e.target.result;
+                document.getElementById('profileImageInfo').textContent =
+                    `${file.name} (${formatFileSize(file.size)})`;
+                
+                document.getElementById('profileUploadText').style.display = 'none';
+                document.getElementById('profilePreview').style.display = 'block';
+                
+                // Upload automaticamente
+                uploadProfileImage();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearProfileImage(event) {
+            if (event) event.stopPropagation();
+            
+            selectedProfileImage = null;
+            document.getElementById('profileImageFile').value = '';
+            document.getElementById('img_perfil').value = '';
+            document.getElementById('profileUploadText').style.display = 'block';
+            document.getElementById('profilePreview').style.display = 'none';
+            document.getElementById('profileUploadResponse').style.display = 'none';
+        }
+
+        async function uploadProfileImage() {
+            if (!selectedProfileImage) {
+                alert('Selecione uma imagem primeiro!');
+                return;
+            }
+
+            if (!currentUser) {
+                alert('Você precisa estar logado para enviar foto de perfil!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', selectedProfileImage);
+
+            try {
+                const response = await fetch('/upload-profile-picture', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: formData
+                });
+
+                const result = await response.json();
+                showResponse('profileUploadResponse', result);
+
+                if (result.success) {
+                    // Atualizar campo hidden com a URL da imagem
+                    document.getElementById('img_perfil').value = result.image_url;
+                    
+                    // Mostrar feedback visual
+                    document.getElementById('profileImageInfo').innerHTML =
+                        `✅ ${selectedProfileImage.name} (${formatFileSize(selectedProfileImage.size)})<br>
+                        <small style="color: green;">Foto de perfil atualizada!</small>`;
+                } else {
+                    clearProfileImage();
                 }
+            } catch (error) {
+                showResponse('profileUploadResponse', {error: error.message});
+                clearProfileImage();
             }
         }
 
-        // Salva sessão no localStorage
-        function saveSession(user) {
-            localStorage.setItem('diceordie_current_user', JSON.stringify(user));
-        }
-
-        // Remove sessão do localStorage
-        function clearSession() {
-            localStorage.removeItem('diceordie_current_user');
-        }
-
-        // Mostrar usuário logado
-        function showLoggedUser(user) {
-            currentUser = user;
-            saveSession(user); // Salva sessão automaticamente
-            
-            const section = document.getElementById('loggedUserSection');
-            const info = document.getElementById('loggedUserInfo');
-            const adminControls = document.getElementById('adminControls');
-            
-            const roleDisplay = user.role === 'admin' ? '🛡️ Admin' : '👤 User';
-            const roleColor = user.role === 'admin' ? 'color: #dc3545; font-weight: bold;' : 'color: #28a745;';
-            
-            info.innerHTML = `
-                <p><strong>Nome:</strong> ${user.nome} ${user.sobrenome}</p>
-                <p><strong>Username:</strong> ${user.username}</p>
-                <p><strong>Email:</strong> ${user.email}</p>
-                <p><strong>Role:</strong> <span style="${roleColor}">${roleDisplay}</span></p>
-                <p><strong>Experiência:</strong> ${user.experiencia}</p>
-                <p><strong>ID:</strong> ${user.id}</p>
-                ${user.img_perfil ? `<p><strong>Foto:</strong> <img src="${user.img_perfil}" style="max-width: 50px; border-radius: 50%;"></p>` : ''}
-                <p style="font-size: 12px; color: #666; margin-top: 10px;">📱 Sessão salva automaticamente</p>
-            `;
-            
-            // Mostra controles de admin se for admin
-            if (user.role === 'admin') {
-                adminControls.style.display = 'block';
+        function formatFileSize(bytes) {
+            if (bytes >= 1048576) {
+                return (bytes / 1048576).toFixed(2) + ' MB';
+            } else if (bytes >= 1024) {
+                return (bytes / 1024).toFixed(2) + ' KB';
             } else {
-                adminControls.style.display = 'none';
-            }
-            
-            section.style.display = 'block';
-            // Só faz scroll se não for carregamento automático
-            if (!document.querySelector('body').hasAttribute('data-loading')) {
-                section.scrollIntoView({ behavior: 'smooth' });
+                return bytes + ' bytes';
             }
         }
 
-        // Editar usuário logado
-        function editLoggedUser() {
-            if (!currentUser) return;
-            
-            // Muda para modo edição
-            document.getElementById('formTitle').textContent = '✏️ Editar Meus Dados';
-            document.getElementById('submitBtn').textContent = 'Atualizar Usuário';
-            document.getElementById('submitBtn').className = 'btn-warning';
-            document.getElementById('cancelEditBtn').style.display = 'inline-block';
-            
-            // Preenche o formulário com dados atuais
-            document.getElementById('editingUserId').value = currentUser.id;
-            document.getElementById('nome').value = currentUser.nome || '';
-            document.getElementById('sobrenome').value = currentUser.sobrenome || '';
-            document.getElementById('username').value = currentUser.username || '';
-            document.getElementById('genero').value = currentUser.genero || '';
-            document.getElementById('data_nascimento').value = currentUser.data_nascimento || '';
-            document.getElementById('email').value = currentUser.email || '';
-            document.getElementById('senha').value = ''; // Senha sempre vazia na edição
-            document.getElementById('experiencia').value = currentUser.experiencia || '';
-            document.getElementById('img_perfil').value = currentUser.img_perfil || '';
-            
-            // Scroll para o formulário
-            document.getElementById('formTitle').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Cancelar edição
-        function cancelEdit() {
-            document.getElementById('formTitle').textContent = '✨ Criar Usuário';
-            document.getElementById('submitBtn').textContent = 'Criar Usuário';
-            document.getElementById('submitBtn').className = 'btn-success';
-            document.getElementById('cancelEditBtn').style.display = 'none';
-            document.getElementById('editingUserId').value = '';
-            clearForm('createUserForm');
-        }
-
-        // Logout
-        function logout() {
-            currentUser = null;
-            clearSession(); // Remove sessão salva
-            document.getElementById('loggedUserSection').style.display = 'none';
-            cancelEdit(); // Cancela edição se estiver ativa
-            console.log('Logout realizado - sessão removida');
-        }
-
-        // Limpar sessão manualmente
-        function clearSessionManually() {
-            if (confirm('Tem certeza que deseja limpar a sessão salva? Você precisará fazer login novamente.')) {
-                logout();
-                alert('Sessão limpa! Recarregue a página para confirmar.');
-            }
-        }
-
-        // Preencher dados de exemplo
-        function fillSampleUserData() {
-            document.getElementById('nome').value = 'Legolas';
-            document.getElementById('sobrenome').value = 'Greenleaf';
-            document.getElementById('username').value = 'elfprince';
-            document.getElementById('genero').value = 'Masculino';
-            document.getElementById('data_nascimento').value = '1000-05-15';
-            document.getElementById('email').value = 'legolas@mirkwood.com';
-            document.getElementById('senha').value = 'BowMaster123';
-            document.getElementById('experiencia').value = 'Veterano';
-            document.getElementById('img_perfil').value = 'https://i.imgur.com/legolas_avatar.jpg';
-        }
-
-        // Função utilitária para limpar formulário
+        // Limpar foto de perfil quando limpar formulário
         function clearForm(formId) {
             document.getElementById(formId).reset();
+            clearProfileImage();
+        }
+
+        // Carregar foto de perfil existente quando editar usuário
+        function loadUserForEdit() {
+            const userId = document.getElementById('editUserId').value;
+            if (!userId) {
+                showResponse('editUserResponse', {error: 'Digite o ID do usuário'});
+                return;
+            }
+
+            fetch(`/users/${userId}`, {
+                headers: getAuthHeaders()
+            })
+            .then(response => response.json())
+            .then(result => {
+                showResponse('editUserResponse', result);
+                
+                if (result.success && result.user) {
+                    const user = result.user;
+                    
+                    // Preencher campos do formulário
+                    document.getElementById('editingUserId').value = user.id;
+                    document.getElementById('nome').value = user.nome || '';
+                    document.getElementById('sobrenome').value = user.sobrenome || '';
+                    document.getElementById('username').value = user.username || '';
+                    document.getElementById('genero').value = user.genero || '';
+                    document.getElementById('data_nascimento').value = user.data_nascimento || '';
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('experiencia').value = user.experiencia || '';
+                    document.getElementById('role').value = user.role || '';
+                    
+                    // Mostrar foto de perfil existente se houver
+                    if (user.img_perfil) {
+                        document.getElementById('img_perfil').value = user.img_perfil;
+                        document.getElementById('profilePreviewImage').src = user.img_perfil;
+                        document.getElementById('profileImageInfo').innerHTML =
+                            `<small style="color: blue;">Foto atual do perfil</small>`;
+                        document.getElementById('profileUploadText').style.display = 'none';
+                        document.getElementById('profilePreview').style.display = 'block';
+                    } else {
+                        clearProfileImage();
+                    }
+                    
+                    // Alterar interface para modo edição
+                    document.getElementById('formTitle').textContent = '✏️ Editar Usuário';
+                    document.getElementById('submitBtn').textContent = 'Atualizar Usuário';
+                    document.getElementById('cancelEditBtn').style.display = 'inline-block';
+                    
+                    // Scroll to form
+                    document.getElementById('createUserForm').scrollIntoView({ behavior: 'smooth' });
+                }
+            })
+            .catch(error => {
+                showResponse('editUserResponse', {error: error.message});
+            });
+        }
+
+        function cancelEdit() {
+            // Limpar formulário
+            document.getElementById('createUserForm').reset();
+            clearProfileImage();
+            
+            // Resetar interface
+            document.getElementById('editingUserId').value = '';
+            document.getElementById('formTitle').textContent = '✨ Criar Usuário';
+            document.getElementById('submitBtn').textContent = 'Criar Usuário';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+        }
+
+        function editLoggedUser() {
+            if (currentUser) {
+                document.getElementById('editUserId').value = currentUser.id;
+                loadUserForEdit();
+            }
         }
     </script>
 </body>

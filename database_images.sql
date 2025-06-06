@@ -1,0 +1,20 @@
+-- Tabela para armazenar informações das imagens dos usuários
+CREATE TABLE IF NOT EXISTS user_images (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    filename TEXT NOT NULL UNIQUE,
+    original_name TEXT NOT NULL,
+    file_size INTEGER NOT NULL,
+    mime_type TEXT NOT NULL,
+    upload_date DATETIME NOT NULL,
+    is_profile_picture BOOLEAN DEFAULT 0,
+    character_id INTEGER NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (character_id) REFERENCES personagens(id) ON DELETE CASCADE
+);
+
+-- Índice para melhorar performance nas consultas por usuário
+CREATE INDEX IF NOT EXISTS idx_user_images_user_id ON user_images(user_id);
+
+-- Índice para fotos de perfil
+CREATE INDEX IF NOT EXISTS idx_user_images_profile ON user_images(user_id, is_profile_picture);

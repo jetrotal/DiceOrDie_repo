@@ -4,9 +4,13 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Start session for authentication
+session_start();
+
 require_once __DIR__ . '/../app/Controllers/UserController.php';
 require_once __DIR__ . '/../app/Controllers/CharacterController.php';
 require_once __DIR__ . '/../app/Controllers/GameTableController.php';
+require_once __DIR__ . '/../app/Controllers/ImageController.php';
 require_once __DIR__ . '/../app/Models/UserModel.php';
 require_once __DIR__ . '/../app/Models/CharacterModel.php';
 require_once __DIR__ . '/../app/Models/GameTableModel.php';
@@ -24,7 +28,7 @@ require_once __DIR__ . '/../tests/TestGameTables.php';
 require_once __DIR__ . '/../tests/TestRunner.php';
 
 // Configurações iniciais
-header('Content-Type: application/json');
+// Don't set JSON header by default - we'll set it per route
 
 // Simula roteamento baseado na URL
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -161,9 +165,8 @@ switch ("$method:$path") {
         $id = (int)$matches[1];
         $json = file_get_contents('php://input');
         $requestData = json_decode($json, true) ?? [];
-        $criadorId = $_SERVER['HTTP_X_CRIADOR_ID'] ?? 0;
         $controller = new App\Controllers\GameTableController();
-        $response = $controller->updateTable($id, $criadorId, $requestData);
+        $response = $controller->updateTable($id, $requestData);
         break;
         
     case preg_match('#^/tables/(\d+)$#', $path, $matches) && $method === 'DELETE':
@@ -177,6 +180,71 @@ switch ("$method:$path") {
         $userId = (int)$matches[1];
         $controller = new App\Controllers\GameTableController();
         $response = $controller->getTablesByUser($userId);
+        break;
+        
+    case 'GET:/tables':
+        $controller = new App\Controllers\GameTableController();
+        $response = $controller->getAllTables();
+        break;
+        
+    case 'GET:/tables/all':
+        $controller = new App\Controllers\GameTableController();
+        $response = $controller->getAllTables();
+        break;
+        
+    case 'DELETE:/tables':
+        $controller = new App\Controllers\GameTableController();
+        $response = $controller->deleteAllTables();
+        break;
+        
+    // === ROTAS DE IMAGEM ===
+    case 'POST:/upload-image':
+        $database = App\Database\DatabaseFactory::create('sqlite', [__DIR__ . '/../database.sqlite']);
+        $controller = new ImageController($database);
+        $response = $controller->uploadImage();
+        break;
+        
+    case 'DELETE:/delete-image':
+        $database = App\Database\DatabaseFactory::create('sqlite', [__DIR__ . '/../database.sqlite']);
+        $controller = new ImageController($database);
+        $response = $controller->deleteImage();
+        break;
+        
+    case preg_match('#^/user-images/(\d+)$#', $path, $matches) && $method === 'GET':
+        $userId = (int)$matches[1];
+        $database = App\Database\DatabaseFactory::create('sqlite', [__DIR__ . '/../database.sqlite']);
+        $controller = new ImageController($database);
+        $response = $controller->getUserImages($userId);
+        break;
+        
+    case 'GET:/my-images':
+        $database = App\Database\DatabaseFactory::create('sqlite', [__DIR__ . '/../database.sqlite']);
+        $controller = new ImageController($database);
+        $response = $controller->getUserImages();
+        break;
+        
+    case 'POST:/upload-profile-picture':
+        $database = App\Database\DatabaseFactory::create('sqlite', [__DIR__ . '/../database.sqlite']);
+        $controller = new ImageController($database);
+        $response = $controller->uploadProfilePicture();
+        break;
+        
+    // === ROTA PARA SERVIR IMAGENS ESTÁTICAS ===
+    case preg_match('#^/uploads/(.+)$#', $path, $matches) && $method === 'GET':
+        $filename = $matches[1];
+        $filepath = __DIR__ . '/uploads/' . $filename;
+        
+        if (file_exists($filepath) && is_file($filepath)) {
+            $mimeType = mime_content_type($filepath);
+            header('Content-Type: ' . $mimeType);
+            header('Content-Length: ' . filesize($filepath));
+            header('Cache-Control: public, max-age=31536000'); // Cache por 1 ano
+            readfile($filepath);
+            exit;
+        } else {
+            http_response_code(404);
+            $response = ['error' => 'Imagem não encontrada'];
+        }
         break;
         
     // === ROTAS DE TESTE ORGANIZADAS ===
@@ -224,8 +292,11 @@ switch ("$method:$path") {
         ];
 }
 
-// Retorna resposta JSON
-echo json_encode($response, JSON_PRETTY_PRINT);
+// Retorna resposta JSON (apenas se $response estiver definido)
+if (isset($response)) {
+    header('Content-Type: application/json');
+    echo json_encode($response, JSON_PRETTY_PRINT);
+}
 
 // Display all database entries only for GET requests to root path (not AJAX calls)
 if ($method === 'GET' && $path === '/') {

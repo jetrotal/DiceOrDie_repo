@@ -145,27 +145,45 @@ class UserController {
     
     public function deleteUser(int $id): array {
         try {
-            // Para testes, permite acesso sem autenticação
-            // TODO: Implementar autenticação por sessão em produção
-            $currentUserId = $_SERVER['HTTP_X_USER_ID'] ?? $id;
-            $currentUserRole = $_SERVER['HTTP_X_USER_ROLE'] ?? 'admin';
-            
-            if ($currentUserRole !== 'admin' && $currentUserId != $id) {
-                error_log("Warning: deleteUser accessed without proper authorization");
-            }
-
             // Configuração do banco
             $db = DatabaseFactory::create('sqlite', [__DIR__ . '/../../database.sqlite']);
             $userModel = new UserModel($db);
 
+            // Verifica autenticação e autorização
+            $currentUserId = $_SERVER['HTTP_X_USER_ID'] ?? null;
+            $currentUserRole = $_SERVER['HTTP_X_USER_ROLE'] ?? null;
+            
+            // Verifica se usuário está logado
+            if (!$currentUserId || !$currentUserRole) {
+                return [
+                    'success' => false,
+                    'error' => 'Acesso negado: login necessário para apagar usuários'
+                ];
+            }
+            
+            // Verifica autorização: admin pode apagar qualquer usuário, usuário comum só pode apagar a si mesmo
+            $isAdmin = ($currentUserRole === 'admin');
+            $isOwnProfile = ($currentUserId == $id);
+            
+            if (!$isAdmin && !$isOwnProfile) {
+                return [
+                    'success' => false,
+                    'error' => 'Acesso negado: você só pode apagar sua própria conta. Apenas administradores podem apagar outros usuários.'
+                ];
+            }
+
             // Apaga usuário
             $result = $userModel->deleteUser($id);
 
+            $message = $isAdmin && !$isOwnProfile
+                ? "Usuário ID $id foi apagado pelo administrador"
+                : "Sua conta foi apagada com sucesso";
+
             return [
                 'success' => true,
-                'message' => 'Usuário apagado com sucesso',
+                'message' => $message,
                 'deleted_id' => $id,
-                'warning' => ($currentUserRole !== 'admin' && $currentUserId != $id) ? 'Acesso liberado para testes' : null
+                'action_type' => $isAdmin && !$isOwnProfile ? 'admin_delete' : 'self_delete'
             ];
         } catch (\Exception $e) {
             return [
@@ -177,12 +195,24 @@ class UserController {
     
     public function deleteAllUsers(): array {
         try {
-            // Para testes, permite acesso sem autenticação
-            // TODO: Implementar autenticação por sessão em produção
-            $currentUserRole = $_SERVER['HTTP_X_USER_ROLE'] ?? 'admin';
+            // Verifica autenticação e autorização
+            $currentUserId = $_SERVER['HTTP_X_USER_ID'] ?? null;
+            $currentUserRole = $_SERVER['HTTP_X_USER_ROLE'] ?? null;
             
+            // Verifica se usuário está logado
+            if (!$currentUserId || !$currentUserRole) {
+                return [
+                    'success' => false,
+                    'error' => 'Acesso negado: login necessário para apagar usuários'
+                ];
+            }
+            
+            // Apenas administradores podem apagar todos os usuários
             if ($currentUserRole !== 'admin') {
-                error_log("Warning: deleteAllUsers accessed without admin privileges");
+                return [
+                    'success' => false,
+                    'error' => 'Acesso negado: apenas administradores podem apagar todos os usuários'
+                ];
             }
 
             // Configuração do banco
@@ -194,10 +224,10 @@ class UserController {
 
             return [
                 'success' => true,
-                'message' => "Todos os usuários foram apagados com sucesso e autoincrement resetado",
+                'message' => "Todos os usuários foram apagados com sucesso pelo administrador e autoincrement resetado",
                 'deleted_count' => $count,
                 'reset_info' => 'O próximo usuário criado terá ID = 1',
-                'warning' => $currentUserRole !== 'admin' ? 'Acesso liberado para testes' : null
+                'admin_action' => true
             ];
         } catch (\Exception $e) {
             return [

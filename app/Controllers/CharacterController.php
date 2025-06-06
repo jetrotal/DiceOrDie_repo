@@ -256,19 +256,20 @@ class CharacterController {
 
     public function deleteAllCharacters(): array {
         try {
-            // Validação robusta de autenticação
+            // Verificação de autenticação e autorização
             $currentUserId = $_SERVER['HTTP_X_USER_ID'] ?? $_SERVER['HTTP_X-USER-ID'] ?? null;
             $currentUserRole = $_SERVER['HTTP_X_USER_ROLE'] ?? $_SERVER['HTTP_X-USER-ROLE'] ?? null;
             
-            // Se não há headers, verifica se há admin logado via sessão
-            if (!$currentUserId) {
-                // Para compatibilidade, aceita se não há validação estrita
-                // Em produção, isso seria mais rigoroso
-                error_log("WARNING: deleteAllCharacters chamado sem headers de autenticação");
+            // Verifica se usuário está logado
+            if (!$currentUserId || !$currentUserRole) {
+                return [
+                    'success' => false,
+                    'error' => 'Acesso negado: login necessário para apagar personagens'
+                ];
             }
             
-            // Verificar se é admin (quando headers estão disponíveis)
-            if ($currentUserRole && $currentUserRole !== 'admin') {
+            // Apenas administradores podem apagar todos os personagens
+            if ($currentUserRole !== 'admin') {
                 return [
                     'success' => false,
                     'error' => 'Acesso negado: apenas administradores podem apagar todos os personagens'
@@ -285,7 +286,8 @@ class CharacterController {
             
             return [
                 'success' => true,
-                'message' => 'Todos os personagens foram apagados com sucesso e o ID foi resetado'
+                'message' => 'Todos os personagens foram apagados com sucesso pelo administrador e o ID foi resetado',
+                'admin_action' => true
             ];
         } catch (\Exception $e) {
             return ['success' => false, 'error' => 'Erro interno: ' . $e->getMessage()];

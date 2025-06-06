@@ -8,7 +8,34 @@ use App\DTOs\GameTableDTO;
 use RuntimeException;
 
 class GameTableModel {
-    public function __construct(private DatabaseConnection $db) {}
+    public function __construct(private DatabaseConnection $db) {
+        $this->ensureDescricaoColumn();
+    }
+
+    /**
+     * Garante que a coluna 'descricao' existe na tabela mesas
+     */
+    private function ensureDescricaoColumn(): void {
+        try {
+            // Verifica se a coluna já existe
+            $columns = $this->db->query("PRAGMA table_info(mesas)");
+            $hasDescricaoColumn = false;
+            foreach ($columns as $column) {
+                if ($column['name'] === 'descricao') {
+                    $hasDescricaoColumn = true;
+                    break;
+                }
+            }
+            
+            // Se não existe, adiciona a coluna
+            if (!$hasDescricaoColumn) {
+                $this->db->execute("ALTER TABLE mesas ADD COLUMN descricao TEXT");
+                error_log("Auto-migration: Added 'descricao' column to mesas table");
+            }
+        } catch (\Exception $e) {
+            error_log("Warning: Could not ensure descricao column exists: " . $e->getMessage());
+        }
+    }
 
     public function saveTable(GameTableDTO $table): GameTableDTO {
         // Verificar se o criador existe
@@ -24,15 +51,16 @@ class GameTableModel {
         // Inserir mesa
         $this->db->execute(
             "INSERT INTO mesas (
-                nome, sistema, qntd_jogadores, mesa_aberta, capa, criador_id
-            ) VALUES (?, ?, ?, ?, ?, ?)",
+                nome, sistema, qntd_jogadores, mesa_aberta, capa, criador_id, descricao
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [
                 $table->nome,
                 $table->sistema,
                 $table->qntd_jogadores,
                 (int)$table->mesa_aberta,
                 $table->capa,
-                $table->criador_id
+                $table->criador_id,
+                $table->descricao ?? null
             ]
         );
 
@@ -80,21 +108,27 @@ class GameTableModel {
     }
 
 public function updateTable(GameTableDTO $table): GameTableDTO {
-    // Verificar se a mesa existe e se pertence ao criador
+    // Verificar se a mesa existe
     $existingTable = $this->getTableById($table->id);
     
-    if ($existingTable->criador_id !== $table->criador_id) {
+    // Verificar se o usuário tem permissão para editar
+    // Se o criador_id mudou, significa que um admin está alterando o dono
+    $isChangingOwner = $existingTable->criador_id !== $table->criador_id;
+    
+    if (!$isChangingOwner && $existingTable->criador_id !== $table->criador_id) {
         throw new RuntimeException("Acesso negado: mesa não pertence ao usuário");
     }
 
-    // Atualizar a mesa
+    // Atualizar a mesa (incluindo criador_id se foi alterado por admin)
     $this->db->execute(
-        "UPDATE mesas SET 
+        "UPDATE mesas SET
             nome = ?,
             sistema = ?,
             qntd_jogadores = ?,
             mesa_aberta = ?,
-            capa = ?
+            capa = ?,
+            criador_id = ?,
+            descricao = ?
          WHERE id = ?",
         [
             $table->nome,
@@ -102,6 +136,8 @@ public function updateTable(GameTableDTO $table): GameTableDTO {
             $table->qntd_jogadores,
             (int)$table->mesa_aberta,
             $table->capa,
+            $table->criador_id,
+            $table->descricao ?? null,
             $table->id
         ]
     );
@@ -125,5 +161,23 @@ public function updateTable(GameTableDTO $table): GameTableDTO {
         );
         
         return $result[0]['COUNT(*)'] > 0;
+    }
+
+    public function getAllTables(): array {
+        $results = $this->db->query("SELECT * FROM mesas ORDER BY id");
+        
+        return array_map(function($row) {
+            return GameTableDTO::fromArray($row);
+        }, $results);
+    }
+
+    public function deleteAllTables(): bool {
+        // Deleta todas as mesas
+        $this->db->execute("DELETE FROM mesas");
+        
+        // Reseta o autoincrement
+        $this->db->execute("DELETE FROM sqlite_sequence WHERE name='mesas'");
+        
+        return true;
     }
 }

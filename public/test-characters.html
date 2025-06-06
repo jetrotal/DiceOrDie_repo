@@ -4,111 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiceOrDie - Testes de Personagens</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fafafa;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-        .form-row .form-group {
-            flex: 1;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-        .btn-warning {
-            background-color: #ffc107;
-            color: black;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        button:hover {
-            opacity: 0.8;
-        }
-        .response {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            background-color: #e9ecef;
-        }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        pre {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-        }
-        .attributes-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-        }
-    </style>
+    <link rel="stylesheet" href="test-shared/test-styles.css">
 </head>
 <body>
     <div class="container">
@@ -123,8 +19,7 @@
             <button onclick="logout()" class="btn-secondary">🚪 Logout</button>
             <div id="adminControls" style="display:none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
                 <p><strong>🛡️ Controles de Admin:</strong></p>
-                <button onclick="getAllCharactersAsAdmin()" class="btn-primary">⚔️ Ver Todos os Personagens</button>
-                <button onclick="deleteAllCharactersAsAdmin()" class="btn-danger">🗑️ Apagar Todos os Personagens + Reset ID</button>
+                <div id="adminButtons"></div>
             </div>
         </div>
 
@@ -274,7 +169,12 @@
         <!-- Seção: Apagar Personagem -->
         <div class="section">
             <h2>🗑️ Apagar Personagem</h2>
-            <p style="color: #dc3545; font-weight: bold;">⚠️ RESTRITO: Você só pode apagar seus próprios personagens. Admins podem apagar qualquer personagem.</p>
+            <p style="color: #dc3545; font-weight: bold;">⚠️ CONTROLE DE ACESSO IMPLEMENTADO:</p>
+            <ul style="color: #dc3545; font-weight: bold;">
+                <li>👤 <strong>Usuários comuns:</strong> Podem apagar apenas seus próprios personagens</li>
+                <li>🛡️ <strong>Administradores:</strong> Podem apagar qualquer personagem</li>
+                <li>🚫 <strong>Não logados:</strong> Acesso negado</li>
+            </ul>
             <div class="form-group">
                 <label for="deleteCharacterId">ID do Personagem a Apagar:</label>
                 <input type="number" id="deleteCharacterId" placeholder="Ex: 1" min="1">
@@ -304,7 +204,7 @@
         <!-- Seção: Informações -->
         <div class="section">
             <h2>ℹ️ Informações Importantes</h2>
-            <p><strong>🔐 Sistema de Segurança:</strong> O sistema agora implementa controle de acesso baseado em login.</p>
+            <p><strong>🔐 Sistema de Segurança:</strong> O sistema implementa controle de acesso baseado em login.</p>
             <p><strong>🛡️ Permissões por Tipo de Usuário:</strong></p>
             <ul>
                 <li>🌍 <strong>Todos:</strong> Ver personagens por ID</li>
@@ -318,112 +218,16 @@
                 <li>✅ <strong>Headers de autenticação:</strong> Sistema compatível com test-users</li>
                 <li>🛡️ <strong>Edição de dono:</strong> Apenas administradores podem alterar o username de um personagem</li>
             </ul>
-            <p><strong>📱 Sessão Persistente:</strong> O login feito em test-users é automaticamente detectado aqui.</p>
+            <p><strong>📱 Sessão Persistente:</strong> O login é compartilhado entre todas as test-pages.</p>
         </div>
     </div>
 
+    <!-- Scripts compartilhados -->
+    <script src="test-shared/test-auth.js"></script>
+    <script src="test-shared/test-components.js"></script>
+    <script src="test-shared/test-characters-specific.js"></script>
+    
     <script>
-        // Variável global para armazenar usuário logado
-        let currentUser = null;
-
-        // Carrega sessão salva ao carregar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            loadSavedSession();
-        });
-
-        // Carrega sessão do localStorage
-        function loadSavedSession() {
-            const savedUser = localStorage.getItem('diceordie_current_user');
-            if (savedUser) {
-                try {
-                    const userData = JSON.parse(savedUser);
-                    showLoggedUser(userData);
-                    console.log('Sessão carregada automaticamente:', userData.username);
-                } catch (error) {
-                    console.error('Erro ao carregar sessão salva:', error);
-                    localStorage.removeItem('diceordie_current_user');
-                }
-            }
-        }
-
-        // Mostrar usuário logado
-        function showLoggedUser(user) {
-            currentUser = user;
-            
-            const section = document.getElementById('loggedUserSection');
-            const info = document.getElementById('loggedUserInfo');
-            const adminControls = document.getElementById('adminControls');
-            
-            const roleDisplay = user.role === 'admin' ? '🛡️ Admin' : '👤 User';
-            const roleColor = user.role === 'admin' ? 'color: #dc3545; font-weight: bold;' : 'color: #28a745;';
-            
-            info.innerHTML = `
-                <p><strong>Nome:</strong> ${user.nome} ${user.sobrenome}</p>
-                <p><strong>Username:</strong> ${user.username}</p>
-                <p><strong>Role:</strong> <span style="${roleColor}">${roleDisplay}</span></p>
-                <p><strong>ID:</strong> ${user.id}</p>
-                <p style="font-size: 12px; color: #666; margin-top: 10px;">📱 Sessão compartilhada com test-users</p>
-            `;
-            
-            // Preenche username no formulário de criação
-            document.getElementById('username').value = user.username;
-            
-            // Mostra controles de admin se for admin
-            if (user.role === 'admin') {
-                adminControls.style.display = 'block';
-            } else {
-                adminControls.style.display = 'none';
-            }
-            
-            section.style.display = 'block';
-        }
-
-        // Logout
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('diceordie_current_user');
-            document.getElementById('loggedUserSection').style.display = 'none';
-            document.getElementById('username').value = '';
-            cancelEdit(); // Cancela edição se estiver ativa
-            console.log('Logout realizado - sessão removida');
-        }
-
-        // Função para criar headers de autenticação
-        function getAuthHeaders() {
-            if (!currentUser) {
-                console.log('getAuthHeaders: Nenhum usuário logado');
-                return {};
-            }
-            
-            const headers = {
-                'X-User-ID': currentUser.id.toString(),
-                'X-User-Role': currentUser.role
-            };
-            
-            console.log('getAuthHeaders: Enviando headers:', headers);
-            return headers;
-        }
-
-        // Verificar status de login
-        function checkLoginStatus() {
-            if (currentUser) {
-                showResponse('loginStatusResponse', {
-                    success: true,
-                    message: 'Usuário logado com sucesso',
-                    user: {
-                        username: currentUser.username,
-                        role: currentUser.role,
-                        id: currentUser.id
-                    }
-                });
-            } else {
-                showResponse('loginStatusResponse', {
-                    success: false,
-                    message: 'Nenhum usuário logado. Faça login em test-users.html primeiro.'
-                });
-            }
-        }
-
         // Criar/Editar personagem
         document.getElementById('createCharacterForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -504,338 +308,6 @@
                 showResponse('createCharacterResponse', {error: error.message});
             }
         });
-
-        // Buscar personagem por ID
-        async function getCharacter() {
-            const characterId = document.getElementById('searchCharacterId').value;
-            if (!characterId) {
-                showResponse('getCharacterResponse', {error: 'Por favor, insira um ID válido'});
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/characters/${characterId}`);
-                const result = await response.json();
-                showResponse('getCharacterResponse', result);
-            } catch (error) {
-                showResponse('getCharacterResponse', {error: error.message});
-            }
-        }
-
-        // Buscar personagens por usuário
-        async function getCharactersByUser() {
-            const username = document.getElementById('searchByUsername').value;
-            if (!username) {
-                showResponse('getCharacterResponse', {error: 'Por favor, insira um username válido'});
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/users/${username}/characters`, {
-                    headers: getAuthHeaders()
-                });
-                const result = await response.json();
-                showResponse('getCharacterResponse', result);
-            } catch (error) {
-                showResponse('getCharacterResponse', {error: error.message});
-            }
-        }
-
-        // Buscar meus personagens
-        async function getMyCharacters() {
-            if (!currentUser) {
-                showResponse('getCharacterResponse', {
-                    success: false,
-                    error: 'Você deve estar logado para ver seus personagens.'
-                });
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/users/${currentUser.username}/characters`, {
-                    headers: getAuthHeaders()
-                });
-                const result = await response.json();
-                showResponse('getCharacterResponse', result);
-            } catch (error) {
-                showResponse('getCharacterResponse', {error: error.message});
-            }
-        }
-
-        // Apagar personagem
-        async function deleteCharacter() {
-            const characterId = document.getElementById('deleteCharacterId').value;
-            
-            if (!currentUser) {
-                showResponse('deleteCharacterResponse', {
-                    success: false,
-                    error: 'Você deve estar logado para apagar personagens.'
-                });
-                return;
-            }
-            
-            if (!characterId) {
-                showResponse('deleteCharacterResponse', {error: 'Por favor, insira um ID válido'});
-                return;
-            }
-            
-            if (!confirm('Tem certeza que deseja apagar este personagem? Esta ação não pode ser desfeita.')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/characters/${characterId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-USERNAME': currentUser.username,
-                        ...getAuthHeaders()
-                    }
-                });
-                
-                const result = await response.json();
-                showResponse('deleteCharacterResponse', result);
-            } catch (error) {
-                showResponse('deleteCharacterResponse', {error: error.message});
-            }
-        }
-
-        // Funções específicas para admin
-        async function getAllCharactersAsAdmin() {
-            if (!currentUser || currentUser.role !== 'admin') {
-                showResponse('getCharacterResponse', {
-                    success: false,
-                    error: 'Acesso negado: apenas administradores podem usar esta função'
-                });
-                return;
-            }
-            
-            try {
-                const response = await fetch('/characters/all', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...getAuthHeaders()
-                    }
-                });
-                
-                const result = await response.json();
-                showResponse('getCharacterResponse', result);
-            } catch (error) {
-                showResponse('getCharacterResponse', {
-                    success: false,
-                    error: error.message
-                });
-            }
-        }
-
-        async function deleteAllCharactersAsAdmin() {
-            if (!currentUser || currentUser.role !== 'admin') {
-                showResponse('getCharacterResponse', {
-                    success: false,
-                    error: 'Acesso negado: apenas administradores podem usar esta função'
-                });
-                return;
-            }
-            
-            if (!confirm('⚠️ ATENÇÃO: Tem certeza que deseja apagar TODOS os personagens?\n\nEsta ação não pode ser desfeita e irá remover permanentemente todos os dados de personagens do sistema.\n\nO contador de ID também será resetado para 1.')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch('/characters', {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        ...getAuthHeaders()
-                    }
-                });
-                
-                const result = await response.json();
-                showResponse('getCharacterResponse', result);
-                
-                if (result.success) {
-                    // Limpa os campos de busca também
-                    document.getElementById('searchCharacterId').value = '';
-                    document.getElementById('searchByUsername').value = '';
-                }
-            } catch (error) {
-                showResponse('getCharacterResponse', {
-                    success: false,
-                    error: error.message
-                });
-            }
-        }
-
-        // Carregar personagem para edição
-        async function loadCharacterForEdit() {
-            const characterId = document.getElementById('editCharacterId').value;
-            
-            if (!currentUser) {
-                showResponse('editCharacterResponse', {
-                    success: false,
-                    error: 'Você deve estar logado para editar personagens.'
-                });
-                return;
-            }
-            
-            if (!characterId) {
-                showResponse('editCharacterResponse', {error: 'Por favor, insira um ID válido'});
-                return;
-            }
-            
-            try {
-                // Busca o personagem pelo ID
-                const response = await fetch(`/characters/${characterId}`, {
-                    headers: getAuthHeaders()
-                });
-                
-                const result = await response.json();
-                
-                if (result.success && result.character) {
-                    const character = result.character;
-                    
-                    // Verifica se o usuário pode editar este personagem
-                    if (character.username !== currentUser.username && currentUser.role !== 'admin') {
-                        showResponse('editCharacterResponse', {
-                            success: false,
-                            error: 'Acesso negado: você só pode editar seus próprios personagens'
-                        });
-                        return;
-                    }
-                    
-                    // Muda para modo edição
-                    document.getElementById('formTitle').textContent = '✏️ Editar Personagem';
-                    document.getElementById('submitBtn').textContent = 'Atualizar Personagem';
-                    document.getElementById('submitBtn').className = 'btn-warning';
-                    document.getElementById('cancelEditBtn').style.display = 'inline-block';
-                    
-                    // Configurar campo username baseado na permissão do usuário
-                    const usernameField = document.getElementById('username');
-                    const usernameLabel = document.querySelector('label[for="username"]');
-                    const usernameHelp = usernameField.nextElementSibling;
-                    
-                    if (currentUser.role === 'admin') {
-                        // Admin pode editar o username
-                        usernameField.readOnly = false;
-                        usernameField.style.backgroundColor = '#fff';
-                        usernameLabel.innerHTML = '🛡️ Username do Jogador (Admin):';
-                        usernameHelp.innerHTML = '<span style="color: #dc3545; font-weight: bold;">🛡️ ADMIN: Você pode alterar o dono deste personagem</span>';
-                        usernameHelp.style.color = '#dc3545';
-                    } else {
-                        // User comum não pode editar username
-                        usernameField.readOnly = true;
-                        usernameField.style.backgroundColor = '#f8f9fa';
-                        usernameLabel.innerHTML = 'Username do Jogador:';
-                        usernameHelp.innerHTML = '<span style="color: #666;">⚠️ Apenas administradores podem alterar o dono do personagem</span>';
-                        usernameHelp.style.color = '#666';
-                    }
-                    
-                    // Preenche o formulário com dados atuais
-                    document.getElementById('editingCharacterId').value = character.id;
-                    usernameField.value = character.username || '';
-                    document.getElementById('nome_personagem').value = character.nome_personagem || '';
-                    document.getElementById('nivel').value = character.nivel || '';
-                    document.getElementById('raca').value = character.raca || '';
-                    document.getElementById('classe').value = character.classe || '';
-                    document.getElementById('ponto_vida').value = character.ponto_vida || '';
-                    document.getElementById('classe_armadura').value = character.classe_armadura || '';
-                    document.getElementById('forca').value = character.forca || '';
-                    document.getElementById('destreza').value = character.destreza || '';
-                    document.getElementById('constituicao').value = character.constituicao || '';
-                    document.getElementById('inteligencia').value = character.inteligencia || '';
-                    document.getElementById('sabedoria').value = character.sabedoria || '';
-                    document.getElementById('carisma').value = character.carisma || '';
-                    document.getElementById('imagem_personagem').value = character.imagem_personagem || '';
-                    
-                    // Scroll para o formulário
-                    document.getElementById('formTitle').scrollIntoView({ behavior: 'smooth' });
-                    
-                    showResponse('editCharacterResponse', {
-                        success: true,
-                        message: `Personagem "${character.nome_personagem}" carregado para edição`
-                    });
-                } else {
-                    showResponse('editCharacterResponse', result);
-                }
-            } catch (error) {
-                showResponse('editCharacterResponse', {error: error.message});
-            }
-        }
-
-        // Cancelar edição
-        function cancelEdit() {
-            document.getElementById('formTitle').textContent = '✨ Criar Personagem';
-            document.getElementById('submitBtn').textContent = 'Criar Personagem';
-            document.getElementById('submitBtn').className = 'btn-success';
-            document.getElementById('cancelEditBtn').style.display = 'none';
-            document.getElementById('editingCharacterId').value = '';
-            clearForm('createCharacterForm');
-            
-            // Resetar campo username ao estado original
-            const usernameField = document.getElementById('username');
-            const usernameLabel = document.querySelector('label[for="username"]');
-            const usernameHelp = usernameField.nextElementSibling;
-            
-            usernameField.readOnly = true;
-            usernameField.style.backgroundColor = '#f8f9fa';
-            usernameLabel.innerHTML = 'Username do Jogador:';
-            usernameHelp.innerHTML = '<span style="color: #666;">Preenchido automaticamente com seu username logado</span>';
-            usernameHelp.style.color = '#666';
-            
-            // Se logado, redefine o username
-            if (currentUser) {
-                usernameField.value = currentUser.username;
-            }
-        }
-
-        // Executar testes rápidos
-        async function runTest(endpoint) {
-            try {
-                const response = await fetch(endpoint, {
-                    headers: getAuthHeaders()
-                });
-                const result = await response.json();
-                showResponse('quickTestResponse', result);
-            } catch (error) {
-                showResponse('quickTestResponse', {error: error.message});
-            }
-        }
-
-        // Preencher dados de exemplo
-        function fillSampleData() {
-            // Se logado, usa o username do usuário logado
-            if (currentUser) {
-                document.getElementById('username').value = currentUser.username;
-            } else {
-                document.getElementById('username').value = '';
-            }
-            document.getElementById('nome_personagem').value = 'Aragorn';
-            document.getElementById('nivel').value = '10';
-            document.getElementById('raca').value = 'Humano';
-            document.getElementById('classe').value = 'Ranger';
-            document.getElementById('ponto_vida').value = '85';
-            document.getElementById('classe_armadura').value = '16';
-            document.getElementById('forca').value = '16';
-            document.getElementById('destreza').value = '18';
-            document.getElementById('constituicao').value = '14';
-            document.getElementById('inteligencia').value = '12';
-            document.getElementById('sabedoria').value = '15';
-            document.getElementById('carisma').value = '13';
-            document.getElementById('imagem_personagem').value = 'https://exemplo.com/aragorn.jpg';
-        }
-
-        // Função utilitária para mostrar resposta
-        function showResponse(elementId, data) {
-            const element = document.getElementById(elementId);
-            element.style.display = 'block';
-            element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
-        }
-
-        // Função utilitária para limpar formulário
-        function clearForm(formId) {
-            document.getElementById(formId).reset();
-        }
     </script>
-    <!-- Cache buster: 2025-06-04-20:05 -->
 </body>
 </html>

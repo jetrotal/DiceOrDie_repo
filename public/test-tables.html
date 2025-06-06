@@ -4,114 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiceOrDie - Testes de Mesas</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            color: #333;
-        }
-        .section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #fafafa;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-        .form-row .form-group {
-            flex: 1;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-        .btn-warning {
-            background-color: #ffc107;
-            color: black;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-        button:hover {
-            opacity: 0.8;
-        }
-        .response {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            background-color: #e9ecef;
-        }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        pre {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-        }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-        }
-    </style>
+    <link rel="stylesheet" href="test-shared/test-styles.css">
 </head>
 <body>
     <div class="container">
@@ -119,13 +12,33 @@
         
         <h1>🎯 Testes de Mesas</h1>
 
-        <!-- Seção: Criar Mesa -->
+        <!-- Seção: Usuário Logado (aparece após login) -->
+        <div id="loggedUserSection" class="section" style="display:none; background-color: #e8f5e8;">
+            <h2>👤 Usuário Logado</h2>
+            <div id="loggedUserInfo"></div>
+            <button onclick="logout()" class="btn-secondary">🚪 Logout</button>
+            <div id="adminControls" style="display:none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
+                <p><strong>🛡️ Controles de Admin:</strong></p>
+                <div id="adminButtons"></div>
+            </div>
+        </div>
+
+        <!-- Seção: Criar/Editar Mesa -->
         <div class="section">
-            <h2>✨ Criar Mesa</h2>
+            <h2 id="formTitle">✨ Criar Mesa</h2>
+            <p style="color: #dc3545; font-weight: bold;">⚠️ RESTRITO: Você deve estar logado para criar mesas. O criador será automaticamente definido como você.</p>
             <form id="createTableForm">
-                <div class="form-group">
-                    <label for="nome">Nome da Mesa:</label>
-                    <input type="text" id="nome" name="nome" placeholder="Ex: A Taverna do Dragão Dourado" required>
+                <input type="hidden" id="editingTableId" name="editingTableId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="criador_id">ID do Criador:</label>
+                        <input type="number" id="criador_id" name="criador_id" placeholder="Faça login primeiro" readonly style="background-color: #f8f9fa;">
+                        <small style="color: #666;">Preenchido automaticamente com seu ID logado</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="nome">Nome da Mesa:</label>
+                        <input type="text" id="nome" name="nome" placeholder="Ex: A Taverna do Dragão Dourado" required>
+                    </div>
                 </div>
                 
                 <div class="form-row">
@@ -165,13 +78,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="criador_id">ID do Criador:</label>
-                    <input type="number" id="criador_id" name="criador_id" placeholder="Ex: 1" min="1" required>
+                    <label for="descricao">Descrição da Mesa:</label>
+                    <textarea id="descricao" name="descricao" rows="4" placeholder="Descreva sua mesa de RPG, história, regras especiais, estilo de jogo..."></textarea>
                 </div>
 
-                <button type="submit" class="btn-success">Criar Mesa</button>
+                <button type="submit" id="submitBtn" class="btn-success">Criar Mesa</button>
                 <button type="button" onclick="clearForm('createTableForm')" class="btn-secondary">Limpar</button>
                 <button type="button" onclick="fillSampleTableData()" class="btn-warning">Preencher Exemplo</button>
+                <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="btn-secondary" style="display:none;">Cancelar Edição</button>
             </form>
             <div id="createTableResponse" class="response" style="display:none;"></div>
         </div>
@@ -179,6 +93,8 @@
         <!-- Seção: Buscar Mesa -->
         <div class="section">
             <h2>🔍 Buscar Mesa</h2>
+            <p style="color: #28a745; font-weight: bold;">🌍 PÚBLICO: Todos podem buscar e ver mesas por ID.</p>
+            <p style="color: #dc3545; font-weight: bold;">🛡️ ADMIN: Administradores podem ver todas as mesas de qualquer usuário.</p>
             <div class="form-row">
                 <div class="form-group">
                     <label for="searchTableId">ID da Mesa:</label>
@@ -191,40 +107,36 @@
             </div>
             <button onclick="getTable()" class="btn-primary">Buscar por ID</button>
             <button onclick="getTablesByUser()" class="btn-primary">Buscar por Usuário</button>
+            <button onclick="getMyTables()" class="btn-success">👤 Minhas Mesas</button>
+            <button onclick="getAllTables()" class="btn-primary">Listar Todas as Mesas</button>
             <div id="getTableResponse" class="response" style="display:none;"></div>
         </div>
 
         <!-- Seção: Editar Mesa -->
         <div class="section">
             <h2>✏️ Editar Mesa</h2>
+            <p style="color: #dc3545; font-weight: bold;">⚠️ RESTRITO: Você só pode editar suas próprias mesas. Admins podem editar qualquer mesa.</p>
+            <p style="color: #dc3545; font-weight: bold;">🛡️ ESPECIAL: Apenas administradores podem alterar o criador de uma mesa.</p>
             <div class="form-group">
                 <label for="editTableId">ID da Mesa a Editar:</label>
                 <input type="number" id="editTableId" placeholder="Ex: 1" min="1">
             </div>
-            <div class="form-group">
-                <label for="editCriadorId">ID do Criador (para autorização):</label>
-                <input type="number" id="editCriadorId" placeholder="Ex: 1" min="1">
-            </div>
-            <div class="form-group">
-                <label for="editTableData">Dados JSON para Atualizar:</label>
-                <textarea id="editTableData" rows="5" placeholder='{"nome": "Nova Mesa Atualizada", "qntd_jogadores": 6}'></textarea>
-            </div>
-            <button onclick="updateTable()" class="btn-warning">Atualizar Mesa</button>
-            <div id="updateTableResponse" class="response" style="display:none;"></div>
+            <button onclick="loadTableForEdit()" class="btn-warning">📝 Carregar para Edição</button>
+            <div id="editTableResponse" class="response" style="display:none;"></div>
         </div>
 
         <!-- Seção: Apagar Mesa -->
         <div class="section">
             <h2>🗑️ Apagar Mesa</h2>
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="deleteTableId">ID da Mesa a Apagar:</label>
-                    <input type="number" id="deleteTableId" placeholder="Ex: 1" min="1">
-                </div>
-                <div class="form-group">
-                    <label for="deleteCriadorId">ID do Criador (para autorização):</label>
-                    <input type="number" id="deleteCriadorId" placeholder="Ex: 1" min="1">
-                </div>
+            <p style="color: #dc3545; font-weight: bold;">⚠️ CONTROLE DE ACESSO IMPLEMENTADO:</p>
+            <ul style="color: #dc3545; font-weight: bold;">
+                <li>👤 <strong>Usuários comuns:</strong> Podem apagar apenas suas próprias mesas</li>
+                <li>🛡️ <strong>Administradores:</strong> Podem apagar qualquer mesa</li>
+                <li>🚫 <strong>Não logados:</strong> Acesso negado</li>
+            </ul>
+            <div class="form-group">
+                <label for="deleteTableId">ID da Mesa a Apagar:</label>
+                <input type="number" id="deleteTableId" placeholder="Ex: 1" min="1">
             </div>
             <button onclick="deleteTable()" class="btn-danger">Apagar Mesa</button>
             <div id="deleteTableResponse" class="response" style="display:none;"></div>
@@ -239,9 +151,33 @@
             <div id="quickTestResponse" class="response" style="display:none;"></div>
         </div>
 
+        <!-- Seção: Login -->
+        <div class="section">
+            <h2>🔐 Login Required</h2>
+            <p style="color: #dc3545; font-weight: bold;">⚠️ Para criar, editar ou apagar mesas, você deve estar logado.</p>
+            <p>Faça login na página de <a href="test-users.html" target="_blank">Testes de Usuários</a> e retorne aqui.</p>
+            <button onclick="checkLoginStatus()" class="btn-primary">🔄 Verificar Status de Login</button>
+            <div id="loginStatusResponse" class="response" style="display:none;"></div>
+        </div>
+
         <!-- Seção: Informações -->
         <div class="section">
-            <h2>ℹ️ Informações sobre Mesas</h2>
+            <h2>ℹ️ Informações Importantes</h2>
+            <p><strong>🔐 Sistema de Segurança:</strong> O sistema implementa controle de acesso baseado em login.</p>
+            <p><strong>🛡️ Permissões por Tipo de Usuário:</strong></p>
+            <ul>
+                <li>🌍 <strong>Todos:</strong> Ver mesas por ID</li>
+                <li>👤 <strong>User Logado:</strong> Criar/editar/apagar próprias mesas + permissões públicas</li>
+                <li>🛡️ <strong>Admin:</strong> Acesso total a todas as mesas + operações administrativas</li>
+            </ul>
+            <p><strong>⚠️ Restrições de Segurança:</strong></p>
+            <ul>
+                <li>✅ <strong>Criador travado:</strong> Mesas são vinculadas ao usuário logado</li>
+                <li>✅ <strong>Operações restritas:</strong> Apenas próprias mesas ou admin</li>
+                <li>✅ <strong>Headers de autenticação:</strong> Sistema compatível com test-users</li>
+                <li>🛡️ <strong>Edição de criador:</strong> Apenas administradores podem alterar o criador de uma mesa</li>
+            </ul>
+            <p><strong>📱 Sessão Persistente:</strong> O login é compartilhado entre todas as test-pages.</p>
             <p><strong>Estrutura de uma Mesa:</strong></p>
             <pre>{
     "id": 1,
@@ -250,168 +186,103 @@
     "qntd_jogadores": 4,
     "mesa_aberta": 1,
     "capa": "https://exemplo.com/taverna_dragao.jpg",
-    "criador_id": 1
+    "criador_id": 1,
+    "descricao": "Uma aventura épica na famosa Taverna do Dragão Dourado!"
 }</pre>
             <p><strong>Campos obrigatórios:</strong> nome, sistema, qntd_jogadores, criador_id</p>
-            <p><strong>Campos opcionais:</strong> mesa_aberta (0 ou 1), capa (URL da imagem)</p>
+            <p><strong>Campos opcionais:</strong> mesa_aberta (0 ou 1), capa (URL da imagem), descricao (texto livre)</p>
         </div>
     </div>
 
+    <!-- Scripts compartilhados -->
+    <script src="test-shared/test-auth.js"></script>
+    <script src="test-shared/test-components.js"></script>
+    <script src="test-shared/test-tables-specific.js"></script>
+    
     <script>
-        // Criar mesa
+        // Criar/Editar mesa
         document.getElementById('createTableForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            if (!currentUser) {
+                showResponse('createTableResponse', {
+                    success: false,
+                    error: 'Você deve estar logado para criar/editar mesas. Faça login em test-users.html primeiro.'
+                });
+                return;
+            }
+            
             const formData = new FormData(this);
             const data = Object.fromEntries(formData);
             
+            // Remove campos vazios para edição
+            const cleanData = {};
+            for (const [key, value] of Object.entries(data)) {
+                if (value.trim() !== '' && key !== 'editingTableId') {
+                    cleanData[key] = value;
+                }
+            }
+            
+            const isEditing = data.editingTableId && data.editingTableId !== '';
+            
+            // Lógica de criador_id baseada no contexto
+            if (isEditing && currentUser.role === 'admin') {
+                // Admin editando: pode alterar criador_id se especificado
+                if (cleanData.criador_id && cleanData.criador_id.trim() !== '') {
+                    cleanData.criador_id = parseInt(cleanData.criador_id);
+                } else {
+                    // Se admin não especificou, mantém o criador atual
+                    delete cleanData.criador_id;
+                }
+            } else {
+                // Usuário normal ou criando novo: FORÇA criador_id para o usuário logado
+                cleanData.criador_id = currentUser.id;
+            }
+            
             // Converter números
-            ['qntd_jogadores', 'criador_id'].forEach(field => {
-                if (data[field]) data[field] = parseInt(data[field]);
+            ['qntd_jogadores'].forEach(field => {
+                if (cleanData[field]) cleanData[field] = parseInt(cleanData[field]);
             });
             
             // Converter checkbox
-            data.mesa_aberta = data.mesa_aberta ? 1 : 0;
+            cleanData.mesa_aberta = cleanData.mesa_aberta ? 1 : 0;
             
             try {
-                const response = await fetch('/tables', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
+                let response;
+                if (isEditing) {
+                    // Modo edição
+                    response = await fetch(`/tables/${data.editingTableId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CRIADOR-ID': currentUser.id.toString(),
+                            ...getAuthHeaders()
+                        },
+                        body: JSON.stringify(cleanData)
+                    });
+                } else {
+                    // Modo criação
+                    response = await fetch('/tables', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...getAuthHeaders()
+                        },
+                        body: JSON.stringify(cleanData)
+                    });
+                }
                 
                 const result = await response.json();
                 showResponse('createTableResponse', result);
+                
+                // Se edição bem-sucedida, volta ao modo criação
+                if (isEditing && result.success) {
+                    cancelEdit();
+                }
             } catch (error) {
                 showResponse('createTableResponse', {error: error.message});
             }
         });
-
-        // Buscar mesa por ID
-        async function getTable() {
-            const tableId = document.getElementById('searchTableId').value;
-            if (!tableId) {
-                showResponse('getTableResponse', {error: 'Por favor, insira um ID válido'});
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/tables/${tableId}`);
-                const result = await response.json();
-                showResponse('getTableResponse', result);
-            } catch (error) {
-                showResponse('getTableResponse', {error: error.message});
-            }
-        }
-
-        // Buscar mesas por usuário
-        async function getTablesByUser() {
-            const userId = document.getElementById('searchByUserId').value;
-            if (!userId) {
-                showResponse('getTableResponse', {error: 'Por favor, insira um ID de usuário válido'});
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/users/${userId}/tables`);
-                const result = await response.json();
-                showResponse('getTableResponse', result);
-            } catch (error) {
-                showResponse('getTableResponse', {error: error.message});
-            }
-        }
-
-        // Atualizar mesa
-        async function updateTable() {
-            const tableId = document.getElementById('editTableId').value;
-            const criadorId = document.getElementById('editCriadorId').value;
-            const editData = document.getElementById('editTableData').value;
-            
-            if (!tableId || !criadorId || !editData) {
-                showResponse('updateTableResponse', {error: 'Por favor, preencha todos os campos obrigatórios'});
-                return;
-            }
-            
-            try {
-                const data = JSON.parse(editData);
-                const response = await fetch(`/tables/${tableId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CRIADOR-ID': criadorId
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                showResponse('updateTableResponse', result);
-            } catch (error) {
-                showResponse('updateTableResponse', {error: error.message});
-            }
-        }
-
-        // Apagar mesa
-        async function deleteTable() {
-            const tableId = document.getElementById('deleteTableId').value;
-            const criadorId = document.getElementById('deleteCriadorId').value;
-            
-            if (!tableId || !criadorId) {
-                showResponse('deleteTableResponse', {error: 'Por favor, preencha ID da mesa e ID do criador'});
-                return;
-            }
-            
-            if (!confirm('Tem certeza que deseja apagar esta mesa?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`/tables/${tableId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CRIADOR-ID': criadorId
-                    }
-                });
-                
-                const result = await response.json();
-                showResponse('deleteTableResponse', result);
-            } catch (error) {
-                showResponse('deleteTableResponse', {error: error.message});
-            }
-        }
-
-        // Executar testes rápidos
-        async function runTest(endpoint) {
-            try {
-                const response = await fetch(endpoint);
-                const result = await response.json();
-                showResponse('quickTestResponse', result);
-            } catch (error) {
-                showResponse('quickTestResponse', {error: error.message});
-            }
-        }
-
-        // Preencher dados de exemplo
-        function fillSampleTableData() {
-            document.getElementById('nome').value = 'A Taverna do Dragão Dourado';
-            document.getElementById('sistema').value = 'D&D 5e';
-            document.getElementById('qntd_jogadores').value = '4';
-            document.getElementById('mesa_aberta').checked = true;
-            document.getElementById('capa').value = 'https://exemplo.com/taverna_dragao.jpg';
-            document.getElementById('criador_id').value = '1';
-        }
-
-        // Função utilitária para mostrar resposta
-        function showResponse(elementId, data) {
-            const element = document.getElementById(elementId);
-            element.style.display = 'block';
-            element.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
-        }
-
-        // Função utilitária para limpar formulário
-        function clearForm(formId) {
-            document.getElementById(formId).reset();
-        }
     </script>
 </body>
 </html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiceOrDie - Upload de Imagens</title>
+    <link rel="stylesheet" href="test-shared/test-styles.css">
+    <style>
+        .image-preview {
+            display: inline-block;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+        .image-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 4px;
+        }
+        .image-info {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+        }
+        .upload-area.drag-over {
+            border-color: #28a745;
+            background-color: #f8fff8;
+        }
+        #imageFile {
+            display: none;
+        }
+        .current-user {
+            background-color: #e8f5e8;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="UItests.html" class="back-link">← Voltar para UI Tests</a>
+        
+        <h1>📸 Sistema de Upload de Imagens</h1>
+
+        <!-- Usuário Atual -->
+        <div id="currentUser" class="current-user" style="display:none;">
+            <h3>👤 Usuário Logado</h3>
+            <div id="userInfo"></div>
+            <button onclick="logoutCustom()" class="btn-secondary">🚪 Logout</button>
+        </div>
+
+        <!-- Login (se não estiver logado) -->
+        <div id="loginSection" class="section">
+            <h2>🔐 Faça Login para Enviar Imagens</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginField">Email ou Username:</label>
+                    <input type="text" id="loginField" name="login" placeholder="Ex: admin ou admin@diceordie.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha:</label>
+                    <input type="password" id="loginPassword" name="senha" placeholder="Digite a senha" required>
+                </div>
+                <button type="submit" class="btn-primary">Fazer Login</button>
+                <button type="button" onclick="fillAdminCredentials()" class="btn-warning">Usar Admin</button>
+            </form>
+            <div id="loginResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Upload de Imagem -->
+        <div id="uploadSection" class="section" style="display:none;">
+            <h2>📤 Upload de Imagem</h2>
+            <p><strong>Formatos aceitos:</strong> JPEG, PNG, GIF</p>
+            <p><strong>Tamanho máximo:</strong> 5MB</p>
+            
+            <div class="upload-area" onclick="document.getElementById('imageFile').click()">
+                <div id="uploadText">
+                    <h3>📁 Clique aqui ou arraste uma imagem</h3>
+                    <p>Selecione uma imagem do seu computador</p>
+                </div>
+                <div id="uploadPreview" style="display:none;">
+                    <img id="previewImage" src="" alt="Preview">
+                    <p id="previewInfo"></p>
+                </div>
+            </div>
+            
+            <input type="file" id="imageFile" accept="image/*">
+            <button id="uploadButton" onclick="uploadImage()" class="btn-success" style="display:none;">Enviar Imagem</button>
+            <button id="cancelButton" onclick="cancelUpload()" class="btn-secondary" style="display:none;">Cancelar</button>
+            
+            <div id="uploadResponse" class="response" style="display:none;"></div>
+        </div>
+
+        <!-- Minhas Imagens -->
+        <div id="myImagesSection" class="section" style="display:none;">
+            <h2>🖼️ Minhas Imagens</h2>
+            <button onclick="loadMyImages()" class="btn-primary">Carregar Minhas Imagens</button>
+            <div id="myImagesGrid" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Informações -->
+        <div class="section">
+            <h2>ℹ️ Como Funciona</h2>
+            <p><strong>🔐 Sistema de Autenticação:</strong> É necessário estar logado para enviar imagens.</p>
+            <p><strong>📁 Armazenamento:</strong> As imagens são armazenadas no servidor e informações no SQLite.</p>
+            <p><strong>🖼️ Redimensionamento Automático:</strong> Imagens grandes são redimensionadas para 400x400px.</p>
+            <p><strong>🔒 Segurança:</strong> Apenas o dono da imagem ou admin podem deletá-la.</p>
+            <p><strong>💾 Banco de Dados:</strong> Informações como nome original, tamanho e data são armazenadas.</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="test-shared/test-auth.js"></script>
+    <script src="test-shared/test-components.js"></script>
+    
+    <script>
+        let selectedFile = null;
+
+        // Verificar se usuário está logado ao carregar página
+        window.addEventListener('load', function() {
+            checkAuthStatus();
+        });
+
+        function checkAuthStatus() {
+            if (currentUser) {
+                showLoggedUserCustom(currentUser);
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('uploadSection').style.display = 'block';
+                document.getElementById('myImagesSection').style.display = 'block';
+            } else {
+                document.getElementById('currentUser').style.display = 'none';
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('uploadSection').style.display = 'none';
+                document.getElementById('myImagesSection').style.display = 'none';
+            }
+        }
+
+        function showLoggedUserCustom(user) {
+            document.getElementById('currentUser').style.display = 'block';
+            document.getElementById('userInfo').innerHTML = `
+                <p><strong>Nome:</strong> ${user.nome} ${user.sobrenome}</p>
+                <p><strong>Username:</strong> ${user.username}</p>
+                <p><strong>Role:</strong> ${user.role}</p>
+            `;
+        }
+
+        function fillAdminCredentials() {
+            document.getElementById('loginField').value = 'admin';
+            document.getElementById('loginPassword').value = 'admin';
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                showResponse('loginResponse', result);
+                
+                if (result.success && result.user) {
+                    showLoggedUser(result.user); // Esta função já está no test-auth.js
+                    checkAuthStatus();
+                }
+            } catch (error) {
+                showResponse('loginResponse', {error: error.message});
+            }
+        });
+
+        // File input change
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                previewImage(file);
+            }
+        });
+
+        // Drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    previewImage(file);
+                    document.getElementById('imageFile').files = files;
+                }
+            }
+        });
+
+        function previewImage(file) {
+            selectedFile = file;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('previewInfo').textContent = 
+                    `${file.name} (${formatFileSize(file.size)})`;
+                
+                document.getElementById('uploadText').style.display = 'none';
+                document.getElementById('uploadPreview').style.display = 'block';
+                document.getElementById('uploadButton').style.display = 'inline-block';
+                document.getElementById('cancelButton').style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function cancelUpload() {
+            selectedFile = null;
+            document.getElementById('imageFile').value = '';
+            document.getElementById('uploadText').style.display = 'block';
+            document.getElementById('uploadPreview').style.display = 'none';
+            document.getElementById('uploadButton').style.display = 'none';
+            document.getElementById('cancelButton').style.display = 'none';
+        }
+
+        async function uploadImage() {
+            if (!selectedFile) {
+                alert('Selecione uma imagem primeiro!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+
+            try {
+                document.getElementById('uploadButton').disabled = true;
+                document.getElementById('uploadButton').textContent = 'Enviando...';
+
+                const response = await fetch('/upload-image', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: formData
+                });
+
+                const result = await response.json();
+                showResponse('uploadResponse', result);
+
+                if (result.success) {
+                    cancelUpload();
+                    loadMyImages(); // Recarregar imagens
+                }
+            } catch (error) {
+                showResponse('uploadResponse', {error: error.message});
+            } finally {
+                document.getElementById('uploadButton').disabled = false;
+                document.getElementById('uploadButton').textContent = 'Enviar Imagem';
+            }
+        }
+
+        async function loadMyImages() {
+            try {
+                const response = await fetch('/my-images', {
+                    method: 'GET',
+                    headers: getAuthHeaders()
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayImages(result.images);
+                } else {
+                    document.getElementById('myImagesGrid').innerHTML = 
+                        `<p style="color: red;">Erro: ${result.error}</p>`;
+                }
+            } catch (error) {
+                document.getElementById('myImagesGrid').innerHTML = 
+                    `<p style="color: red;">Erro: ${error.message}</p>`;
+            }
+        }
+
+        function displayImages(images) {
+            const grid = document.getElementById('myImagesGrid');
+            
+            if (images.length === 0) {
+                grid.innerHTML = '<p>Você ainda não enviou nenhuma imagem.</p>';
+                return;
+            }
+
+            grid.innerHTML = images.map(image => `
+                <div class="image-preview">
+                    <img src="${image.url}" alt="${image.original_name}">
+                    <div class="image-info">
+                        <strong>${image.original_name}</strong><br>
+                        ${image.file_size_formatted}<br>
+                        ${new Date(image.upload_date).toLocaleString()}<br>
+                        <button onclick="deleteImage('${image.filename}')" class="btn-danger" style="font-size: 11px; margin-top: 5px;">
+                            🗑️ Deletar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteImage(filename) {
+            if (!confirm('Tem certeza que deseja deletar esta imagem?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/delete-image', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAuthHeaders()
+                    },
+                    body: JSON.stringify({filename: filename})
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadMyImages(); // Recarregar imagens
+                    alert('Imagem deletada com sucesso!');
+                } else {
+                    alert('Erro ao deletar imagem: ' + result.error);
+                }
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes >= 1048576) {
+                return (bytes / 1048576).toFixed(2) + ' MB';
+            } else if (bytes >= 1024) {
+                return (bytes / 1024).toFixed(2) + ' KB';
+            } else {
+                return bytes + ' bytes';
+            }
+        }
+
+        function logoutCustom() {
+            logout(); // Chama a função global do test-auth.js
+            checkAuthStatus();
+        }
+    </script>
+</body>
+</html>
