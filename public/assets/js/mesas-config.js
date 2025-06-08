@@ -5,6 +5,7 @@ class MesasPageConfig {
             {
                 title: 'Mesas',
                 items: [
+                    { text: 'Todas', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html?filtro=todas')"  },
                     { text: 'Ao Vivo', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html?filtro=ao-vivo')"  },
                     { text: 'Recomendadas', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html?filtro=recomendadas')"  },
                     { type: 'separator' },

@@ -160,12 +160,25 @@ class MesaForm extends BaseForm {
     // Método para obter headers de autenticação
     getAuthHeaders() {
         const currentUser = DiceOrDieUtils.getCurrentUser();
-        if (!currentUser) return {};
+        if (!currentUser) {
+            console.log('getAuthHeaders: Nenhum usuário logado');
+            return {};
+        }
         
-        return {
+        const headers = {
             'X-User-ID': currentUser.id.toString(),
-            'X-User-Role': currentUser.role || 'user'
+            'X-User-Role': currentUser.role || 'user',
+            'X-Criador-ID': currentUser.id.toString() // Header específico para operações de mesa
         };
+        
+        console.log('getAuthHeaders: Enviando headers de autenticação:', {
+            userId: currentUser.id,
+            userRole: currentUser.role,
+            username: currentUser.username,
+            headers: headers
+        });
+        
+        return headers;
     }
 
     async submitForm(formData) {
@@ -448,8 +461,12 @@ class MesaForm extends BaseForm {
         }
 
         if (this.mode === 'create') {
-            // Modo criação - botão padrão do HTML já está correto
-            console.log('Modo create - mantendo botão padrão');
+            // Modo criação - criar botão de Criar Mesa
+            console.log('Modo create - criando botão Criar Mesa');
+            
+            formActions.innerHTML = `
+                <button type="submit" id="submitter" class="submit-button">Criar Mesa</button>
+            `;
             
         } else if (this.mode === 'edit') {
             // Modo edição - criar botões de Salvar e Cancelar
@@ -571,10 +588,16 @@ class MesaForm extends BaseForm {
 
     async checkEditPermission(tableId) {
         const currentUser = DiceOrDieUtils.getCurrentUser();
-        if (!currentUser) return false;
+        if (!currentUser) {
+            console.log('checkEditPermission: Usuário não logado');
+            return false;
+        }
 
         // Admin pode editar qualquer mesa
-        if (currentUser.role === 'admin') return true;
+        if (currentUser.role === 'admin') {
+            console.log('checkEditPermission: Usuário é admin - permitindo edição');
+            return true;
+        }
 
         try {
             // Buscar dados da mesa para verificar o dono
@@ -585,10 +608,23 @@ class MesaForm extends BaseForm {
             const result = await response.json();
             
             if (result.success && result.table) {
+                // Converter ambos para números para comparação robusta
+                const tableOwnerId = parseInt(result.table.criador_id);
+                const currentUserId = parseInt(currentUser.id);
+                
+                console.log('checkEditPermission: Verificando propriedade da mesa:', {
+                    tableId: tableId,
+                    tableOwnerId: tableOwnerId,
+                    currentUserId: currentUserId,
+                    currentUser: currentUser.username,
+                    isOwner: tableOwnerId === currentUserId
+                });
+                
                 // Verificar se a mesa pertence ao usuário atual
-                return result.table.criador_id === currentUser.id;
+                return tableOwnerId === currentUserId;
             }
             
+            console.log('checkEditPermission: Erro na resposta da API:', result);
             return false;
         } catch (error) {
             console.error('Erro ao verificar permissões:', error);
@@ -609,29 +645,53 @@ class MesaForm extends BaseForm {
     async deleteCurrentTable() {
         const tableId = this.isEditing ? this.editingTableId : this.viewingTableId;
         
+        console.log('deleteCurrentTable: Iniciando processo de deleção:', {
+            tableId: tableId,
+            isEditing: this.isEditing,
+            isViewing: this.isViewing,
+            editingTableId: this.editingTableId,
+            viewingTableId: this.viewingTableId
+        });
+        
         if (!tableId) {
+            console.error('deleteCurrentTable: Nenhum ID de mesa encontrado');
             DiceOrDieUtils.showError('Nenhuma mesa carregada para deletar.');
             return;
         }
 
         const currentUser = DiceOrDieUtils.getCurrentUser();
         if (!currentUser) {
+            console.error('deleteCurrentTable: Usuário não logado');
             DiceOrDieUtils.showError('Você deve estar logado para deletar mesas.');
             return;
         }
 
+        console.log('deleteCurrentTable: Verificando permissões para usuário:', {
+            userId: currentUser.id,
+            username: currentUser.username,
+            role: currentUser.role
+        });
+
         // Verificar permissões
         const hasPermission = await this.checkEditPermission(tableId);
         if (!hasPermission) {
+            console.error('deleteCurrentTable: Usuário não tem permissão para deletar esta mesa');
             DiceOrDieUtils.showError('Você só pode deletar suas próprias mesas.');
             return;
         }
 
+        console.log('deleteCurrentTable: Permissões verificadas - usuário pode deletar a mesa');
+
         const tableName = this.currentTable?.nome || 'esta mesa';
         const confirmDelete = confirm(`Tem certeza que deseja deletar a mesa "${tableName}"? Esta ação não pode ser desfeita.`);
-        if (!confirmDelete) return;
+        if (!confirmDelete) {
+            console.log('deleteCurrentTable: Deleção cancelada pelo usuário');
+            return;
+        }
 
         try {
+            console.log('deleteCurrentTable: Enviando requisição DELETE para /tables/' + tableId);
+            
             const response = await fetch(`/tables/${tableId}`, {
                 method: 'DELETE',
                 headers: this.getAuthHeaders()
@@ -639,7 +699,10 @@ class MesaForm extends BaseForm {
 
             const result = await response.json();
             
+            console.log('deleteCurrentTable: Resposta da API:', result);
+            
             if (result.success) {
+                console.log('deleteCurrentTable: Mesa deletada com sucesso');
                 DiceOrDieUtils.showSuccess('Mesa deletada com sucesso!');
                 
                 // Redirecionar para lista de mesas após delay
@@ -650,7 +713,7 @@ class MesaForm extends BaseForm {
                 throw new Error(result.error || 'Erro ao deletar mesa');
             }
         } catch (error) {
-            console.error('Erro ao deletar mesa:', error);
+            console.error('deleteCurrentTable: Erro ao deletar mesa:', error);
             DiceOrDieUtils.showError(`Erro ao deletar: ${error.message}`);
         }
     }
