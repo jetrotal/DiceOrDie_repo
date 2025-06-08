@@ -63,18 +63,18 @@ function fillSampleData() {
     } else {
         document.getElementById('username').value = '';
     }
-    document.getElementById('nome_personagem').value = 'Aragorn';
-    document.getElementById('nivel').value = '10';
+    document.getElementById('nome_personagem').value = 'Não Encontrado';
+    document.getElementById('nivel').value = '1';
     document.getElementById('raca').value = 'Humano';
     document.getElementById('classe').value = 'Ranger';
-    document.getElementById('ponto_vida').value = '85';
-    document.getElementById('classe_armadura').value = '16';
-    document.getElementById('forca').value = '16';
-    document.getElementById('destreza').value = '18';
-    document.getElementById('constituicao').value = '14';
-    document.getElementById('inteligencia').value = '12';
-    document.getElementById('sabedoria').value = '15';
-    document.getElementById('carisma').value = '13';
+    document.getElementById('ponto_vida').value = '1';
+    document.getElementById('classe_armadura').value = '1';
+    document.getElementById('forca').value = '1';
+    document.getElementById('destreza').value = '1';
+    document.getElementById('constituicao').value = '1';
+    document.getElementById('inteligencia').value = '1';
+    document.getElementById('sabedoria').value = '1';
+    document.getElementById('carisma').value = '1';
     // Não preenche mais URL, agora usa sistema de upload
     clearCharacterImage();
 }

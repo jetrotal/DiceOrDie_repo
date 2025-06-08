@@ -243,6 +243,9 @@ class ImageUploadMixin {
             ...config
         };
         
+        // Store reference to parent form for auth methods
+        this.parentForm = config.parentForm || null;
+        
         this.setupImageUpload();
     }
     
@@ -303,8 +306,8 @@ class ImageUploadMixin {
         };
         reader.readAsDataURL(file);
         
-        // Se for upload de perfil, enviar para servidor automaticamente
-        if (this.uploadConfig.purpose === 'profile') {
+        // Se for upload de perfil ou personagem, enviar para servidor automaticamente
+        if (this.uploadConfig.purpose === 'profile' || this.uploadConfig.purpose === 'character') {
             await this.uploadToServer(file);
         } else {
             // Para outros tipos, usar comportamento original
@@ -320,8 +323,45 @@ class ImageUploadMixin {
             const formData = new FormData();
             formData.append('image', file);
 
-            const response = await fetch('/upload-profile-picture', {
+            // Escolher endpoint baseado no propósito
+            let endpoint;
+            switch (this.uploadConfig.purpose) {
+                case 'profile':
+                    endpoint = '/upload-profile-picture';
+                    break;
+                case 'character':
+                    endpoint = '/upload-character-image';
+                    break;
+                case 'table':
+                    endpoint = '/upload-table-image';
+                    break;
+                default:
+                    endpoint = '/upload-image';
+            }
+
+            // Obter headers de autenticação usando o formulário pai ou diretamente
+            let authHeaders = {};
+            if (this.parentForm && this.parentForm.getAuthHeaders) {
+                authHeaders = this.parentForm.getAuthHeaders();
+            } else if (this.getAuthHeaders) {
+                authHeaders = this.getAuthHeaders();
+            } else {
+                // Fallback para obter headers diretamente
+                const currentUser = DiceOrDieUtils.getCurrentUser();
+                if (currentUser && currentUser.id) {
+                    authHeaders['X-User-ID'] = currentUser.id.toString();
+                    authHeaders['X-User-Role'] = currentUser.role || 'user';
+                }
+            }
+            
+            console.log('🔐 Upload headers:', authHeaders);
+            
+            const response = await fetch(endpoint, {
                 method: 'POST',
+                headers: {
+                    ...authHeaders
+                    // Não incluir Content-Type para FormData - o browser define automaticamente
+                },
                 body: formData
             });
 

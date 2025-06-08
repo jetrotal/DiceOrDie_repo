@@ -68,15 +68,15 @@ function clearSessionManually() {
 
 // Preencher dados de exemplo
 function fillSampleUserData() {
-    document.getElementById('nome').value = 'Legolas';
-    document.getElementById('sobrenome').value = 'Greenleaf';
-    document.getElementById('username').value = 'elfprince';
+    document.getElementById('nome').value = 'Não Encontrado';
+    document.getElementById('sobrenome').value = 'Não Encontrado';
+    document.getElementById('username').value = 'null';
     document.getElementById('genero').value = 'Masculino';
-    document.getElementById('data_nascimento').value = '1000-05-15';
-    document.getElementById('email').value = 'legolas@mirkwood.com';
-    document.getElementById('senha').value = 'BowMaster123';
+    document.getElementById('data_nascimento').value = '1111-01-01';
+    document.getElementById('email').value = 'not@found.com';
+    document.getElementById('senha').value = '123456';
     document.getElementById('experiencia').value = 'Veterano';
-    document.getElementById('img_perfil').value = 'https://i.imgur.com/legolas_avatar.jpg';
+    document.getElementById('img_perfil').value = '';
 }
 
 // Buscar usuário por ID

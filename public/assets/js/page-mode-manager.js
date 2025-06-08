@@ -220,18 +220,18 @@ class PageModeManager {
         return {
             id: id,
             nomeJogador: "Jogador Exemplo",
-            nomePersonagem: "Aragorn",
-            nivel: 5,
+            nomePersonagem: "Personagem Não Encontrado",
+            nivel: 1,
             raca: "humano",
             classe: "patrulheiro",
-            pontosVida: 45,
-            classeArmadura: 16,
-            forca: 16,
-            destreza: 18,
-            constituicao: 14,
-            inteligencia: 12,
-            sabedoria: 16,
-            carisma: 13
+            pontosVida: 1,
+            classeArmadura: 1,
+            forca: 1,
+            destreza: 1,
+            constituicao: 1,
+            inteligencia: 1,
+            sabedoria: 1,
+            carisma: 1
         };
     }
     
@@ -486,10 +486,13 @@ class PageModeManager {
     
     setupEventListeners() {
         const form = document.getElementById('mainForm');
-        if (form) {
+        if (form && !form.hasPageModeListener) {
             form.addEventListener('submit', (e) => this.handleSubmit(e));
+            form.hasPageModeListener = true; // Flag para evitar duplicação
         }
-    }    handleSubmit(e) {
+    }
+
+    handleSubmit(e) {
         e.preventDefault();
         
         console.log(`PageModeManager: modo ${this.mode}, tipo ${this.pageType}`);
@@ -499,14 +502,15 @@ class PageModeManager {
         console.log('FormInstance encontrada:', formInstance ? 'SIM' : 'NÃO');
         
         if (this.mode === 'create') {
-            if (formInstance && formInstance.handleSubmit) {
-                console.log('Usando handleSubmit da classe de formulário para create');
-                // Usar o método da classe de formulário para create
-                formInstance.handleSubmit(e);
-            } else {
-                console.log('Usando handleCreate do PageModeManager');
+            // Para modo create, deixar o formulário lidar com submit sozinho
+            // Não chamar formInstance.handleSubmit aqui para evitar duplicação
+            console.log('Modo create detectado - delegando para classe de formulário');
+            
+            if (!formInstance || !formInstance.handleSubmit) {
+                console.log('Usando handleCreate do PageModeManager como fallback');
                 this.handleCreate();
             }
+            // Se há uma instância de formulário, ela já deve ter seus próprios listeners
         } else if (this.mode === 'edit') {
             if (formInstance && formInstance.handleSubmit) {
                 console.log('Usando handleUpdateWithFormData para edit');

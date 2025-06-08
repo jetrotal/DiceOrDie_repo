@@ -16,37 +16,32 @@ class ContaForm extends BaseForm {
     };
 
     this.currentExp = 1; // Começa em Cavaleiro (nível 1)
-    this.isEditing = false;
-    this.editingUserId = null;
 
-    // Detectar modo baseado na URL
+    // Detectar modo baseado na URL (usando mixin centralizado)
     this.detectPageMode();
 
     // Inicializar componente de upload de imagem
     this.imageUpload = new ImageUploadMixin({
-      purpose: 'profile'
+      purpose: 'profile',
+      parentForm: this
     });
 
     this.setupContaSpecificElements();
     this.initContaFeatures();
     
-    // Se estivermos em modo de edição, carregar dados automaticamente
-    if (this.isEditing) {
+    // Aplicar mixins específicos
+    this.setupExperienceSystem(this.expLevels, this.currentExp);
+    this.setupPasswordValidation();
+    
+    // Verificar se usuário logado está tentando acessar conta.html diretamente
+    this.checkLoggedUserAccess();
+    
+    // Se estivermos em modo de edição ou visualização, carregar dados automaticamente
+    if (this.isEditing || this.isViewing) {
       // Aguardar um pouco para garantir que todos os elementos foram inicializados
       setTimeout(() => {
-        this.loadUserDataForEdit();
+        this.loadUserData();
       }, 500);
-    }
-  }
-
-  detectPageMode() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const mode = urlParams.get('mode');
-    const id = urlParams.get('id');
-    
-    if (mode === 'edit' && id) {
-      this.isEditing = true;
-      this.editingUserId = id;
     }
   }
 
@@ -63,9 +58,14 @@ class ContaForm extends BaseForm {
   }
 
   initContaFeatures() {
-    this.setupExperienceControls();
-    this.setupPasswordValidation();
-    this.updateExperienceDisplay();
+    // Funcionalidades básicas já são configuradas pelos mixins
+    // Manter apenas configurações específicas se necessário
+  }
+
+  setupEventListeners() {
+    // Usar helper unificado para prevenir duplicatas
+    const unifiedHandler = UnifiedFormHelpers.createUnifiedSubmitHandler(this);
+    UnifiedFormHelpers.setupPreventDuplicateEvents(this.form, 'submit', unifiedHandler);
   }
 
   setupModeIntegration() {
@@ -80,116 +80,20 @@ class ContaForm extends BaseForm {
     }, this.config.initDelay);
   }
 
-  setupExperienceControls() {
-    // Event listeners para controles de experiência
-    if (this.elementos.decreaseExp) {
-      this.elementos.decreaseExp.addEventListener("click", () => {
-        this.changeExperience(-1);
-      });
-    }
-
-    if (this.elementos.increaseExp) {
-      this.elementos.increaseExp.addEventListener("click", () => {
-        this.changeExperience(1);
-      });
-    }
-
-    // Event listeners para os dots de experiência
-    this.elementos.expDots.forEach((dot, index) => {
-      dot.addEventListener("click", () => {
-        this.setExperience(index + 1);
-      });
-    });
-  }
-
-  setupPasswordValidation() {
-    if (this.elementos.senha) {
-      this.elementos.senha.addEventListener("input", () => {
-        this.validatePasswords();
-      });
-    }
-
-    if (this.elementos.confirmarSenha) {
-      this.elementos.confirmarSenha.addEventListener("input", () => {
-        this.validatePasswords();
-      });
-    }
-  }
-
-  disableExperienceControls() {
-    // Ocultar controles de experiência no modo view
-    if (this.elementos.decreaseExp) this.elementos.decreaseExp.style.display = 'none';
-    if (this.elementos.increaseExp) this.elementos.increaseExp.style.display = 'none';
-    
-    // Remover event listeners dos dots
-    this.elementos.expDots.forEach(dot => {
-      const newDot = dot.cloneNode(true);
-      dot.parentNode.replaceChild(newDot, dot);
-    });
-  }
-
-  changeExperience(delta) {
-    const newExp = this.currentExp + delta;
-    if (newExp >= 1 && newExp <= 6) {
-      this.setExperience(newExp);
-    }
-  }
-
-  setExperience(level) {
-    this.currentExp = level;
-    this.updateExperienceDisplay();
-  }
-
-  updateExperienceDisplay() {
-    const levelData = this.expLevels[this.currentExp - 1];
-    
-    if (this.elementos.expLevel) {
-      this.elementos.expLevel.textContent = levelData.name;
-    }
-    
-    if (this.elementos.expDescription) {
-      this.elementos.expDescription.textContent = levelData.description;
-    }
-
-    // Atualizar dots
-    this.elementos.expDots.forEach((dot, index) => {
-      dot.classList.toggle("active", index < this.currentExp);
-    });
-
-    // Atualizar botões
-    if (this.elementos.decreaseExp) {
-      this.elementos.decreaseExp.disabled = this.currentExp <= 1;
-    }
-    
-    if (this.elementos.increaseExp) {
-      this.elementos.increaseExp.disabled = this.currentExp >= 6;
-    }
-  }
-
-  validatePasswords() {
-    const senha = this.elementos.senha?.value;
-    const confirmarSenha = this.elementos.confirmarSenha?.value;
-
-    if (senha && confirmarSenha) {
-      const validation = ValidationStrategies.password(senha, confirmarSenha);
-      if (!validation.valid) {
-        this.markFieldAsError(this.elementos.confirmarSenha, validation.message);
-        return false;
-      } else {
-        this.clearFieldError(this.elementos.confirmarSenha);
-        return true;
-      }
-    }
-    
-    // Reset se estiver vazio
-    if (this.elementos.confirmarSenha) {
-      this.clearFieldError(this.elementos.confirmarSenha);
-    }
-    
-    return true;
-  }
+  // Métodos de experiência e validação de senha agora fornecidos pelos mixins
+  // setupExperienceControls, setupPasswordValidation, etc. removidos
   getRequiredFields() {
     return ['nome', 'sobrenome', 'username', 'genero', 'nascimento', 'contato', 'senha', 'confirmarSenha'];
+  }
+  
+  // Método requerido pelo helper unificado
+  getEntityType() {
+    return 'Conta';
+  }
+  
+  // Método requerido pelo helper unificado
+  requiresAuth() {
+    return false; // Conta não requer autenticação prévia
   }
 
   validateForm() {
@@ -271,20 +175,8 @@ class ContaForm extends BaseForm {
     return frontendData;
   }
 
-  getUploadedImageUrl() {
-    // Primeiro verificar se há uma URL de imagem já uploadada via ImageUploadMixin
-    if (this.imageUpload && this.imageUpload.uploadedImageUrl) {
-      return this.imageUpload.uploadedImageUrl;
-    }
-    
-    // Fallback: verificar se há imagem carregada via preview
-    const preview = document.getElementById("profilePreview");
-    if (preview && preview.src && !preview.src.includes('placehold.co') && !preview.src.startsWith('data:')) {
-      return preview.src;
-    }
-    
-    return null;
-  }
+  // Usar método do mixin centralizado
+  // getUploadedImageUrl() implementado via ImageMixin
 
   async submitForm(formData) {
     console.log('Enviando dados de conta:', formData);
@@ -336,155 +228,44 @@ class ContaForm extends BaseForm {
     }
   }
 
-  // Sobrescrever handleSubmit para controlar redirecionamento em modo de edição
-  async handleSubmit(event) {
-    event.preventDefault();
-    
-    if (!this.validateForm()) {
-      return;
-    }
-    
-    this.setSubmitLoading(true);
-    
-    try {
-      const formData = this.getFormData();
-      
-      // Imprimir JSON dos dados do formulário no console
-      console.log('=== DADOS DO FORMULÁRIO SALVOS ===');
-      console.log(JSON.stringify(formData, null, 2));
-      console.log('===================================');
-      
-      const result = await this.submitForm(formData);
-      
-      if (result.success) {
-        // Para conta, não usar o redirecionamento padrão da classe pai
-        // O redirecionamento é controlado pelos métodos handleSuccessfulRegistration/Update
-        console.log('Conta processada com sucesso - redirecionamento controlado pela classe filha');
-      } else {
-        throw new Error(result.message || this.config.errorMessage);
-      }
-      
-    } catch (error) {
-      console.error('Erro no submit:', error);
-      DiceOrDieUtils.showError(error.message || this.config.errorMessage);
-    } finally {
-      this.setSubmitLoading(false);
-    }
-  }
+  // handleSubmit agora é fornecido pelo UnifiedFormHelpers.createUnifiedSubmitHandler()
+  // O comportamento específico está nos métodos handleSuccessfulRegistration/Update
 
-  getAuthHeaders() {
-    const headers = {};
-    
-    // Tentar obter do localStorage (compatibilidade total com test-users.html)
-    let currentUser = null;
-    
-    // Primeiro tenta localStorage (sistema principal usado por test-users.html)
-    const savedUser = localStorage.getItem('diceordie_current_user');
-    if (savedUser) {
-      try {
-        currentUser = JSON.parse(savedUser);
-        console.log('Usuário encontrado no localStorage:', currentUser.username);
-      } catch (e) {
-        console.warn('Erro ao parsear usuário do localStorage:', e);
-      }
-    }
-    
-    // Se não encontrou, tenta sessionStorage (fallback)
-    if (!currentUser) {
-      const sessionUser = sessionStorage.getItem('currentUser');
-      if (sessionUser) {
-        try {
-          currentUser = JSON.parse(sessionUser);
-          console.log('Usuário encontrado no sessionStorage:', currentUser.username);
-        } catch (e) {
-          console.warn('Erro ao parsear usuário do sessionStorage:', e);
-        }
-      }
-    }
-    
-    // Se encontrou usuário logado, adicionar headers de autenticação
-    if (currentUser && currentUser.id) {
-      headers['X-User-ID'] = currentUser.id.toString();
-      headers['X-User-Role'] = currentUser.role || 'user';
-      console.log('getAuthHeaders: Enviando headers:', headers);
-      console.log('getAuthHeaders: Role do usuário:', currentUser.role);
-    } else {
-      console.log('getAuthHeaders: Nenhum usuário logado encontrado');
-    }
-    
-    return headers;
-  }
+  // Usar método do mixin centralizado
+  // getAuthHeaders() implementado via AuthMixin
 
   async handleSuccessfulRegistration(user) {
-    // Armazenar dados do usuário criado (compatibilidade com test-users.html)
-    if (user) {
-      localStorage.setItem('diceordie_current_user', JSON.stringify(user));
-      sessionStorage.setItem('currentUser', JSON.stringify(user)); // fallback
-      console.log('Usuário registrado e salvo na sessão:', user.username);
-    }
+    // NÃO fazer auto-login - apenas mostrar mensagem de sucesso
+    this.showSuccessMessage('Conta criada com sucesso! Faça login para acessar sua conta.');
     
-    // Mostrar mensagem de sucesso
-    this.showSuccessMessage('Conta criada com sucesso!');
-    
-    // Redirecionar após delay (pode ser para login ou dashboard)
+    // Redirecionar para a tela de login
     setTimeout(() => {
-      // Redirecionar para página de login ou dashboard
       window.location.href = 'login.html';
     }, 2000);
   }
 
   async handleSuccessfulUpdate(user) {
-    // Atualizar dados do usuário na sessão (compatibilidade com test-users.html)
-    if (user) {
-      localStorage.setItem('diceordie_current_user', JSON.stringify(user));
-      sessionStorage.setItem('currentUser', JSON.stringify(user)); // fallback
-      console.log('Usuário atualizado e salvo na sessão:', user.username);
+    // Atualizar dados do usuário na sessão usando mixin
+    this.updateUserSession(user);
+    
+    // Usar método do mixin para redirecionamento padronizado
+    await this.handleSuccessfulUpdateRedirect(user, 'Perfil');
+  }
+
+  // Usar método do mixin centralizado
+  // showSuccessMessage() implementado via MessageMixin
+
+  async loadUserData() {
+    // Funciona tanto para edição quanto para visualização
+    const userId = this.editingUserId || this.viewingUserId || this.editingId || this.viewingId;
+    
+    if (!userId) {
+      console.warn('ID do usuário não encontrado para carregamento de dados');
+      return;
     }
-    
-    // Mostrar mensagem de sucesso
-    this.showSuccessMessage('Perfil atualizado com sucesso!');
-    
-    // Redirecionar para modo de visualização da mesma página (não para mesas.html)
-    setTimeout(() => {
-      const newUrl = new URL(window.location);
-      newUrl.searchParams.set('mode', 'view');
-      newUrl.searchParams.set('id', this.editingUserId); // Manter o mesmo ID
-      window.location.href = newUrl.toString();
-    }, 1500);
-  }
-
-  showSuccessMessage(message) {
-    // Criar elemento de mensagem de sucesso
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'success-message';
-    messageDiv.textContent = message;
-    messageDiv.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 5px;
-      z-index: 10000;
-      font-weight: bold;
-    `;
-    
-    document.body.appendChild(messageDiv);
-    
-    // Remover após 3 segundos
-    setTimeout(() => {
-      if (messageDiv.parentNode) {
-        messageDiv.parentNode.removeChild(messageDiv);
-      }
-    }, 3000);
-  }
-
-  async loadUserDataForEdit() {
-    if (!this.isEditing || !this.editingUserId) return;
 
     try {
-      const response = await fetch(`/users/${this.editingUserId}`, {
+      const response = await fetch(`/users/${userId}`, {
         headers: this.getAuthHeaders()
       });
 
@@ -492,23 +273,85 @@ class ContaForm extends BaseForm {
       
       if (result.success && result.user) {
         this.populateFormWithUserData(result.user);
+        console.log(`Dados do usuário ${userId} carregados com sucesso em modo ${this.isEditing ? 'edição' : 'visualização'}`);
       } else {
-        console.error('Erro ao carregar dados do usuário:', result.error);
-        this.showErrorMessage('Erro ao carregar dados do usuário');
+        // Usuário não encontrado - usar helper unificado para redirecionamento
+        UnifiedFormHelpers.handleEntityNotFound('user', userId);
       }
     } catch (error) {
-      console.error('Erro ao carregar usuário para edição:', error);
-      this.showErrorMessage('Erro ao carregar dados do usuário');
+      console.error('Erro ao carregar usuário:', error);
+      
+      // Em caso de erro (404, etc), também usar helper unificado
+      UnifiedFormHelpers.handleEntityNotFound('user', userId);
     }
+  }
+  
+  // Manter método legacy para compatibilidade
+  async loadUserDataForEdit() {
+    return await this.loadUserData();
   }
 
   populateFormWithUserData(user) {
+    // Log dos dados recebidos para debug
+    console.log('PopulateFormWithUserData - Dados recebidos:', user);
+    
     // Preencher campos básicos
     if (user.nome) document.getElementById("nome").value = user.nome;
     if (user.sobrenome) document.getElementById("sobrenome").value = user.sobrenome;
     if (user.username) document.getElementById("username").value = user.username;
-    if (user.genero) document.getElementById("genero").value = user.genero;
-    if (user.data_nascimento) document.getElementById("nascimento").value = user.data_nascimento;
+    
+    // Tratar gênero - verificar se é privado ou inválido
+    const generoField = document.getElementById("genero");
+    if (generoField) {
+      console.log('Gênero recebido:', user.genero);
+      
+      if (!user.genero || user.genero === "privado" || user.genero === null || user.genero === '') {
+        // Se é privado, nulo ou vazio, deixar vazio e mostrar indicador
+        generoField.value = "";
+        if (this.isViewing) {
+          this.addPrivacyIndicator(generoField, "Privado");
+        }
+      } else {
+        // Verificar se é um valor válido para o select
+        const validOptions = Array.from(generoField.options).map(opt => opt.value);
+        if (validOptions.includes(user.genero)) {
+          generoField.value = user.genero;
+        } else {
+          // Valor inválido, tratar como privado
+          generoField.value = "";
+          if (this.isViewing) {
+            this.addPrivacyIndicator(generoField, "Privado");
+          }
+        }
+      }
+    }
+    
+    // Tratar data de nascimento - verificar se é privada ou inválida
+    const nascimentoField = document.getElementById("nascimento");
+    if (nascimentoField) {
+      console.log('Data nascimento recebida:', user.data_nascimento);
+      
+      if (!user.data_nascimento || user.data_nascimento === "privado" || user.data_nascimento === null || user.data_nascimento === '') {
+        // Se é privado, nulo ou vazio, deixar vazio e mostrar indicador
+        nascimentoField.value = "";
+        if (this.isViewing) {
+          this.addPrivacyIndicator(nascimentoField, "Privado");
+        }
+      } else {
+        // Verificar se é uma data válida (formato YYYY-MM-DD)
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (dateRegex.test(user.data_nascimento)) {
+          nascimentoField.value = user.data_nascimento;
+        } else {
+          // Data em formato inválido, tratar como privada
+          nascimentoField.value = "";
+          if (this.isViewing) {
+            this.addPrivacyIndicator(nascimentoField, "\nPrivado");
+          }
+        }
+      }
+    }
+    
     if (user.email) document.getElementById("contato").value = user.email;
 
     // Mapear experiência do backend para frontend
@@ -540,35 +383,78 @@ class ContaForm extends BaseForm {
     this.setExperience(frontendLevel);
   }
 
-  showErrorMessage(message) {
-    // Criar elemento de mensagem de erro
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'error-message';
-    messageDiv.textContent = message;
-    messageDiv.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #f44336;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 5px;
-      z-index: 10000;
-      font-weight: bold;
+  addPrivacyIndicator(field, message) {
+    // Adicionar indicador visual de que o campo é privado
+    const formGroup = field.closest('.form-group');
+    if (!formGroup) return;
+    
+    // Verificar se já existe um indicador
+    const existingIndicator = formGroup.querySelector('.privacy-indicator');
+    if (existingIndicator) return;
+    
+    // Esconder o campo original completamente
+    field.style.display = 'none';
+    
+    // Criar indicador de privacidade mais elegante
+    const indicator = document.createElement('div');
+    indicator.className = 'privacy-indicator';
+    indicator.innerHTML = `
+      <div class="privacy-content">
+        <i class="privacy-icon"> </i>
+        <span class="privacy-text"> ${message}</span>
+      </div>
     `;
+   
     
-    document.body.appendChild(messageDiv);
+    // Estilizar o conteúdo interno
+    const privacyContent = indicator.querySelector('.privacy-content');
+    if (privacyContent) {
+      privacyContent.style.cssText = `
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      `;
+    }
     
-    // Remover após 4 segundos
-    setTimeout(() => {
-      if (messageDiv.parentNode) {
-        messageDiv.parentNode.removeChild(messageDiv);
-      }
-    }, 4000);
+    // Estilizar o ícone
+    const privacyIcon = indicator.querySelector('.privacy-icon');
+    if (privacyIcon) {
+      privacyIcon.style.cssText = `
+        font-size: 16px;
+        opacity: 0.7;
+      `;
+    }
+    
+    // Substituir o campo pelo indicador
+    field.parentNode.insertBefore(indicator, field);
   }
+
+  checkLoggedUserAccess() {
+    // Verificar se usuário está logado e tentando acessar conta.html sem modo específico
+    const currentUser = DiceOrDieUtils.getCurrentUser();
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const id = urlParams.get('id');
+    
+    // Se usuário está logado e acessou conta.html sem parâmetros (conta.html limpo)
+    if (currentUser && currentUser.id && !mode && !id) {
+      console.log('Usuário logado acessando conta.html diretamente, redirecionando para seu perfil...');
+      
+      // Redirecionar para o perfil do usuário logado
+      window.location.href = `conta.html?mode=view&id=${currentUser.id}`;
+      return;
+    }
+  }
+
+  // Usar método do mixin centralizado
+  // showErrorMessage() implementado via MessageMixin
 }
 
-// Use standardized form initializer
-FormInitializer.initializeForm(ContaForm, 'conta', {
-  legacyAlias: 'gerenciadorCadastro'
-});
+// Aplicar mixins centralizados para eliminar redundâncias
+FormMixins.applyCommonMixins(ContaForm);
+EnhancedFormMixins.applyFormSpecificMixins(ContaForm);
+
+// Nota: Inicialização movida para conta-config.js para evitar duplicação
+// FormInitializer.initializeForm(ContaForm, 'conta', {
+//   legacyAlias: 'gerenciadorCadastro'
+// });

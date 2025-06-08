@@ -34,6 +34,9 @@
                 </div>
                 
                 <form id="mainForm" class="ficha-form">
+                    <!-- Campo hidden para ID do personagem em edição -->
+                    <input type="hidden" id="editingCharacterId" name="editingCharacterId">
+                    
                     <!-- Dados Gerais Section -->
                     <div class="form-section">
                         <h2 class="section-title">Dados Gerais</h2>
@@ -169,6 +172,9 @@
     <script src="../assets/js/utils.js"></script>
     <script src="../assets/js/components.js"></script>
     <script src="../assets/js/page-mode-manager.js"></script>
+    <script src="../assets/js/form-mixins.js"></script>
+    <script src="../assets/js/unified-form-helpers.js"></script>
+    <script src="../assets/js/enhanced-form-mixins.js"></script>
     <script src="../assets/js/form-base.js"></script>
     <script src="../assets/js/ficha.js"></script>
     <script src="../assets/js/ficha-config.js"></script>

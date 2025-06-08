@@ -8,42 +8,83 @@ class FichaPageConfig extends BasePageConfig {
         return [
             {
                 title: 'Navegação',
+                items: UnifiedFormHelpers.getStandardNavigationItems()
+            },
+            {
+                title: 'Ações da Ficha',
                 items: [
-                    { text: 'Ver Mesas', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html')" },
-                    { text: 'Fazer Login', type: 'button', onclick: "DiceOrDieUtils.navigateTo('login.html')" }
+                    { text: 'Nova Ficha', type: 'button', onclick: "fichaForm.createNewCharacter()" },
+                    { text: 'Listar Fichas', type: 'button', onclick: "fichaForm.listMyCharacters()" }
                 ]
             }
         ];
     }
     
     getRightPanelConfig() {
-        return [
-            {
-                title: 'Sistemas de RPG',
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode');
+        const id = urlParams.get('id');
+        const currentUser = window.DiceOrDieUtils ? DiceOrDieUtils.getCurrentUser() : null;
+        
+        // Começar com painéis padrão
+        const panels = [...UnifiedFormHelpers.getStandardHelpPanels('ficha')];
+
+        // Painel de ações baseado no modo e permissões
+        if (mode === 'view' && id) {
+            // Modo visualização - sempre mostrar botão de copiar link
+            const viewActions = [
+                { text: '📋 Copiar Link', type: 'button', onclick: `fichaForm.copyCharacterLink(${id})` }
+            ];
+            
+            // Para botões de edição/deletar, será verificado após carregar dados do personagem
+            // usando o método setupCharacterActionButtons que será chamado depois
+            
+            panels.push({
+                title: 'Ações do Personagem',
+                items: viewActions,
+                id: 'character-actions-panel' // ID para poder atualizar depois
+            });
+        } else if (currentUser && (mode === 'edit' || !mode)) {
+            // Modo edição ou criação com usuário logado
+            panels.push({
+                title: 'Ações da Ficha',
                 items: [
-                    { text: 'D&D 5e - Dungeons & Dragons', type: 'info' },
-                    { text: 'Pathfinder - Sistema d20', type: 'info' },
-                    { text: 'Call of Cthulhu - Horror', type: 'info' },
-                    { text: 'Vampire - World of Darkness', type: 'info' }
+                    { text: '👥 Meus Personagens', type: 'button', onclick: 'fichaForm.listMyCharacters()' },
+                    { text: '🆕 Nova Ficha', type: 'button', onclick: 'fichaForm.createNewCharacter()' }
                 ]
-            },
-            {
-                title: 'Dicas de Ficha',
+            });
+        } else if (!currentUser) {
+            // Usuário não logado
+            panels.push({
+                title: 'Acesso Necessário',
                 items: [
-                    { text: 'Preencha todos os campos obrigatórios', type: 'info' },
-                    { text: 'Defina os atributos cuidadosamente', type: 'info' },
-                    { text: 'Adicione uma descrição interessante', type: 'info' }
+                    { text: '🔒 Faça login para criar fichas', type: 'info' },
+                    { text: '👤 Login', type: 'button', onclick: "DiceOrDieUtils.navigateTo('login.html')" },
+                    { text: '📝 Criar Conta', type: 'button', onclick: "DiceOrDieUtils.navigateTo('conta.html')" }
                 ]
-            }
-        ];
+            });
+        }
+
+        return panels;
     }
 
     async initialize() {
         // Usar método da classe pai
         await super.initialize();
         
+        // Inicializar o formulário de ficha
+        await this.initializeFichaForm();
+        
         // Configurações específicas da ficha se necessário
         this.setupFichaSpecifics();
+    }
+
+    async initializeFichaForm() {
+        return await UnifiedFormHelpers.initializeFormWithConfig(
+            FichaForm,
+            'ficha',
+            'fichaForm'
+        );
     }
 
     setupFichaSpecifics() {
