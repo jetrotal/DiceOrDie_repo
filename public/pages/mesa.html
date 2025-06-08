@@ -34,6 +34,9 @@
                 </div>
                 
                 <form id="mainForm" class="mesa-form">
+                    <!-- Campo hidden para ID da mesa em edição -->
+                    <input type="hidden" id="editingTableId" name="editingTableId">
+                    
                     <!-- Dados Gerais Section -->
                     <div class="form-section">
                         <h2 class="section-title">Dados Gerais</h2>
@@ -48,13 +51,17 @@
                                 <label for="sistema">Sistema *</label>
                                 <select id="sistema" name="sistema" required>
                                     <option value="">Selecione o Sistema</option>
-                                    <option value="dnd">D&D</option>
-                                    <option value="gurps">GURPS</option>
-                                    <option value="cyberpunk">Cyberpunk</option>
-                                    <option value="vampiro">Vampiro</option>
-                                    <option value="call-of-cthulhu">Call of Cthulhu</option>
-                                    <option value="3det">3D&T</option>
-                                    <option value="13a-era">13ª Era</option>
+                                    <option value="D&D 5e">D&D 5e</option>
+                                    <option value="D&D 3.5">D&D 3.5</option>
+                                    <option value="Pathfinder">Pathfinder</option>
+                                    <option value="Pathfinder 2e">Pathfinder 2e</option>
+                                    <option value="Call of Cthulhu">Call of Cthulhu</option>
+                                    <option value="Vampire: The Masquerade">Vampire: The Masquerade</option>
+                                    <option value="World of Darkness">World of Darkness</option>
+                                    <option value="GURPS">GURPS</option>
+                                    <option value="Fate">Fate</option>
+                                    <option value="Savage Worlds">Savage Worlds</option>
+                                    <option value="Outro">Outro</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -83,11 +90,11 @@
                             <div class="form-group">
                                 <label for="publico">Aberto ao Público?</label>
                                 <div class="toggle-container">
-                                    <label class="switch">
-                                        <input type="checkbox" id="publico" name="publico" checked>
+                                    <label class="switch" id="publicoSlider">
+                                        <input type="checkbox" id="publico" name="publico">
                                         <span class="slider"></span>
                                     </label>
-                                    <span class="toggle-label" id="publicoLabel">Sim</span>
+                                    <span class="toggle-label" id="publicoLabel">Não</span>
                                 </div>
                             </div>
                         </div>
@@ -118,7 +125,7 @@
 
                     <!-- Submit Button -->
                     <div class="form-actions">
-                        <button type="submit" id="submitter" class="submit-button">Criar Mesa</button>
+                    
                     </div>
                 </form>
             </div>

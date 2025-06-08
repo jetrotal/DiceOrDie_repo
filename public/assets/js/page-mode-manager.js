@@ -342,14 +342,7 @@ class PageModeManager {
         }
         
         if (this.pageType === 'mesa') {
-            // Converter toggle público para badge visual
-            const toggleContainer = document.querySelector('.toggle-container');
-            if (toggleContainer && this.data) {
-                const badge = document.createElement('span');
-                badge.className = `status-badge ${this.data.publico ? 'public' : 'private'}`;
-                badge.textContent = this.data.publico ? 'Público' : 'Privado';
-                toggleContainer.replaceWith(badge);
-            }
+            document.getElementById('publicoSlider').style.display = 'none'; // Ocultar controle de visibilidade
         }
     }
     
