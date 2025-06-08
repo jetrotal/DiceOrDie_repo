@@ -61,7 +61,7 @@ class MesaPageConfig extends BasePageConfig {
                 panels.unshift({
                     title: 'Navegação',
                     items: [
-                        { text: 'Minhas Mesas', type: 'button', onclick: "this.goToMyTables()" },
+                         { text: 'Minhas Mesas', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html?filtro=minhas-mesas')"  },
                         { text: 'Nova Mesa', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesa.html')" },
                         { text: 'Ver Todas', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html')" }
                     ]
@@ -80,14 +80,6 @@ class MesaPageConfig extends BasePageConfig {
         }
         
         return panels;
-    }
-
-    goToMyTables() {
-        const currentUser = DiceOrDieUtils.getCurrentUser();
-        if (currentUser) {
-            // Redirecionar para mesas do usuário atual
-            window.location.href = `mesas.html?user=${currentUser.id}`;
-        }
     }
 
     async initialize() {

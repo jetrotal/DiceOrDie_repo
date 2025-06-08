@@ -21,17 +21,236 @@ class GerenciadorMesas {
       starting: { text: 'Iniciando', class: 'status-starting' }
     };
 
+    // Mapeamento de filtros para funcionalidades
+    this.filtroFuncoes = {
+      'ao-vivo': () => this.filtrarAoVivo(),
+      'recomendadas': () => this.filtrarRecomendadas(),
+      'favoritas': () => this.filtrarFavoritas(),
+      'historico': () => this.mostrarHistorico(),
+      'minhas-mesas': () => this.filtrarMinhasMesas(),
+      'criar-mesa': () => this.criarNovaMesa(),
+      'todas': () => this.mostrarTodasMesas(),
+      'disponiveis': () => this.filtrarDisponiveis(),
+      'privadas': () => this.filtrarPrivadas(),
+      'lotadas': () => this.filtrarLotadas()
+    };
+
     this.init();
   }
 
-  init() {
-    this.carregarMesas();
+  async init() {
     this.setupEventListeners();
-    this.renderizarMesas();
+    this.setupHistoryNavigation();
+    await this.carregarMesas();
+    // Aplicar filtro da URL após carregar mesas
+    this.aplicarFiltroURL();
   }
 
-  carregarMesas() {
-    // Dados mockup das mesas - posteriormente virá de uma API
+  // Configurar navegação pelo histórico do navegador
+  setupHistoryNavigation() {
+    window.addEventListener('popstate', (event) => {
+      console.log('Navegação pelo histórico detectada:', event.state);
+      this.aplicarFiltroURL();
+    });
+  }
+
+  // Detectar e aplicar filtros da URL
+  aplicarFiltroURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const filtro = urlParams.get('filtro');
+    
+    if (filtro && this.filtroFuncoes[filtro]) {
+      console.log(`Aplicando filtro da URL: ${filtro}`);
+      this.filtroAtivo = filtro;
+      this.filtroFuncoes[filtro]();
+      
+      // Atualizar botão ativo na sidebar
+      this.atualizarBotaoAtivo(filtro);
+    } else if (filtro) {
+      console.warn(`Filtro não reconhecido: ${filtro}`);
+      // Redirect para versão sem filtro inválido
+      this.atualizarURL('todas');
+    }
+  }
+
+  // Atualizar URL sem recarregar a página
+  atualizarURL(filtro) {
+    const novaURL = filtro === 'todas' ?
+      window.location.pathname :
+      `${window.location.pathname}?filtro=${filtro}`;
+    
+    window.history.pushState({ filtro }, '', novaURL);
+    this.filtroAtivo = filtro;
+  }
+
+  // Atualizar botão ativo visualmente
+  atualizarBotaoAtivo(filtro) {
+    // Remover classe active de todos os botões
+    document.querySelectorAll('.sidebar-item').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    
+    // Mapear filtros para textos dos botões
+    const filtroParaTexto = {
+      'ao-vivo': 'Ao Vivo',
+      'recomendadas': 'Recomendadas',
+      'favoritas': 'Mesas Favoritas',
+      'historico': 'Histórico',
+      'minhas-mesas': 'Minhas Mesas',
+      'criar-mesa': 'Criar Mesa',
+      'todas': 'Todas as Mesas',
+      'disponiveis': 'Disponíveis',
+      'privadas': 'Privadas',
+      'lotadas': 'Lotadas'
+    };
+    
+    const textoFiltro = filtroParaTexto[filtro];
+    if (textoFiltro) {
+      const botao = Array.from(document.querySelectorAll('.sidebar-item'))
+        .find(btn => btn.textContent.trim() === textoFiltro);
+      
+      if (botao) {
+        botao.classList.add('active');
+      }
+    }
+  }
+
+  async carregarMesas() {
+    console.log('Carregando mesas da API...');
+    
+    try {
+      const response = await fetch('/tables', {
+        headers: this.getAuthHeaders()
+      });
+
+      const result = await response.json();
+      console.log('Resposta da API:', result);
+      
+      if (result.success && result.tables) {
+        console.log('Mesas carregadas com sucesso:', result.tables);
+        this.mesas = await this.transformarMesasParaFrontend(result.tables);
+        this.mesasFiltradas = [...this.mesas];
+        this.renderizarMesas();
+      } else {
+        console.warn('Falha ao carregar mesas ou lista vazia:', result);
+        // Fallback para dados mockup se API falhar
+        this.carregarMesasMockup();
+      }
+    } catch (error) {
+      console.error('Erro ao carregar mesas da API:', error);
+      DiceOrDieUtils.showWarning('Erro ao carregar mesas. Usando dados de exemplo.');
+      // Fallback para dados mockup se API falhar
+      this.carregarMesasMockup();
+    }
+  }
+
+  // Método para obter headers de autenticação (seguindo padrão do mesa.js)
+  getAuthHeaders() {
+    const currentUser = DiceOrDieUtils.getCurrentUser();
+    if (!currentUser) return {};
+    
+    return {
+      'X-User-ID': currentUser.id.toString(),
+      'X-User-Role': currentUser.role || 'user'
+    };
+  }
+
+  async transformarMesasParaFrontend(mesasBackend) {
+    const currentUser = DiceOrDieUtils.getCurrentUser();
+    const mesasTransformadas = [];
+
+    for (const mesa of mesasBackend) {
+      try {
+        // Buscar nome do criador
+        const criadorNome = await this.buscarNomeCriador(mesa.criador_id);
+        
+        // Determinar status da mesa
+        const status = this.determinarStatusMesa(mesa);
+        
+        // Verificar se é mesa do usuário atual
+        const isMinha = currentUser ? mesa.criador_id === currentUser.id : false;
+        
+        // Transformar para formato do frontend
+        const mesaTransformada = {
+          id: mesa.id,
+          titulo: mesa.nome,
+          descricao: mesa.descricao || "Sem descrição disponível",
+          sistema: mesa.sistema,
+          maxJogadores: mesa.qntd_jogadores,
+          jogadoresAtuais: mesa.jogadores_atuais || 0, // Será implementado no backend futuramente
+          criador: criadorNome,
+          criador_id: mesa.criador_id,
+          imagem: mesa.capa || "https://placehold.co/100x100.png",
+          status: status,
+          tags: this.gerarTags(mesa),
+          isMinha: isMinha,
+          mesa_aberta: mesa.mesa_aberta
+        };
+
+        mesasTransformadas.push(mesaTransformada);
+      } catch (error) {
+        console.error('Erro ao transformar mesa:', mesa, error);
+        // Continuar com as outras mesas mesmo se uma falhar
+      }
+    }
+
+    console.log('Mesas transformadas:', mesasTransformadas);
+    return mesasTransformadas;
+  }
+
+  async buscarNomeCriador(criadorId) {
+    try {
+      const response = await fetch(`/users/${criadorId}`, {
+        headers: this.getAuthHeaders()
+      });
+
+      const result = await response.json();
+      
+      if (result.success && result.user && result.user.username) {
+        return result.user.username;
+      } else {
+        return `Usuário ID: ${criadorId}`;
+      }
+    } catch (error) {
+      console.error('Erro ao buscar nome do criador:', error);
+      return `Usuário ID: ${criadorId}`;
+    }
+  }
+
+  determinarStatusMesa(mesa) {
+    // Lógica para determinar status baseado nos dados da mesa
+    const isPublic = mesa.mesa_aberta === 1 || mesa.mesa_aberta === true || mesa.mesa_aberta === "1";
+    
+    if (!isPublic) {
+      return 'private';
+    }
+    
+    // Por enquanto, sempre retornar 'available' para mesas públicas
+    // Futuramente, verificar se está lotada baseado em jogadores_atuais vs qntd_jogadores
+    if (mesa.jogadores_atuais >= mesa.qntd_jogadores) {
+      return 'full';
+    }
+    
+    return 'available';
+  }
+
+  gerarTags(mesa) {
+    const tags = [];
+    
+    // Tag do sistema
+    if (mesa.sistema) {
+      tags.push(mesa.sistema);
+    }
+    
+    // Tag de quantidade de jogadores
+    tags.push(`Até ${mesa.qntd_jogadores} jogadores`);
+    
+    return tags;
+  }
+
+  carregarMesasMockup() {
+    // Dados mockup como fallback
+    console.log('Carregando dados mockup como fallback');
     this.mesas = [
       {
         id: 1,
@@ -75,6 +294,7 @@ class GerenciadorMesas {
     ];
 
     this.mesasFiltradas = [...this.mesas];
+    this.renderizarMesas();
   }
 
   setupEventListeners() {
@@ -107,28 +327,52 @@ class GerenciadorMesas {
     
     sidebarButtons.forEach(button => {
       const text = button.textContent.trim();
+      let filtroSlug = null;
       
       switch(text) {
         case 'Ao Vivo':
-          button.addEventListener('click', () => this.filtrarPorStatus('starting'));
+          filtroSlug = 'ao-vivo';
           break;
         case 'Recomendadas':
-          button.addEventListener('click', () => this.filtrarRecomendadas());
+          filtroSlug = 'recomendadas';
           break;
         case 'Mesas Favoritas':
-          button.addEventListener('click', () => this.filtrarFavoritas());
+          filtroSlug = 'favoritas';
           break;
         case 'Histórico':
-          button.addEventListener('click', () => this.mostrarHistorico());
+          filtroSlug = 'historico';
           break;
         case 'Minhas Mesas':
-          button.addEventListener('click', () => this.filtrarMinhasMesas());
+          filtroSlug = 'minhas-mesas';
           break;
         case 'Criar Mesa':
-          button.addEventListener('click', () => this.criarNovaMesa());
+          filtroSlug = 'criar-mesa';
           break;
+        default:
+          // Botões não reconhecidos ficam sem funcionalidade específica
+          return;
+      }
+      
+      if (filtroSlug) {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.aplicarFiltro(filtroSlug);
+        });
       }
     });
+  }
+
+  // Aplicar filtro e atualizar URL
+  aplicarFiltro(filtro) {
+    if (this.filtroFuncoes[filtro]) {
+      this.atualizarURL(filtro);
+      this.filtroFuncoes[filtro]();
+      this.atualizarBotaoAtivo(filtro);
+      
+      console.log(`Filtro aplicado: ${filtro}`);
+    } else {
+      console.warn(`Filtro não encontrado: ${filtro}`);
+    }
   }
 
   filtrarMesas() {
@@ -191,16 +435,58 @@ class GerenciadorMesas {
     this.renderizarMesas();
   }
 
+  // Novos métodos de filtro
+  filtrarAoVivo() {
+    // Filtrar mesas que estão "ao vivo" - status starting ou recently created
+    this.mesasFiltradas = this.mesas.filter(mesa =>
+      mesa.status === 'starting' || mesa.status === 'available'
+    );
+    this.renderizarMesas();
+  }
+
+  mostrarTodasMesas() {
+    // Mostrar todas as mesas sem filtro
+    this.mesasFiltradas = [...this.mesas];
+    this.renderizarMesas();
+  }
+
+  filtrarDisponiveis() {
+    // Filtrar apenas mesas disponíveis
+    this.mesasFiltradas = this.mesas.filter(mesa => mesa.status === 'available');
+    this.renderizarMesas();
+  }
+
+  filtrarPrivadas() {
+    // Filtrar apenas mesas privadas
+    this.mesasFiltradas = this.mesas.filter(mesa => mesa.status === 'private');
+    this.renderizarMesas();
+  }
+
+  filtrarLotadas() {
+    // Filtrar apenas mesas lotadas
+    this.mesasFiltradas = this.mesas.filter(mesa => mesa.status === 'full');
+    this.renderizarMesas();
+  }
+
   mostrarHistorico() {
-    // Implementar histórico de mesas
-    DiceOrDieUtils.showInfo("Funcionalidade de histórico em desenvolvimento.");
+    // Implementar histórico de mesas - por enquanto, mostrar mesas antigas ou do usuário
+    const currentUser = DiceOrDieUtils.getCurrentUser();
+    if (currentUser) {
+      // Filtrar mesas do usuário + mesas que ele já participou (simulado por now)
+      this.mesasFiltradas = this.mesas.filter(mesa =>
+        mesa.isMinha || mesa.status === 'full'
+      );
+      this.renderizarMesas();
+    } else {
+      DiceOrDieUtils.showInfo("Funcionalidade de histórico requer login.");
+    }
   }
 
   criarNovaMesa() {
     // Redirecionar para página de criação de mesa
     DiceOrDieUtils.showInfo("Redirecionando para criação de mesa...");
     setTimeout(() => {
-      DiceOrDieUtils.navigateTo("mesa.html");
+      window.location.href = "mesa.html?mode=create";
     }, 1000);
   }
 
@@ -268,11 +554,14 @@ class GerenciadorMesas {
       return;
     }
 
-    // Redirecionar para a mesa específica
-    DiceOrDieUtils.showSuccess(`Entrando na mesa: ${mesa.titulo}`);
-    setTimeout(() => {
-      DiceOrDieUtils.navigateTo(`mesa.html?id=${mesaId}`);
-    }, 1000);
+    if (mesa.status === 'private') {
+      window.location.href = `mesa.html?mode=view&id=${mesaId}`;
+
+      return;
+    }
+
+    // Redirecionar para visualização da mesa específica
+      window.location.href = `mesa.html?mode=view&id=${mesaId}`;
   }
 
   adicionarAosFavoritos(mesaId) {

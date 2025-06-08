@@ -5,14 +5,14 @@ class MesasPageConfig {
             {
                 title: 'Mesas',
                 items: [
-                    { text: 'Ao Vivo', type: 'button' },
-                    { text: 'Recomendadas', type: 'button' },
+                    { text: 'Ao Vivo', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html?filtro=ao-vivo')"  },
+                    { text: 'Recomendadas', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html?filtro=recomendadas')"  },
                     { type: 'separator' },
-                    { text: 'Mesas Favoritas', type: 'button' },
-                    { text: 'Histórico', type: 'button' },
-                    { text: 'Minhas Mesas', type: 'button' },
+                    { text: 'Mesas Favoritas', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html?filtro=favoritas')"  },
+                    { text: 'Histórico', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html?filtro=historico')"  },
+                    { text: 'Minhas Mesas', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesas.html?filtro=minhas-mesas')"  },
                     { type: 'separator' },
-                    { text: 'Criar Mesa', type: 'button' }
+                    { text: 'Criar Mesa', type: 'button', onclick: "DiceOrDieUtils.navigateTo('mesa.html')"  }
                 ]
             },
             {
