@@ -268,8 +268,8 @@ class DiceOrDieUtils {
       // Navbar para usuário logado
       return [
         { text: 'Home', url: '../index.html', active: currentPage === 'index' },
-        { text: 'Amigos', url: 'amigos.html', active: currentPage === 'amigos' },
         { text: 'Mesas', url: 'mesas.html', active: currentPage === 'mesas' },
+        { text: 'Minhas Fichas', url: 'fichas.html', active: currentPage === 'fichas' },
         { text: 'Loja', url: 'loja.html', active: currentPage === 'loja' }
       ];
     } else {

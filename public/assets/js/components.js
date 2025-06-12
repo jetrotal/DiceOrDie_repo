@@ -153,7 +153,7 @@ class ComponentManager {
         if (isLoggedIn) {
             return [
                 { text: 'Home', url: '../index.html', active: currentPage === 'index.html' },
-                { text: 'Amigos', url: 'amigos.html', active: currentPage === 'amigos.html' },
+                { text: 'Minhas Fichas', url: 'fichas.html', active: currentPage === 'fichas.html' },
                 { text: 'Mesas', url: 'mesas.html', active: currentPage === 'mesas.html' },
                 { text: 'Loja', url: 'loja.html', active: currentPage === 'loja.html' }
             ];
