@@ -155,7 +155,7 @@ class ComponentManager {
                 { text: 'Home', url: '../index.html', active: currentPage === 'index.html' },
                 { text: 'Minhas Fichas', url: 'fichas.html', active: currentPage === 'fichas.html' },
                 { text: 'Mesas', url: 'mesas.html', active: currentPage === 'mesas.html' },
-                { text: 'Loja', url: 'loja.html', active: currentPage === 'loja.html' }
+                { text: 'Loja', url: 'https://jetrotal.github.io/DiceOrDie/html/loja.html', active: currentPage === 'https://jetrotal.github.io/DiceOrDie/html/loja.html' }
             ];
         } else {
             return [

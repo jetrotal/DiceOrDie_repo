@@ -39,7 +39,7 @@ class FichaConfig {
             const navLinks = [
                 { text: 'Mesas', url: 'mesas.html', active: false },
                 { text: 'Fichas', url: 'ficha.html', active: true },
-                { text: 'Loja', url: 'loja.html', active: false }
+                { text: 'Loja', url: 'https://jetrotal.github.io/DiceOrDie/html/loja.html', active: false }
             ];
             
             const navHTML = navLinks.map(link => 

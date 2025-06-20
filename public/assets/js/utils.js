@@ -270,7 +270,7 @@ class DiceOrDieUtils {
         { text: 'Home', url: '../index.html', active: currentPage === 'index' },
         { text: 'Mesas', url: 'mesas.html', active: currentPage === 'mesas' },
         { text: 'Minhas Fichas', url: 'fichas.html', active: currentPage === 'fichas' },
-        { text: 'Loja', url: 'loja.html', active: currentPage === 'loja' }
+        { text: 'Loja', url: 'https://jetrotal.github.io/DiceOrDie/html/loja.html', active: currentPage === 'loja' }
       ];
     } else {
       // Navbar para visitante

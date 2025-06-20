@@ -543,7 +543,7 @@ class MesaForm extends BaseForm {
                     const mesaId = this.viewingTableId || table.id;
                     if (mesaId) {
                         console.log(`Redirecionando para chat da mesa ${mesaId}`);
-                        window.location.href = `chat.html?mesa_id=${mesaId}`;
+                        window.location.href = `https://jetrotal.github.io/DiceOrDie/html/chat.html?mesa_id=${mesaId}`;
                     }
                 };
                 console.log('✅ Botão participar CRIADO junto com botões de edição');
@@ -573,7 +573,7 @@ class MesaForm extends BaseForm {
                         const mesaId = this.viewingTableId || table.id;
                         if (mesaId) {
                             console.log(`Redirecionando para chat da mesa ${mesaId}`);
-                            window.location.href = `chat.html?mesa_id=${mesaId}`;
+                            window.location.href = `https://jetrotal.github.io/DiceOrDie/html/chat.html?mesa_id=${mesaId}`;
                         }
                     };
                     console.log('✅ Botão participar CRIADO para usuário sem permissão');

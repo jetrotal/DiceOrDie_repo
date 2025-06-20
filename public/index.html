@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice or Die - RPG Online</title>
+    <link rel="stylesheet" href="assets/css/base.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/games.css">
+    <link rel="stylesheet" href="assets/css/forms.css">
+    <style>
+        /* Landing page specific styles */
+        .landing-hero {
+            background: linear-gradient(180deg, #825e37cc, #3c170acc),
+                        url('https://mauroetc.github.io/images/bg_papers.png');
+            border: double 3px #3c170a;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-game);
+        }
+        
+        .landing-hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .landing-hero p {
+            font-size: 20px;
+            color: var(--color-text);
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .cta-button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .cta-primary {
+            background-color: var(--color-status-available);
+            color: var(--color-white);
+        }
+        
+        .cta-secondary {
+            background-color: var(--color-tag-bg);
+            color: var(--color-white);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(#825e3777, #825e3710 50%),
+                        linear-gradient(to top, #825e37cc, #825e3710 50%),
+                        url('https://mauroetc.github.io/images/bg_papers.png');
+            border: double 3px #3c170a;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 10px;
+        }
+        
+        .feature-description {
+            color: var(--color-text);
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .dashboard-welcome {
+            background: linear-gradient(180deg, #825e37cc, #3c170acc),
+                        url('https://mauroetc.github.io/images/bg_papers.png');
+            border: double 3px #3c170a;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .dashboard-welcome h1 {
+            font-size: 36px;
+            color: var(--color-text);
+            margin-bottom: 15px;
+        }
+        
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: var(--color-tag-bg);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #3c170a;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--color-white);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: var(--color-white);
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .action-button {
+            background: linear-gradient(#825e3777, #825e3710 50%),
+                        url('https://mauroetc.github.io/images/bg_papers.png');
+            border: double 2px #3c170a;
+            border-radius: 8px;
+            padding: 20px;
+            text-decoration: none;
+            color: var(--color-text);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .recent-games-section {
+            margin-top: 30px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3c170a;
+            padding-bottom: 10px;
+        }
+
+        .box-shadow-video {
+            
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: -2;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    mix-blend-mode: lighten;
+    opacity: .3;
+    transform: scale(1.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="body-shadow">
+        <video class="box-shadow-video" autoplay loop muted><source src="./assets/bgvid.mp4" type="video/mp4">
+        </video>
+    </div>
+    <div class="main-container">
+        <!-- Left Column (Sidebar) -->
+        <div class="left-column" id="sidebar">
+            <!-- Logo será carregado aqui -->
+            <div id="logo-slot"></div>
+            
+            <!-- Painéis do menu serão carregados dinamicamente -->
+            <div id="menu-panels"></div>
+        </div>
+        
+        <!-- Middle Column -->
+        <div class="middle-column">
+            <!-- Top Navigation -->
+            <div class="top-nav" id="navbar">
+                <!-- Links serão carregados dinamicamente -->
+            </div>
+            
+            <!-- Landing Page Content (for non-logged users) -->
+            <div id="landing-content" style="display: none;">
+                <!-- Hero Section -->
+                <div class="landing-hero" >
+                    <h1 style="color:white !important;">Dice or Die</h1>
+                    <p style="color:white !important;">A plataforma definitiva para RPG online. Crie, participe e viva aventuras épicas!</p>
+                    <div class="cta-buttons">
+                        <a href="pages/login.html" class="cta-button cta-primary">Entrar na Aventura</a>
+                        <a href="pages/conta.html" class="cta-button cta-secondary">Criar Conta</a>
+                    </div>
+                </div>
+                
+                <!-- Features Section -->
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🏛️</div>
+                        <div class="feature-title">Mesas Organizadas</div>
+                        <div class="feature-description">
+                            Crie e participe de mesas de RPG organizadas com sistemas populares como D&D 5e, 3D&T e muito mais.
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📋</div>
+                        <div class="feature-title">Fichas Digitais</div>
+                        <div class="feature-description">
+                            Gerencie suas fichas de personagem online com facilidade e compartilhe com seu grupo.
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <div class="feature-title">Comunidade Ativa</div>
+                        <div class="feature-description">
+                            Conecte-se com outros jogadores, mestres e entusiastas de RPG de todo o Brasil.
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-title">Fácil de Usar</div>
+                        <div class="feature-description">
+                            Interface intuitiva e moderna para uma experiência de jogo sem complicações.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Content (for logged users) -->
+            <div id="dashboard-content" style="display: none;">
+                <!-- Welcome Section -->
+                <div class="dashboard-welcome">
+                    <h1 style="color:white !important;">Bem-vindo de volta, <span id="user-name">Aventureiro</span>! 🎲</h1>
+                    <p style="color:white !important;">Pronto para sua próxima aventura?</p>
+                </div>
+                
+                <!-- Stats Section -->
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="user-tables-count">-</div>
+                        <div class="stat-label">Mesas Ativas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="user-characters-count">-</div>
+                        <div class="stat-label">Personagens</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-sessions">-</div>
+                        <div class="stat-label">Sessões Jogadas</div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="pages/mesas.html" class="action-button">
+                        <strong>🏛️ Explorar Mesas</strong><br>
+                        <small>Encontre novas aventuras</small>
+                    </a>
+                    <a href="pages/fichas.html" class="action-button">
+                        <strong>📋 Minhas Fichas</strong><br>
+                        <small>Gerencie seus personagens</small>
+                    </a>
+                    <a href="pages/mesa.html" class="action-button">
+                        <strong>➕ Criar Mesa</strong><br>
+                        <small>Inicie uma nova campanha</small>
+                    </a>
+                    <a href="pages/conta.html" class="action-button">
+                        <strong>⚙️ Configurações</strong><br>
+                        <small>Gerencie sua conta</small>
+                    </a>
+                </div>
+                
+                <!-- Recent Games Section -->
+                <div class="recent-games-section">
+                    <div id="recent-games-container">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- User Profile será carregado aqui -->
+            <div id="userbar-slot"></div>
+            
+            <!-- Painéis do lado direito serão carregados dinamicamente -->
+            <div id="right-panels"></div>
+        </div>
+    </div>
+
+    <!-- Scripts básicos -->
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/shared/auth.js"></script>
+    
+    <!-- Index page specific script -->
+    <script>
+        class IndexPageManager {
+            constructor() {
+                this.initializePage();
+            }
+            
+            async initializePage() {
+                // Wait for DOM to be ready
+                await this.waitForComponents();
+                
+                // Check authentication status
+                this.checkAuthAndRender();
+                
+                // Set up auth change listener
+                this.setupAuthListener();
+            }
+            
+            async waitForComponents() {
+                // Wait for component system to load
+                if (typeof ComponentManager !== 'undefined') {
+                    // Para index.html, não usar o initializeLayout padrão
+                    // pois ele assume caminhos relativos para pages/
+                    await this.configureNavigation();
+                }
+            }
+            
+            async configureNavigation() {
+                // Configurar sistema de componentes para index.html (raiz)
+                if (typeof ComponentManager !== 'undefined') {
+                    // Carregar componentes manualmente para a raiz
+                    await this.loadComponentsForRoot();
+                    
+                    // Configurar navbar e sidebar
+                    this.configureNavbarForRoot();
+                    this.configureSidebarForRoot();
+                    ComponentManager.configureRightPanel([]);
+                }
+            }
+            
+            async loadComponentsForRoot() {
+                try {
+                    // Carregar logo
+                    const logoResponse = await fetch('components/logo.html');
+                    if (logoResponse.ok) {
+                        const logoHtml = await logoResponse.text();
+                        const logoSlot = document.getElementById('logo-slot');
+                        if (logoSlot) {
+                            logoSlot.innerHTML = logoHtml;
+                        }
+                    }
+                    
+                    // Carregar userbar customizado para index.html
+                    const userbarSlot = document.getElementById('userbar-slot');
+                    if (userbarSlot && typeof DiceOrDieUtils !== 'undefined') {
+                        const userbarContent = this.getCustomUserbarContent();
+                        userbarSlot.innerHTML = userbarContent;
+                        this.initCustomUserDropdown();
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar componentes:', error);
+                }
+            }
+            
+            configureNavbarForRoot() {
+                const isLoggedIn = DiceOrDieUtils.isUserLoggedIn();
+                
+                if (isLoggedIn) {
+                    const navbarConfig = [
+                        { text: 'Home', url: 'index.html', active: true },
+                        { text: 'Mesas', url: 'pages/mesas.html', active: false },
+                        { text: 'Minhas Fichas', url: 'pages/fichas.html', active: false },
+                        { text: 'Loja', url: 'https://jetrotal.github.io/DiceOrDie/html/loja.html', active: false }
+                    ];
+                    ComponentManager.configureNavbar(navbarConfig);
+                } else {
+                    const navbarConfig = [
+                        { text: 'Home', url: 'index.html', active: true },
+                        { text: 'Criar Conta', url: 'pages/conta.html', active: false },
+                        { text: 'Fazer Login', url: 'pages/login.html', active: false }
+                    ];
+                    ComponentManager.configureNavbar(navbarConfig);
+                }
+            }
+            
+            configureSidebarForRoot() {
+                const isLoggedIn = DiceOrDieUtils.isUserLoggedIn();
+                
+                if (isLoggedIn) {
+                    // Sidebar para usuário logado
+                    const sidebarConfig = [
+                        {
+                            title: 'Navegação',
+                            items: [
+                                { text: 'Explorar Mesas', type: 'button', onclick: "window.location.href='pages/mesas.html'" },
+                                { text: 'Minhas Fichas', type: 'button', onclick: "window.location.href='pages/fichas.html'" },
+                                { text: 'Criar Mesa', type: 'button', onclick: "window.location.href='pages/mesa.html'" },
+                                { type: 'separator' },
+                                { text: 'Configurações', type: 'button', onclick: "window.location.href='pages/conta.html'" }
+                            ]
+                        }
+                    ];
+                    ComponentManager.configureSidebar(sidebarConfig);
+                } else {
+                    // Sidebar para visitante
+                    const sidebarConfig = [
+                        {
+                            title: 'Começar',
+                            items: [
+                                { text: 'Fazer Login', type: 'button', onclick: "window.location.href='pages/login.html'" },
+                                { text: 'Criar Conta', type: 'button', onclick: "window.location.href='pages/conta.html'" },
+                                { type: 'separator' },
+                                { text: 'Explorar Mesas', type: 'button', onclick: "window.location.href='pages/mesas.html'" }
+                            ]
+                        }
+                    ];
+                    ComponentManager.configureSidebar(sidebarConfig);
+                }
+            }
+            
+            // Funções customizadas para userbar no index.html
+            getCustomUserbarContent() {
+                const isLoggedIn = DiceOrDieUtils.isUserLoggedIn();
+
+                if (isLoggedIn) {
+                    // Obter dados do usuário logado
+                    const currentUser = DiceOrDieUtils.getCurrentUser();
+                    const userName = currentUser ? currentUser.username || currentUser.nome || 'Usuario' : 'Usuario';
+                    const userPhoto = currentUser && currentUser.img_perfil ?
+                        currentUser.img_perfil :
+                        `https://placehold.co/50x50/4CAF50/FFFFFF/png?text=${userName.charAt(0).toUpperCase()}`;
+                    
+                    // Userbar para usuário logado - com caminhos corretos para index.html
+                    return `
+                        <div class="user-profile" onclick="indexPageManager.toggleCustomDropdown()">
+                            <div class="user-diamond-picture">
+                                <img src="${userPhoto}" alt="Foto de ${userName}" class="user-profile-image">
+                            </div>
+                            <div class="user-dropdown">
+                                <div class="user-name">${userName}</div>
+                                <div class="user-dropdown-content">
+                                    <div class="user-dropdown-item" onclick="indexPageManager.goToProfile()">👤 Meu Perfil</div>
+                                    <div class="user-dropdown-separator"></div>
+                                    <div class="user-dropdown-item" onclick="indexPageManager.logout()">🚪 Sair</div>
+                                </div>
+                            </div>
+                            <div style="opacity:0" class="user-diamond"></div>
+                        </div>
+                    `;
+                } else {
+                    // Userbar para visitante - com caminhos corretos para index.html
+                    return `
+                        <div class="user-profile" onclick="indexPageManager.toggleCustomDropdown()">
+                            <div class="user-diamond-picture">
+                                <img src="https://placehold.co/50x50/4CAF50/FFFFFF/png?text=?" alt="Visitante" class="user-profile-image">
+                            </div>
+                            <div class="user-dropdown">
+                                <div class="user-name">Visitante</div>
+                                <div class="user-dropdown-content">
+                                    <div class="user-dropdown-item" onclick="window.location.href='pages/login.html'">🚪 Fazer Login</div>
+                                    <div class="user-dropdown-item" onclick="window.location.href='pages/conta.html'">✨ Criar Conta</div>
+                                </div>
+                            </div>
+                            <div style="opacity:0" class="user-diamond"></div>
+                        </div>
+                    `;
+                }
+            }
+            
+            initCustomUserDropdown() {
+                const dropdown = document.querySelector('.user-dropdown');
+                const userProfile = document.querySelector('.user-diamond-picture');
+                const userName = document.querySelector('.user-name');
+
+                if (!dropdown) return;
+
+                // Fechar dropdown ao clicar fora
+                document.addEventListener('click', (event) => {
+                    if (!event.target.closest('.user-profile')) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            }
+            
+            toggleCustomDropdown() {
+                const dropdown = document.querySelector('.user-dropdown');
+                if (dropdown) {
+                    dropdown.classList.toggle('show');
+                }
+            }
+            
+            goToProfile() {
+                const dropdown = document.querySelector('.user-dropdown');
+                if (dropdown) dropdown.classList.remove('show');
+                
+                // Obter ID do usuário atual
+                const currentUser = DiceOrDieUtils.getCurrentUser();
+                if (currentUser && currentUser.id) {
+                    // Redirecionar para a página de conta no modo view com o ID do usuário - com caminho correto
+                    window.location.href = `pages/conta.html?mode=view&id=${currentUser.id}`;
+                } else {
+                    DiceOrDieUtils.showError('Erro: usuário não encontrado. Faça login novamente.');
+                    window.location.href = 'pages/login.html';
+                }
+            }
+            
+            async logout() {
+                if (confirm('Tem certeza que deseja sair?')) {
+                    const dropdown = document.querySelector('.user-dropdown');
+                    if (dropdown) dropdown.classList.remove('show');
+                    
+                    try {
+                        // Fazer logout no backend
+                        const response = await fetch('/logout', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            // Limpar dados locais
+                            localStorage.removeItem('diceordie_current_user');
+                            sessionStorage.removeItem('currentUser');
+                            localStorage.removeItem('rememberMe');
+                            localStorage.removeItem('userContact');
+                            
+                            DiceOrDieUtils.showSuccess('Logout realizado com sucesso!');
+                            
+                            // Redirecionar para a landing page
+                            setTimeout(() => {
+                                this.showLandingPage();
+                            }, 1500);
+                        } else {
+                            throw new Error(result.error || 'Erro no logout');
+                        }
+                    } catch (error) {
+                        console.error('Erro no logout:', error);
+                        
+                        // Mesmo com erro no backend, limpar dados locais
+                        localStorage.removeItem('diceordie_current_user');
+                        sessionStorage.removeItem('currentUser');
+                        localStorage.removeItem('rememberMe');
+                        localStorage.removeItem('userContact');
+                        
+                        DiceOrDieUtils.showWarning('Logout realizado localmente.');
+                        this.showLandingPage();
+                    }
+                }
+            }
+            
+            checkAuthAndRender() {
+                const savedUser = localStorage.getItem('diceordie_current_user');
+                
+                if (savedUser) {
+                    try {
+                        const userData = JSON.parse(savedUser);
+                        this.showDashboard(userData);
+                    } catch (error) {
+                        console.error('Erro ao carregar dados do usuário:', error);
+                        this.showLandingPage();
+                    }
+                } else {
+                    this.showLandingPage();
+                }
+            }
+            
+            showLandingPage() {
+                document.getElementById('landing-content').style.display = 'block';
+                document.getElementById('dashboard-content').style.display = 'none';
+                
+                // Reconfigurar navegação e userbar para visitante
+                this.configureNavbarForRoot();
+                this.configureSidebarForRoot();
+                this.updateUserbarForRoot();
+            }
+            
+            async showDashboard(user) {
+                document.getElementById('landing-content').style.display = 'none';
+                document.getElementById('dashboard-content').style.display = 'block';
+                
+                // Update user name
+                const userName = document.getElementById('user-name');
+                if (userName) {
+                    userName.textContent = user.nome || user.username;
+                }
+                
+                // Reconfigurar navegação e userbar para usuário logado
+                this.configureNavbarForRoot();
+                this.configureSidebarForRoot();
+                this.updateUserbarForRoot();
+                
+                // Load user stats
+                await this.loadUserStats(user);
+                
+                // Load recent games
+                await this.loadRecentGames(user);
+            }
+            
+            updateUserbarForRoot() {
+                // Atualizar userbar quando o status de login muda
+                const userbarSlot = document.getElementById('userbar-slot');
+                if (userbarSlot && typeof DiceOrDieUtils !== 'undefined') {
+                    const userbarContent = this.getCustomUserbarContent();
+                    userbarSlot.innerHTML = userbarContent;
+                    this.initCustomUserDropdown();
+                }
+            }
+            
+            async loadUserStats(user) {
+                try {
+                    // Load user tables count
+                    const tablesResponse = await fetch('/api/tables', {
+                        headers: {
+                            'X-User-ID': user.id.toString(),
+                            'X-User-Role': user.role
+                        }
+                    });
+                    
+                    if (tablesResponse.ok) {
+                        const tablesData = await tablesResponse.json();
+                        const userTables = tablesData.tables ? tablesData.tables.filter(table => 
+                            table.creator_id === user.id || 
+                            (table.players && table.players.includes(user.id))
+                        ) : [];
+                        document.getElementById('user-tables-count').textContent = userTables.length;
+                    }
+                    
+                    // Load user characters count
+                    const charactersResponse = await fetch('/api/characters', {
+                        headers: {
+                            'X-User-ID': user.id.toString(),
+                            'X-User-Role': user.role
+                        }
+                    });
+                    
+                    if (charactersResponse.ok) {
+                        const charactersData = await charactersResponse.json();
+                        const userCharacters = charactersData.characters ? 
+                            charactersData.characters.filter(char => char.user_id === user.id) : [];
+                        document.getElementById('user-characters-count').textContent = userCharacters.length;
+                    }
+                    
+                    // Mock sessions count for now
+                    document.getElementById('total-sessions').textContent = Math.floor(Math.random() * 20) + 5;
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas:', error);
+                    // Set default values on error
+                    document.getElementById('user-tables-count').textContent = '0';
+                    document.getElementById('user-characters-count').textContent = '0';
+                    document.getElementById('total-sessions').textContent = '0';
+                }
+            }
+            
+            async loadRecentGames(user) {
+                try {
+                    const response = await fetch('/api/tables', {
+                        headers: {
+                            'X-User-ID': user.id.toString(),
+                            'X-User-Role': user.role
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const userTables = data.tables ? data.tables.filter(table => 
+                            table.creator_id === user.id || 
+                            (table.players && table.players.includes(user.id))
+                        ).slice(0, 3) : []; // Show only 3 most recent
+                        
+                        this.renderRecentGames(userTables);
+                    } else {
+                        this.renderNoRecentGames();
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar mesas recentes:', error);
+                    this.renderNoRecentGames();
+                }
+            }
+            
+            renderRecentGames(tables) {
+                const container = document.getElementById('recent-games-container');
+                
+                if (tables.length === 0) {
+                    this.renderNoRecentGames();
+                    return;
+                }
+                
+                const gamesHTML = tables.map(table => `
+                    <div class="game-card" onclick="window.location.href='pages/mesa.html?id=${table.id}'">
+                        <img src="${table.image_url || 'https://placehold.co/100x100.png'}" 
+                             alt="${table.title}" class="game-image">
+                        <div class="game-info">
+                            <div class="game-title">${table.title}</div>
+                            <div class="game-description">${table.description || 'Sem descrição'}</div>
+                            <div class="game-tags">
+                                <div class="game-tag">${table.system || 'Sistema não definido'}</div>
+                                <div class="game-tag">Até ${table.max_players || 6} jogadores</div>
+                                <div class="game-creator">Mesa por ${table.creator_name || 'Usuário'}</div>
+                            </div>
+                        </div>
+                        <div class="game-status status-available">Ativa</div>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = gamesHTML;
+            }
+            
+            renderNoRecentGames() {
+                const container = document.getElementById('recent-games-container');
+                container.innerHTML = `
+                    <div class="no-results">
+                        <h3>🎲 Nenhuma mesa encontrada</h3>
+                        <p>Você ainda não está participando de nenhuma mesa.<br>
+                        <a href="pages/mesas.html" style="color: var(--color-status-available);">Explore mesas disponíveis</a> 
+                        ou <a href="pages/mesa.html" style="color: var(--color-status-available);">crie sua própria mesa</a>!</p>
+                    </div>
+                `;
+            }
+            
+            setupAuthListener() {
+                // Listen for storage changes (login/logout in other tabs)
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'diceordie_current_user') {
+                        this.checkAuthAndRender();
+                    }
+                });
+                
+                // Listen for custom auth events
+                document.addEventListener('userLoggedIn', (e) => {
+                    this.showDashboard(e.detail.user);
+                });
+                
+                document.addEventListener('userLoggedOut', () => {
+                    this.showLandingPage();
+                });
+            }
+        }
+        
+        // Initialize when DOM is ready
+        let indexPageManager;
+        document.addEventListener('DOMContentLoaded', () => {
+            indexPageManager = new IndexPageManager();
+            // Tornar disponível globalmente para o dropdown
+            window.indexPageManager = indexPageManager;
+        });
+    </script>
+</body>
+</html>
